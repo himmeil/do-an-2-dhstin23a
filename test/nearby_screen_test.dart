@@ -52,6 +52,34 @@ Place _place(String name, double lat, {double longitude = 105}) => Place.create(
 );
 
 void main() {
+  testWidgets('bộ lọc chỉ hiện sau khi bấm nút Lọc', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: NearbyScreen(
+          service: _FakePlaceService([_place('Quán xem thử', 10)]),
+          geocoder: _FakeGeocoder(),
+          locationService: _FakeLocationService(
+            const LocationResult.ok(LatLng(10, 105)),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byTooltip('Dùng GPS'));
+    await tester.pumpAndSettle();
+    expect(find.text('Tìm theo tên hoặc địa chỉ'), findsOneWidget);
+    expect(find.text('Quán ăn'), findsNothing);
+    expect(find.text('Bán kính:'), findsNothing);
+    expect(find.text('1 km'), findsNothing);
+
+    await tester.tap(find.byKey(const ValueKey('toggle-nearby-filters')));
+    await tester.pumpAndSettle();
+    expect(find.text('Quán ăn'), findsOneWidget);
+    expect(find.text('Bán kính:'), findsOneWidget);
+    expect(find.text('1 km'), findsOneWidget);
+  });
+
   testWidgets('chưa có dữ liệu thì mời nạp dữ liệu lần đầu', (tester) async {
     await tester.pumpWidget(
       MaterialApp(

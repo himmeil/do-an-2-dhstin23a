@@ -4,7 +4,7 @@ App Flutter chỉ làm một việc: **tìm địa điểm xung quanh vị trí 
 
 - Tiến độ chức năng: [tiendothuchien.md](tiendothuchien.md).
 - Dùng GPS theo lựa chọn của người dùng hoặc chọn vị trí thủ công; liệt kê địa điểm gần nhất trước và hiện khoảng cách.
-- Lọc theo loại (quán ăn, cà phê, nhà trọ, vui chơi, mua sắm, khác), bán kính (1 / 2 / 5 / 10 km / tất cả) và từ khóa (tìm không dấu được).
+- Lọc theo loại (quán ăn, cà phê, nhà trọ, vui chơi, mua sắm, khác), bán kính (1 / 2 / 5 / 10 km / tất cả) và từ khóa (tìm không dấu được). Bộ lọc loại và bán kính chỉ mở khi bấm **Lọc** cạnh ô tìm kiếm.
 - GPS không tự bật khi mở app. Người dùng có thể bấm thanh vị trí ở đầu màn để nhập địa chỉ (chỉ tìm trong TP. Cao Lãnh, dùng Nominatim/OpenStreetMap) hoặc chọn một địa điểm đã nạp làm điểm xuất phát mà không cần cấp quyền vị trí; nút GPS trên thanh công cụ chỉ lấy vị trí khi người dùng chủ động chọn.
 - Xem dạng danh sách hoặc bản đồ; dùng nút góc trên bên phải để chuyển giữa bản đồ đường phố OpenStreetMap và ảnh vệ tinh Esri. Trang chi tiết cũng có nút chuyển lớp bản đồ và nút **Chỉ đường** (mở Google Maps).
 - Trên bản đồ có thể xem ranh giới phường Cao Lãnh (dữ liệu OpenStreetMap).

@@ -53,6 +53,7 @@ class _NearbyScreenState extends State<NearbyScreen> {
   double? _radiusKm = 5;
   String _query = '';
   bool _mapMode = false;
+  bool _filtersExpanded = false;
 
   @override
   void dispose() {
@@ -240,72 +241,96 @@ class _NearbyScreenState extends State<NearbyScreen> {
       children: [
         Padding(
           padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
-          child: TextField(
-            controller: _searchController,
-            onChanged: (value) => setState(() => _query = value),
-            decoration: InputDecoration(
-              hintText: 'Tìm theo tên hoặc địa chỉ',
-              prefixIcon: const Icon(Icons.search),
-              suffixIcon: _query.isEmpty
-                  ? null
-                  : IconButton(
-                      icon: const Icon(Icons.clear),
-                      onPressed: () {
-                        _searchController.clear();
-                        setState(() => _query = '');
-                      },
-                    ),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(AppSizes.radius),
-              ),
-              isDense: true,
-            ),
-          ),
-        ),
-        SizedBox(
-          height: 48,
-          child: ListView(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 8),
+          child: Row(
             children: [
-              for (final entry in [
-                ('all', 'Tất cả'),
-                for (final c in placeCategories) (c.code, c.label),
-              ])
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4),
-                  child: ChoiceChip(
-                    label: Text(entry.$2),
-                    selected: _category == entry.$1,
-                    onSelected: (_) => setState(() => _category = entry.$1),
+              OutlinedButton.icon(
+                key: const ValueKey('toggle-nearby-filters'),
+                onPressed: () =>
+                    setState(() => _filtersExpanded = !_filtersExpanded),
+                icon: Icon(
+                  _filtersExpanded ? Icons.filter_list_off : Icons.filter_list,
+                  size: 18,
+                ),
+                label: const Text('Lọc'),
+                style: OutlinedButton.styleFrom(
+                  minimumSize: const Size(0, 48),
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  visualDensity: VisualDensity.compact,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: TextField(
+                  controller: _searchController,
+                  onChanged: (value) => setState(() => _query = value),
+                  decoration: InputDecoration(
+                    hintText: 'Tìm theo tên hoặc địa chỉ',
+                    prefixIcon: const Icon(Icons.search),
+                    suffixIcon: _query.isEmpty
+                        ? null
+                        : IconButton(
+                            icon: const Icon(Icons.clear),
+                            onPressed: () {
+                              _searchController.clear();
+                              setState(() => _query = '');
+                            },
+                          ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(AppSizes.radius),
+                    ),
+                    isDense: true,
                   ),
                 ),
+              ),
             ],
           ),
         ),
-        if (_origin != null)
+        if (_filtersExpanded) ...[
           SizedBox(
-            height: 44,
+            height: 48,
             child: ListView(
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 8),
               children: [
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 8),
-                  child: Center(child: Text('Bán kính:')),
-                ),
-                for (final km in _radii)
+                for (final entry in [
+                  ('all', 'Tất cả'),
+                  for (final c in placeCategories) (c.code, c.label),
+                ])
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 4),
                     child: ChoiceChip(
-                      label: Text(_radiusLabel(km)),
-                      selected: _radiusKm == km,
-                      onSelected: (_) => setState(() => _radiusKm = km),
+                      label: Text(entry.$2),
+                      selected: _category == entry.$1,
+                      onSelected: (_) => setState(() => _category = entry.$1),
                     ),
                   ),
               ],
             ),
           ),
+          if (_origin != null)
+            SizedBox(
+              height: 44,
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 8),
+                    child: Center(child: Text('Bán kính:')),
+                  ),
+                  for (final km in _radii)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      child: ChoiceChip(
+                        label: Text(_radiusLabel(km)),
+                        selected: _radiusKm == km,
+                        onSelected: (_) => setState(() => _radiusKm = km),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+        ],
       ],
     );
   }
