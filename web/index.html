@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base href="$FLUTTER_BASE_HREF">
+
+  <meta charset="UTF-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Tìm địa điểm xung quanh vị trí hiện tại.">
+  <meta name="theme-color" content="#102b22">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="Địa điểm quanh đây">
+
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+  <link rel="preload" href="assets/assets/splash/launch.jpg" as="image" fetchpriority="high">
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="styles/splash.css">
+
+  <title>Địa điểm quanh đây</title>
+</head>
+<body>
+  <div id="app-loading" role="status" aria-label="Đang mở ứng dụng">
+    <img src="assets/assets/splash/launch.jpg" alt="">
+    <div id="app-loading-content">
+      <p id="app-loading-title">Địa điểm quanh đây</p>
+      <div
+        id="app-loading-indicator"
+        role="progressbar"
+        aria-label="Đang khởi tạo ứng dụng"
+        aria-valuemin="0"
+        aria-valuemax="100"
+      >
+        <span id="app-loading-progress"></span>
+        <span id="app-loading-percent">0%</span>
+      </div>
+      <p id="app-loading-status" aria-live="polite">
+        <span id="app-loading-status-text">ĐANG KHỞI TẠO</span>
+        <span class="loading-dot" aria-hidden="true">.</span>
+        <span class="loading-dot" aria-hidden="true">.</span>
+        <span class="loading-dot" aria-hidden="true">.</span>
+      </p>
+    </div>
+  </div>
+  <script src="scripts/splash.js"></script>
+  <script src="flutter_bootstrap.js" async></script>
+</body>
+</html>
