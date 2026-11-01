@@ -12,11 +12,11 @@ Tiến độ chức năng hiện tại được ghi tại [tiendothuchien.md](..
 | `tro/` | Để trống | Nhà trọ (mã loại `tro`) |
 | `mua_sam/` | Để trống | Cửa hàng, siêu thị (mã loại `mua_sam`) |
 | `ho_so_sv/` | Để trống | Hồ sơ sinh viên |
-| `hoac_khu_benh/` | Để trống | Minh chứng đánh dấu bản quyền |
-| `quach_thanh/` | Để trống | Minh chứng đánh dấu bản quyền |
+| `hoac_khu_benh/` | Minh chứng | Giữ cấu trúc module trong đồ án; chưa có chức năng thực tế |
+| `quach_thanh/` | Minh chứng | Giữ cấu trúc module trong đồ án; chưa có chức năng thực tế |
 
 Quy ước:
 - Đặt mã mới trong module sở hữu chức năng; chỉ để ở `core/` khi thực sự dùng chung.
 - Màn hình đi qua lớp `services/`, không gọi lưu trữ trực tiếp từ `screens/`.
 - Dùng chung mã loại ở `dia_diem/du_lieu/models/place_category.dart` khi thêm loại địa điểm.
-- File `.gitkeep` chỉ để Git giữ thư mục rỗng; xóa đi khi đã có file thật.
+- File `.gitkeep` trong hai module minh chứng giữ thư mục rỗng trên Git; không đồng nghĩa chức năng đã được triển khai.

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "498440478152",
+    "project_id": "do-an-2-b1f35",
+    "storage_bucket": "do-an-2-b1f35.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:498440478152:android:d2d71ddabced5199ddf4fd",
+        "android_client_info": {
+          "package_name": "vn.diadiem.quanhday"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDJywiQhIEK4JU9eKTvVtNMI_oAGij3cds"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -5,6 +5,22 @@
 Cho phép người dùng tìm địa điểm quanh một vị trí tự chọn khi không muốn bật
 GPS hoặc cấp quyền vị trí.
 
+## Kết nối Firebase
+
+- Tạo project Firebase `do-an-2-b1f35` và đăng ký ứng dụng cho Android, iOS, Web.
+- Thêm `firebase_core`, tạo `lib/firebase_options.dart` bằng FlutterFire CLI và
+  khởi tạo Firebase trước khi chạy giao diện trong `lib/main.dart`.
+- Android dùng cấu hình `android/app/google-services.json`; iOS, Android và Web
+  dùng các tùy chọn nền tảng trong `firebase_options.dart`.
+- Đây mới là bước khởi tạo Firebase Core. Dữ liệu địa điểm vẫn được lưu cục bộ;
+  Authentication, Firestore và Storage chưa được kết nối.
+- Cấu hình Firebase Hosting phục vụ bản Flutter Web tại
+  `https://do-an-2-b1f35.web.app`. GitHub Actions build ứng dụng và deploy bản
+  chính khi có push lên `main`, đồng thời tạo preview cho Pull Request nội bộ.
+- GitHub Actions đọc service-account từ secret
+  `FIREBASE_SERVICE_ACCOUNT_DO_AN_2_B1F35`; không lưu khóa service-account trong
+  repository.
+
 ## Nội dung đã thay đổi
 
 - Không tự gọi GPS khi mở màn hình tìm kiếm; GPS chỉ được gọi khi người dùng
@@ -36,10 +52,10 @@ chưa được xem là chức năng đã triển khai trong ứng dụng hiện 
 
 1. **Chuẩn bị phần cứng:** chuẩn bị máy tính phát triển, thiết bị Android/iOS
    để kiểm thử và các thiết bị cần thiết cho quá trình triển khai.
-2. **Thiết lập Firebase:** tạo Firebase project và cấu hình các dịch vụ cần
-   dùng cho backend của phiên bản mở rộng.
-3. **Thiết lập Flutter project:** cấu hình ứng dụng Flutter để kết nối với
-   Firebase và tổ chức các màn hình, luồng chức năng.
+2. **Thiết lập Firebase:** đã tạo project và cấu hình FlutterFire cho Android,
+   iOS, Web; cần bật và thiết lập các dịch vụ backend theo nhu cầu.
+3. **Thiết lập Flutter project:** đã kết nối Firebase Core; tiếp tục tổ chức
+   các màn hình, luồng chức năng cần đồng bộ dữ liệu hoặc tài khoản.
 4. **Phát triển backend logic:** xây dựng xử lý dữ liệu địa điểm, sự kiện,
    ưu đãi, đánh giá, tài khoản và quyền theo vai trò.
 5. **Phát triển UI/UX:** thiết kế giao diện cho người đăng địa điểm và sinh

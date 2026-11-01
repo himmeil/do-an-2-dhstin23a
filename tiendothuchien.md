@@ -1,7 +1,7 @@
 # Tiến độ thực hiện
 
 Tài liệu này ghi nhận các chức năng đã có trong mã nguồn của ứng dụng. Cập nhật
-ngày 21/10/2026.
+ngày 01/11/2026.
 
 ## Chức năng đã có
 
@@ -17,6 +17,10 @@ ngày 21/10/2026.
 - [x] Xem chi tiết địa điểm và mở chỉ đường bằng Google Maps.
 - [x] Nạp địa điểm từ CSV/TSV hoặc JSON, thêm địa điểm thủ công và tạo dữ liệu mẫu.
 - [x] Lưu dữ liệu cục bộ bằng SharedPreferences; không cần tài khoản hay máy chủ riêng.
+- [x] Khởi tạo Firebase Core với cấu hình FlutterFire cho Android, iOS và Web.
+- [x] Cấu hình Firebase Hosting cho Flutter Web và GitHub Actions tự build/deploy khi cập nhật nhánh `main`.
+- [ ] Chuyển dữ liệu địa điểm sang Firebase; hiện ứng dụng vẫn chỉ lưu dữ liệu trên thiết bị.
+- [ ] Tích hợp Firebase Authentication, Firestore hoặc Storage khi hoàn thiện các chức năng cần tài khoản và đồng bộ dữ liệu.
 
 ## Kiểm thử hiện có
 
@@ -27,8 +31,8 @@ chuyển lớp bản đồ đã chạy thành công.
 
 ## Phạm vi chưa triển khai
 
-Các thư mục tính năng để trống được liệt kê trong
-[`lib/features/README.md`](lib/features/README.md) chưa được xem là chức năng
+Các module tính năng chưa triển khai được liệt kê trong
+[`lib/features/README.md`](lib/features/README.md); chưa được xem là chức năng
 đã hoàn thành của ứng dụng.
 
 ## Cách cập nhật tiến độ

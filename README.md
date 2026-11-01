@@ -9,6 +9,8 @@ App Flutter chỉ làm một việc: **tìm địa điểm xung quanh vị trí 
 - Xem dạng danh sách hoặc bản đồ; dùng nút góc trên bên phải để chuyển giữa bản đồ đường phố OpenStreetMap và ảnh vệ tinh Esri. Trang chi tiết cũng có nút chuyển lớp bản đồ và nút **Chỉ đường** (mở Google Maps).
 - Trên bản đồ có thể xem ranh giới phường Cao Lãnh (dữ liệu OpenStreetMap).
 - Lần đầu chưa có dữ liệu: app mời **Nạp dữ liệu**. Màn nạp có 3 cách: dán CSV/JSON (hoặc copy từ Excel/Google Sheets), thêm tay từng điểm, hoặc tạo dữ liệu mẫu quanh bạn để thử.
+- Firebase Core đã được cấu hình cho Android, iOS và Web bằng FlutterFire; cấu hình nền tảng nằm trong `lib/firebase_options.dart`. Chạy lại `flutterfire configure --project=do-an-2-b1f35 --platforms=android,ios,web` khi thêm nền tảng hoặc cấu hình Firebase.
+- Bản Web được cấu hình deploy lên Firebase Hosting tại `https://do-an-2-b1f35.web.app`. GitHub Actions build và deploy tự động khi có push lên `main`; Pull Request nội bộ có thể tạo bản preview. Thiết lập hosting nằm trong `firebase.json`, workflow trong `.github/workflows/`.
 
 ## Tài nguyên đồ họa
 
@@ -44,8 +46,11 @@ flutter run               # máy thật hoặc emulator Android
 
 ## Dữ liệu và quyền riêng tư
 
-- Địa điểm được **lưu ngay trên máy** (localStorage khi chạy web, SharedPreferences trên Android/iOS). Không có Firebase, không có máy chủ riêng, không tài khoản.
-- App gọi mạng tới OpenStreetMap (ô bản đồ đường phố và tìm địa chỉ qua Nominatim) và Esri (ô ảnh vệ tinh khi bạn chọn lớp vệ tinh).
+- Địa điểm được **lưu ngay trên máy** (localStorage khi chạy web, SharedPreferences trên Android/iOS); hiện ứng dụng chưa đồng bộ dữ liệu lên máy chủ và chưa yêu cầu người dùng đăng nhập.
+- Firebase Core được khởi tạo khi mở app, nhưng dữ liệu địa điểm hiện vẫn chỉ lưu trên máy; Firebase Authentication, Firestore và Storage chưa được tích hợp.
+- App gọi mạng tới OpenStreetMap (ô bản đồ đường phố và tìm địa chỉ qua Nominatim) và Esri (ô ảnh vệ tinh khi bạn chọn lớp vệ tinh); Firebase SDK đã sẵn sàng để dùng khi tích hợp các dịch vụ Firebase.
+- `firebase_options.dart` và `google-services.json` là cấu hình client dùng để kết nối Firebase, không phải khóa bí mật. Không đưa service-account JSON, private key hoặc thông tin Firebase Admin vào ứng dụng hay repository.
+- Workflow GitHub dùng secret `FIREBASE_SERVICE_ACCOUNT_DO_AN_2_B1F35`; secret được lưu trong GitHub Actions Secrets, không lưu trong mã nguồn. Để thiết lập lại liên kết repository: chạy `firebase init hosting:github` và làm theo hướng dẫn đăng nhập GitHub.
 - Chạy web mỗi lần ở một cổng khác (`localhost:xxxx`) sẽ có kho dữ liệu riêng. Muốn giữ dữ liệu giữa các lần chạy, đặt cổng cố định: `flutter run -d edge --web-port 5000` hoặc `flutter run -d web-server --web-port 5000`.
 - Xóa dữ liệu: xóa dữ liệu của app, hoặc xóa dữ liệu trang trong trình duyệt.
 - Bộ lọc khoảng cách chạy trên máy, phù hợp vài nghìn địa điểm.
