@@ -4,8 +4,10 @@ import 'package:latlong2/latlong.dart';
 
 import '../cao_lanh_ward_boundary.dart';
 import '../map_tile_source.dart';
+import 'foreign_countries_layer.dart';
 import 'map_source_attribution.dart';
 import 'map_style_button.dart';
+import 'vietnam_islands_map_inset.dart';
 import '../../tim_kiem/widgets/place_tile.dart';
 
 /// Bản đồ OpenStreetMap hiện các địa điểm tìm được và vị trí của người dùng.
@@ -14,14 +16,26 @@ class NearbyMap extends StatefulWidget {
     required this.hits,
     required this.origin,
     required this.onSelect,
+    this.onChooseOrigin,
+    this.isManualOrigin = false,
+    this.canUseSatellite = true,
+    this.onRequireSignIn,
     this.zoom = 15,
+    this.radiusKm,
+    this.simplifyForeignCountries = false,
     super.key,
   });
 
   final List<PlaceHit> hits;
   final LatLng? origin;
   final ValueChanged<PlaceHit> onSelect;
+  final ValueChanged<LatLng>? onChooseOrigin;
+  final bool isManualOrigin;
+  final bool canUseSatellite;
+  final VoidCallback? onRequireSignIn;
   final double zoom;
+  final double? radiusKm;
+  final bool simplifyForeignCountries;
 
   @override
   State<NearbyMap> createState() => _NearbyMapState();
@@ -43,18 +57,21 @@ class _NearbyMapState extends State<NearbyMap> {
       children: [
         FlutterMap(
           // Đổi key khi có vị trí mới để bản đồ dịch về đúng chỗ.
-          key: ValueKey(widget.origin),
+          key: const ValueKey('nearby-map-main'),
           options: MapOptions(
             initialCenter: _center,
             initialZoom: widget.origin == null && widget.hits.isEmpty
                 ? 11
                 : widget.zoom,
+            onLongPress: (_, point) => widget.onChooseOrigin?.call(point),
           ),
           children: [
             TileLayer(
               urlTemplate: _style.tileUrl,
               userAgentPackageName: 'vn.diadiem.quanhday',
             ),
+            if (widget.simplifyForeignCountries)
+              const ForeignCountriesLayer(),
             PolygonLayer(
               polygons: [
                 Polygon(
@@ -65,6 +82,19 @@ class _NearbyMapState extends State<NearbyMap> {
                 ),
               ],
             ),
+            if (widget.origin != null && widget.radiusKm != null)
+              CircleLayer(
+                circles: [
+                  CircleMarker(
+                    point: widget.origin!,
+                    radius: widget.radiusKm! * 1000,
+                    useRadiusInMeter: true,
+                    color: colors.primary.withValues(alpha: 0.09),
+                    borderColor: colors.primary.withValues(alpha: 0.75),
+                    borderStrokeWidth: 2,
+                  ),
+                ],
+              ),
             MarkerLayer(
               markers: [
                 if (widget.origin != null)
@@ -73,7 +103,9 @@ class _NearbyMapState extends State<NearbyMap> {
                     width: 28,
                     height: 28,
                     child: Icon(
-                      Icons.my_location,
+                      widget.isManualOrigin
+                          ? Icons.location_pin
+                          : Icons.my_location,
                       color: colors.primary,
                       size: 28,
                     ),
@@ -101,8 +133,11 @@ class _NearbyMapState extends State<NearbyMap> {
             MapSourceAttribution(style: _style, includeOpenStreetMapData: true),
           ],
         ),
+        const VietnamIslandsMapInset(),
         MapStyleButton(
           style: _style,
+          canUseSatellite: widget.canUseSatellite,
+          onRequireSignIn: widget.onRequireSignIn,
           onChanged: (style) => setState(() => _style = style),
         ),
       ],

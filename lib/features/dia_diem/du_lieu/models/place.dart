@@ -2,7 +2,7 @@ import 'package:latlong2/latlong.dart';
 
 import '../../../../core/utils/text_utils.dart';
 
-/// Địa điểm, lưu cục bộ trên máy.
+/// Dữ liệu địa điểm dùng chung cho lưu cục bộ và Firestore.
 class Place {
   const Place({
     required this.id,

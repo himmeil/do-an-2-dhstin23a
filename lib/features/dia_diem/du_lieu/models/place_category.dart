@@ -25,6 +25,12 @@ const placeCategories = <PlaceCategory>[
     'coffee',
     'tra sua',
   ]),
+  PlaceCategory('truong_hoc', 'Trường học', Icons.school_outlined, [
+    'truong hoc',
+    'school',
+    'college',
+    'university',
+  ]),
   PlaceCategory('tro', 'Nhà trọ', Icons.home_work_outlined, [
     'nha tro',
     'phong tro',

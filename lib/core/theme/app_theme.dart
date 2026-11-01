@@ -7,6 +7,7 @@ class AppTheme {
     ThemeData(
       colorScheme: ColorScheme.fromSeed(seedColor: AppColors.primary),
       scaffoldBackgroundColor: AppColors.background,
+      fontFamily: 'UVNVan',
       useMaterial3: true,
     ),
   );
@@ -17,6 +18,7 @@ class AppTheme {
         seedColor: AppColors.primary,
         brightness: Brightness.dark,
       ),
+      fontFamily: 'UVNVan',
       useMaterial3: true,
     ),
   );

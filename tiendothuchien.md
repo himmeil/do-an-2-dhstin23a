@@ -19,15 +19,19 @@ ngày 01/11/2026.
 - [x] Lưu dữ liệu cục bộ bằng SharedPreferences; không cần tài khoản hay máy chủ riêng.
 - [x] Khởi tạo Firebase Core với cấu hình FlutterFire cho Android, iOS và Web.
 - [x] Cấu hình Firebase Hosting cho Flutter Web và GitHub Actions tự build/deploy khi cập nhật nhánh `main`.
-- [ ] Chuyển dữ liệu địa điểm sang Firebase; hiện ứng dụng vẫn chỉ lưu dữ liệu trên thiết bị.
-- [ ] Tích hợp Firebase Authentication, Firestore hoặc Storage khi hoàn thiện các chức năng cần tài khoản và đồng bộ dữ liệu.
+- [x] Tích hợp Firebase Authentication email/mật khẩu, đọc danh sách địa điểm Firestore, lưu/lọc yêu thích theo tài khoản và phân quyền admin bằng `/admins/{uid}`.
+- [x] Cho phép xem công khai với tư cách khách; yêu cầu đăng nhập để tìm/lọc địa điểm, tra vị trí thủ công và xem ảnh vệ tinh.
+- [x] Admin có thể nhập dữ liệu vào bản nháp cục bộ riêng, xem lại và xác nhận publish lên Firestore; dữ liệu local cũ được giữ nguyên, không tự chuyển lên cloud.
+- [x] Khai báo Firestore Rules trong cấu hình Firebase; client không thể tự cấp quyền admin.
+- [ ] Bật Firestore API, tạo database `asia-southeast1`, bật Email/Password trong Firebase Authentication và tạo document admin trên Firebase Console; đây là bước cấu hình project cần hoàn tất trước khi dùng backend thật.
+- [ ] Tích hợp Firebase Storage để lưu ảnh địa điểm; hiện chức năng này chưa có.
 
 ## Kiểm thử hiện có
 
 Thư mục `test/` có kiểm thử cho vị trí, mã hóa địa chỉ, lưu địa điểm, bản đồ,
 màn hình tìm kiếm, phân tích dữ liệu nhập, splash và xử lý văn bản. Kiểm thử
-màn hình tìm kiếm cho luồng xem ranh giới phường và bản đồ chi tiết cho luồng
-chuyển lớp bản đồ đã chạy thành công.
+màn hình tìm kiếm bao gồm quyền hiển thị thao tác bản nháp theo vai trò, luồng
+chọn vị trí thủ công, ranh giới phường và chuyển lớp bản đồ.
 
 ## Phạm vi chưa triển khai
 

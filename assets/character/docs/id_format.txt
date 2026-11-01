@@ -1,0 +1,1 @@
+(card_%d_%d,cardId,evo);

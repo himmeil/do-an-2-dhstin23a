@@ -7,9 +7,18 @@ import '../../tim_kiem/utils/geo.dart';
 import '../../tim_kiem/widgets/place_tile.dart';
 
 class PlaceDetailScreen extends StatelessWidget {
-  const PlaceDetailScreen({required this.hit, super.key});
+  const PlaceDetailScreen({
+    required this.hit,
+    this.isOpenStreetMapPlace = false,
+    this.canUseSatellite = true,
+    this.onRequireSignIn,
+    super.key,
+  });
 
   final PlaceHit hit;
+  final bool isOpenStreetMapPlace;
+  final bool canUseSatellite;
+  final VoidCallback? onRequireSignIn;
 
   @override
   Widget build(BuildContext context) {
@@ -53,8 +62,20 @@ class PlaceDetailScreen extends StatelessWidget {
               child: _InfoRow(icon: Icons.phone_outlined, text: place.phone),
             ),
           ],
+          if (isOpenStreetMapPlace) ...[
+            const SizedBox(height: 8),
+            const Text(
+              'Dữ liệu địa điểm © OpenStreetMap contributors',
+              style: TextStyle(fontSize: 12),
+            ),
+          ],
           const SizedBox(height: 20),
-          LocationMap(latitude: place.latitude, longitude: place.longitude),
+          LocationMap(
+            latitude: place.latitude,
+            longitude: place.longitude,
+            canUseSatellite: canUseSatellite,
+            onRequireSignIn: onRequireSignIn,
+          ),
         ],
       ),
     );

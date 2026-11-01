@@ -6,6 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../map_tile_source.dart';
 import 'map_source_attribution.dart';
 import 'map_style_button.dart';
+import 'map_territorial_note.dart';
 
 /// Đường dẫn chỉ đường tới tọa độ (mở bằng app/website Google Maps, không cần API key).
 Uri directionsUri(double latitude, double longitude) => Uri.https(
@@ -27,6 +28,8 @@ class LocationMap extends StatefulWidget {
     required this.longitude,
     this.height = 220,
     this.openUrl = _launchExternal,
+    this.canUseSatellite = true,
+    this.onRequireSignIn,
     super.key,
   });
 
@@ -34,6 +37,8 @@ class LocationMap extends StatefulWidget {
   final double longitude;
   final double height;
   final OpenUrl openUrl;
+  final bool canUseSatellite;
+  final VoidCallback? onRequireSignIn;
 
   @override
   State<LocationMap> createState() => _LocationMapState();
@@ -86,8 +91,11 @@ class _LocationMapState extends State<LocationMap> {
                     MapSourceAttribution(style: _style),
                   ],
                 ),
+                const MapTerritorialNote(),
                 MapStyleButton(
                   style: _style,
+                  canUseSatellite: widget.canUseSatellite,
+                  onRequireSignIn: widget.onRequireSignIn,
                   onChanged: (style) => setState(() => _style = style),
                 ),
               ],

@@ -13,10 +13,18 @@ class PlaceHit {
 }
 
 class PlaceTile extends StatelessWidget {
-  const PlaceTile({required this.hit, required this.onTap, super.key});
+  const PlaceTile({
+    required this.hit,
+    required this.onTap,
+    this.isFavorite = false,
+    this.onFavoriteTap,
+    super.key,
+  });
 
   final PlaceHit hit;
   final VoidCallback onTap;
+  final bool isFavorite;
+  final VoidCallback? onFavoriteTap;
 
   @override
   Widget build(BuildContext context) {
@@ -43,15 +51,30 @@ class PlaceTile extends StatelessWidget {
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
         ),
-        trailing: hit.distance == null
-            ? null
-            : Text(
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (hit.distance != null)
+              Text(
                 formatDistance(hit.distance!),
                 style: TextStyle(
                   color: colors.primary,
                   fontWeight: FontWeight.bold,
                 ),
               ),
+            if (onFavoriteTap != null)
+              IconButton(
+                tooltip: isFavorite
+                    ? 'Bỏ khỏi yêu thích'
+                    : 'Lưu địa điểm yêu thích',
+                onPressed: onFavoriteTap,
+                icon: Icon(
+                  isFavorite ? Icons.favorite : Icons.favorite_border,
+                  color: isFavorite ? colors.error : null,
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }

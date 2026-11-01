@@ -17,11 +17,13 @@ class ImportScreen extends StatefulWidget {
   const ImportScreen({
     required this.service,
     required this.locationService,
+    this.isDraft = false,
     super.key,
   });
 
   final PlaceService service;
   final LocationService locationService;
+  final bool isDraft;
 
   @override
   State<ImportScreen> createState() => _ImportScreenState();
@@ -43,18 +45,23 @@ class _ImportScreenState extends State<ImportScreen> {
         Navigator.of(context).pop(count);
       } else {
         setState(() => _busy = false);
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Đã lưu $count địa điểm.')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              widget.isDraft
+                  ? 'Đã lưu $count địa điểm vào bản nháp.'
+                  : 'Đã lưu $count địa điểm.',
+            ),
+          ),
+        );
       }
       return true;
-    } catch (_) {
+    } catch (error) {
       if (!mounted) return false;
       setState(() => _busy = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Chưa lưu được dữ liệu. Vui lòng thử lại.'),
-        ),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Chưa lưu được dữ liệu: $error')));
       return false;
     }
   }
@@ -75,7 +82,7 @@ class _ImportScreenState extends State<ImportScreen> {
       length: 3,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Nạp dữ liệu'),
+          title: Text(widget.isDraft ? 'Tạo bản nháp địa điểm' : 'Nạp dữ liệu'),
           bottom: const TabBar(
             tabs: [
               Tab(text: 'Dán hàng loạt'),
@@ -88,16 +95,22 @@ class _ImportScreenState extends State<ImportScreen> {
           children: [
             TabBarView(
               children: [
-                _PasteTab(onImport: _import, busy: _busy),
+                _PasteTab(
+                  onImport: _import,
+                  busy: _busy,
+                  isDraft: widget.isDraft,
+                ),
                 _ManualTab(
                   onImport: _import,
                   busy: _busy,
                   locationService: widget.locationService,
+                  isDraft: widget.isDraft,
                 ),
                 _SampleTab(
                   onImport: _import,
                   busy: _busy,
                   locationService: widget.locationService,
+                  isDraft: widget.isDraft,
                 ),
               ],
             ),
@@ -123,10 +136,15 @@ typedef _ImportCallback = Future<bool> Function(
 // ---------------------------------------------------------------- Dán hàng loạt
 
 class _PasteTab extends StatefulWidget {
-  const _PasteTab({required this.onImport, required this.busy});
+  const _PasteTab({
+    required this.onImport,
+    required this.busy,
+    required this.isDraft,
+  });
 
   final _ImportCallback onImport;
   final bool busy;
+  final bool isDraft;
 
   @override
   State<_PasteTab> createState() => _PasteTabState();
@@ -212,7 +230,11 @@ class _PasteTabState extends State<_PasteTab> {
               : () => widget.onImport(_result.places, closeAfter: true),
           icon: const Icon(Icons.cloud_upload_outlined),
           label: Text(
-            _result.places.isEmpty
+            widget.isDraft && _result.places.isNotEmpty
+                ? 'Lưu ${_result.places.length} địa điểm vào bản nháp'
+                : widget.isDraft
+                ? 'Chưa có dữ liệu hợp lệ'
+                : _result.places.isEmpty
                 ? 'Nạp dữ liệu'
                 : 'Nạp ${_result.places.length} địa điểm',
           ),
@@ -234,11 +256,13 @@ class _ManualTab extends StatefulWidget {
     required this.onImport,
     required this.busy,
     required this.locationService,
+    required this.isDraft,
   });
 
   final _ImportCallback onImport;
   final bool busy;
   final LocationService locationService;
+  final bool isDraft;
 
   @override
   State<_ManualTab> createState() => _ManualTabState();
@@ -404,7 +428,7 @@ class _ManualTabState extends State<_ManualTab> {
           FilledButton.icon(
             onPressed: widget.busy ? null : _submit,
             icon: const Icon(Icons.add_location_alt_outlined),
-            label: const Text('Lưu địa điểm'),
+            label: Text(widget.isDraft ? 'Lưu bản nháp' : 'Lưu địa điểm'),
           ),
         ],
       ),
@@ -419,11 +443,13 @@ class _SampleTab extends StatefulWidget {
     required this.onImport,
     required this.busy,
     required this.locationService,
+    required this.isDraft,
   });
 
   final _ImportCallback onImport;
   final bool busy;
   final LocationService locationService;
+  final bool isDraft;
 
   @override
   State<_SampleTab> createState() => _SampleTabState();
@@ -462,17 +488,23 @@ class _SampleTabState extends State<_SampleTab> {
             'dữ liệu thật.',
           ),
           const SizedBox(height: 8),
-          const Text(
-            'Dữ liệu mẫu nằm chung với dữ liệu thật trên máy. Muốn xóa hết, '
-            'xóa dữ liệu của app (hoặc xóa dữ liệu trình duyệt khi chạy web).',
-            style: TextStyle(fontSize: 12),
+          Text(
+            widget.isDraft
+                ? 'Dữ liệu mẫu sẽ được lưu vào bản nháp quản trị trên thiết bị.'
+                : 'Dữ liệu mẫu nằm chung với dữ liệu thật trên máy. Muốn xóa hết, '
+                      'xóa dữ liệu của app (hoặc xóa dữ liệu trình duyệt khi chạy web).',
+            style: const TextStyle(fontSize: 12),
           ),
           const SizedBox(height: 20),
           FilledButton.icon(
             onPressed: widget.busy || _locating ? null : _create,
             icon: const Icon(Icons.science_outlined),
             label: Text(
-              _locating ? 'Đang lấy vị trí...' : 'Tạo dữ liệu mẫu quanh tôi',
+              _locating
+                  ? 'Đang lấy vị trí...'
+                  : widget.isDraft
+                  ? 'Tạo bản nháp mẫu quanh tôi'
+                  : 'Tạo dữ liệu mẫu quanh tôi',
             ),
           ),
         ],

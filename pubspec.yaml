@@ -41,6 +41,9 @@ dependencies:
   http: ^1.2.2
   shared_preferences: ^2.3.0
   firebase_core: ^5.1.0
+  firebase_auth: ^7.0.1
+  cloud_firestore: ^7.1.0
+  audioplayers: ^6.8.1
 
 dev_dependencies:
   flutter_test:
@@ -68,6 +71,22 @@ flutter:
     # Shared app artwork: startup splash and the empty-state background.
     - assets/splash/
     - assets/illustrations/
+    - assets/maps/
+    # Assets used by the Cao Lanh mini game.
+    - assets/mini_game/cards/
+    - assets/mini_game/cards/answers/
+    - assets/mini_game/characters/shop_icons/
+    - assets/mini_game/characters/teacher/
+    - assets/mini_game/characters/lotus/idle/lotus/
+    - assets/mini_game/characters/lotus/idle/school_uniform/
+    - assets/mini_game/characters/lotus/idle/plaid_shirt/
+    - assets/mini_game/characters/lotus/idle/adventure_jacket/
+    - assets/mini_game/audio/fx/
+
+  fonts:
+    - family: UVNVan
+      fonts:
+        - asset: assets/fonts/UVNVan.ttf
 
   # To add assets to your application, add an assets section, like this:
   # assets:
