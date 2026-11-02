@@ -5,7 +5,6 @@ import 'package:latlong2/latlong.dart';
 import '../cao_lanh_ward_boundary.dart';
 import '../map_tile_source.dart';
 import '../../du_lieu/models/place_category.dart';
-import 'foreign_countries_layer.dart';
 import 'map_source_attribution.dart';
 import 'map_style_button.dart';
 import 'vietnam_islands_map_inset.dart';
@@ -25,7 +24,6 @@ class NearbyMap extends StatefulWidget {
     this.zoom = 15,
     this.radiusKm,
     this.showTerritorialInfo = true,
-    this.simplifyForeignCountries = false,
     super.key,
   });
 
@@ -40,15 +38,24 @@ class NearbyMap extends StatefulWidget {
   final double zoom;
   final double? radiusKm;
   final bool showTerritorialInfo;
-  final bool simplifyForeignCountries;
 
   @override
   State<NearbyMap> createState() => _NearbyMapState();
 }
 
 class _NearbyMapState extends State<NearbyMap> {
+  static const _minZoom = 11.0;
   static const _maxZoom = 18.0;
+  static const _markerZoomThreshold = _minZoom + (_maxZoom - _minZoom) * 0.96;
+  static const _maxVisibleMarkers = 300;
   MapStyle _style = MapStyle.street;
+  late double _currentZoom;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentZoom = widget.zoom;
+  }
 
   LatLng get _center {
     if (widget.origin != null) return widget.origin!;
@@ -69,13 +76,22 @@ class _NearbyMapState extends State<NearbyMap> {
             initialZoom: widget.origin == null && widget.hits.isEmpty
                 ? 11
                 : widget.zoom,
-            minZoom: 11,
+            minZoom: _minZoom,
             maxZoom: _maxZoom,
             cameraConstraint: CameraConstraint.contain(
               bounds: caoLanhMapBounds,
             ),
-            onPositionChanged: (camera, _) =>
-                widget.onZoomChanged?.call(camera.zoom),
+            onPositionChanged: (camera, _) {
+              widget.onZoomChanged?.call(camera.zoom);
+              final wasShowingMarkers =
+                  _currentZoom >= _markerZoomThreshold;
+              final isShowingMarkers = camera.zoom >= _markerZoomThreshold;
+              if (wasShowingMarkers != isShowingMarkers) {
+                setState(() => _currentZoom = camera.zoom);
+              } else {
+                _currentZoom = camera.zoom;
+              }
+            },
             onMapReady: () => widget.onZoomChanged?.call(
               widget.origin == null && widget.hits.isEmpty ? 11 : widget.zoom,
             ),
@@ -86,7 +102,6 @@ class _NearbyMapState extends State<NearbyMap> {
               urlTemplate: _style.tileUrl,
               userAgentPackageName: 'vn.diadiem.quanhday',
             ),
-            if (widget.simplifyForeignCountries) const ForeignCountriesLayer(),
             PolygonLayer(
               polygons: [
                 Polygon(
@@ -112,7 +127,7 @@ class _NearbyMapState extends State<NearbyMap> {
               ),
             MarkerLayer(
               markers: [
-                if (widget.origin != null)
+                if (widget.origin != null && widget.isManualOrigin)
                   Marker(
                     point: widget.origin!,
                     width: 28,
@@ -125,29 +140,20 @@ class _NearbyMapState extends State<NearbyMap> {
                       size: 28,
                     ),
                   ),
-                for (final hit in widget.hits)
+                if (_currentZoom >= _markerZoomThreshold)
+                  for (final hit in widget.hits.take(_maxVisibleMarkers))
                   Marker(
                     point: hit.place.latLng,
-                    width: 42,
-                    height: 42,
+                    width: 26,
+                    height: 26,
                     child: GestureDetector(
                       onTap: () => widget.onSelect(hit),
                       child: Tooltip(
                         message: hit.place.name,
-                        child: DecoratedBox(
-                          decoration: BoxDecoration(
-                            color: colors.surface,
-                            shape: BoxShape.circle,
-                            border: Border.all(color: colors.primary, width: 2),
-                            boxShadow: const [
-                              BoxShadow(blurRadius: 4, color: Colors.black26),
-                            ],
-                          ),
-                          child: Icon(
-                            categoryOf(hit.place.category).icon,
-                            size: 24,
-                            color: colors.primary,
-                          ),
+                        child: Icon(
+                          categoryOf(hit.place.category).icon,
+                          size: 22,
+                          color: colors.primary,
                         ),
                       ),
                     ),

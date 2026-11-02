@@ -40,6 +40,7 @@ class OverpassNearbyPlacesService implements NearbyPlacesService {
     if (!_useProxy) {
       throw StateError('Tải dữ liệu offline cần chạy qua server Web local.');
     }
+
     final response = await _client
         .get(
           Uri.parse(
@@ -62,6 +63,27 @@ class OverpassNearbyPlacesService implements NearbyPlacesService {
       jsonEncode(decoded['elements']),
     );
     return (decoded['elements'] as List).length;
+  }
+
+  Future<int> updateMapFromOverpass() async {
+    if (!_useProxy) {
+      throw StateError('Cập nhật bản đồ cần chạy qua server Web local.');
+    }
+    final response = await _client
+        .post(
+          Uri.parse(
+            '${_webBaseUrl.replaceAll(RegExp(r'/$'), '')}/api/admin/update-map',
+          ),
+        )
+        .timeout(const Duration(minutes: 10));
+    if (response.statusCode != 200) {
+      throw Exception('Không cập nhật được bản đồ (${response.statusCode}).');
+    }
+    final decoded = jsonDecode(utf8.decode(response.bodyBytes));
+    if (decoded is! Map || decoded['count'] is! num) {
+      throw const FormatException('Phản hồi cập nhật bản đồ không hợp lệ.');
+    }
+    return (decoded['count'] as num).toInt();
   }
 
   @override

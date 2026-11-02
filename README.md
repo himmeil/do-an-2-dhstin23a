@@ -10,11 +10,15 @@ App Flutter chỉ làm một việc: **tìm địa điểm xung quanh vị trí 
 - Dùng GPS theo lựa chọn của người dùng hoặc chọn vị trí thủ công; liệt kê địa điểm gần nhất trước và hiện khoảng cách.
 - Mặc định mở bản đồ quanh tâm Phường Cao Lãnh với ranh giới phường, bán kính 5 km và các ghim quán cà phê/trường học tìm được; có thể đổi 1/5/10 km hoặc chọn tâm khác bằng cách nhấn giữ trên bản đồ.
 - Bộ tìm kiếm có thể thu gọn bằng nút kính lúp trên thanh công cụ để dành thêm diện tích cho bản đồ. Trạng thái lỗi và rỗng được hiển thị gọn phía trên bản đồ, không chồng lên vùng thao tác.
-- Trong công cụ quản trị, lớp “Đơn giản hóa nước ngoài” mặc định bật khi vào bằng tài khoản quản trị; các quốc gia ngoài Việt Nam được tô xám/trắng và gắn nhãn tên nước thay vì hiện chi tiết đường phố. Có thể tắt lớp ngay trong menu quản trị. Ranh giới tham khảo lấy từ Natural Earth 1:110m; Việt Nam giữ lớp bản đồ chi tiết.
+- Bản đồ chỉ hiện marker ping khi người dùng chọn/tìm vị trí mới; các địa điểm
+  OpenStreetMap dùng icon nhỏ theo loại địa điểm và giới hạn số marker vẽ trên
+  bản đồ để tránh lag. Các chấm địa điểm chỉ hiện khi zoom đạt khoảng 96%
+  mức tối đa; danh sách kết quả vẫn giữ đầy đủ dữ liệu.
+- Bản đồ được giới hạn trong khu vực Cao Lãnh; dữ liệu địa điểm không tải quốc gia ngoài vùng này.
 - Bản đồ tìm kiếm có inset định vị Hoàng Sa và Trường Sa trên nền OpenStreetMap; có thể ẩn/hiện inset. Inset dùng ghim vị trí tham khảo, không vẽ đường biên hay ranh giới chủ quyền.
 - Lọc theo loại (quán ăn, cà phê, trường học, nhà trọ, vui chơi, mua sắm, khác), bán kính (1 / 5 / 10 km / tất cả) và từ khóa (tìm không dấu được). Bộ lọc loại và bán kính chỉ mở khi bấm **Lọc** cạnh ô tìm kiếm.
 - GPS không tự bật khi mở app. Người dùng có thể giữ trên bản đồ để chọn một điểm làm tâm tìm kiếm, không cần cấp quyền vị trí; cũng có thể bấm thanh vị trí để nhập địa chỉ (Nominatim/OpenStreetMap) hoặc chọn địa điểm đã nạp. Nút GPS chỉ lấy vị trí khi người dùng chủ động chọn.
-- App tự tra cứu các địa điểm có tên quanh tâm bản đồ trong bán kính 1/5/10 km từ OpenStreetMap (Overpass API), gồm quán cà phê, ăn uống, trường học, cửa hàng và các điểm vui chơi; kết quả chỉ hiển thị tạm, không ghi vào Firestore. Lựa chọn “Tất cả” gồm địa điểm đã lưu và dữ liệu bản đồ trong tối đa 10 km. Độ đầy đủ tùy dữ liệu OpenStreetMap từng khu vực. Đây không phải Google Places.
+- App truy vấn SQLite local theo bán kính 1/5/10 km. Admin cập nhật dữ liệu từ Overpass; nếu Overpass timeout, backend tự dùng OpenStreetMap API, lưu dữ liệu Cao Lãnh vào SQLite. Lựa chọn “Tất cả” gồm địa điểm đã lưu và dữ liệu bản đồ local.
 - **Web local:** Flutter Web mặc định gọi proxy trong thư mục `backend/`, vì vậy trình duyệt không gọi Overpass trực tiếp và tránh lỗi CORS. Khi chạy trên Hosting, cần triển khai proxy tương đương bằng Firebase Functions hoặc Cloud Run.
 - **Chế độ offline:** danh sách địa điểm Cao Lãnh được đóng gói trong
   bộ nhớ cục bộ sau khi người dùng bấm tải trong menu tài khoản. Khi Overpass
@@ -27,11 +31,13 @@ App Flutter chỉ làm một việc: **tìm địa điểm xung quanh vị trí 
   thức, server local có thể thay bằng Firebase Functions hoặc Cloud Run.
 - Xem dạng danh sách hoặc bản đồ; dùng nút góc trên bên phải để chuyển giữa bản đồ đường phố OpenStreetMap và ảnh vệ tinh Esri. Trang chi tiết cũng có nút chuyển lớp bản đồ và nút **Chỉ đường** (mở Google Maps).
 - Trên bản đồ có thể xem ranh giới phường Cao Lãnh (dữ liệu OpenStreetMap).
-- Quản trị viên có thể bật chế độ giản lược các nước ngoài Việt Nam; lớp này vẫn hiển thị trên cả bản đồ đường phố và ảnh vệ tinh. Ranh giới quốc gia lấy từ Natural Earth, dữ liệu public domain: [Natural Earth 1:110m Admin 0 Countries](https://www.naturalearthdata.com/downloads/110m-cultural-vectors/110m-admin-0-countries/).
 - Khách có thể vào xem danh sách, chi tiết và bản đồ đường phố không cần tài khoản. Đăng nhập bằng email/mật khẩu để tìm kiếm/lọc, tra vị trí thủ công, xem ảnh vệ tinh và lưu địa điểm yêu thích; quản trị viên có thể tạo bản nháp trên thiết bị, xem lại rồi xác nhận đăng lên Firestore.
 - Màn tạo bản nháp có 3 cách: dán CSV/JSON (hoặc copy từ Excel/Google Sheets), thêm tay từng điểm, hoặc tạo dữ liệu mẫu quanh bạn để thử. Dữ liệu cũ trong bộ nhớ trên thiết bị được giữ nguyên và không tự tải lên.
 - Firebase Core đã được cấu hình cho Android, iOS và Web bằng FlutterFire; cấu hình nền tảng nằm trong `lib/firebase_options.dart`. Chạy lại `flutterfire configure --project=do-an-2-b1f35 --platforms=android,ios,web` khi thêm nền tảng hoặc cấu hình Firebase.
 - Bản Web được cấu hình deploy lên Firebase Hosting tại `https://do-an-2-b1f35.web.app`. GitHub Actions build và deploy tự động khi có push lên `main`; Pull Request nội bộ có thể tạo bản preview. Thiết lập hosting nằm trong `firebase.json`, workflow trong `.github/workflows/`.
+- Dữ liệu bản đồ Cao Lãnh đã được nạp lên Firestore project `do-an-2-b1f35`,
+  collection `places` (1.018 địa điểm). Hosting và Firestore là hai phần
+  riêng: deploy web không tự nạp SQLite local lên cloud.
 
 ## Tài nguyên đồ họa
 
@@ -56,18 +62,109 @@ Nạp lại cùng tên + tọa độ thì ghi đè, không bị nhân đôi.
 
 ## Chạy thử trên máy (localhost)
 
-```
+```powershell
+cd C:\Users\Admin\Desktop\Do_AN_2\app-tim-dia-diem-xung-quanh
 flutter pub get
-flutter analyze && flutter test
-flutter run -d edge    # bản web, nhanh nhất để thử
-# Nếu Flutter không mở được Chrome/Edge, dùng web-server rồi mở URL thủ công:
+flutter analyze
+flutter test
+```
+
+Khởi động proxy bản đồ ở một cửa sổ PowerShell khác:
+
+```powershell
+cd C:\Users\Admin\Desktop\Do_AN_2\app-tim-dia-diem-xung-quanh\backend
+npm.cmd start
+```
+
+Có thể dùng nhanh các file Windows ở thư mục gốc:
+
+```text
+bat_app.bat   - bật backend và Flutter Web
+tat_app.bat   - tắt tiến trình đang dùng cổng 8787 và 5000
+```
+
+Nên chạy `tat_app.bat` khi kết thúc demo để giải phóng hai cổng này.
+Trong cửa sổ Backend và Flutter Web, bấm `R` để reload tương ứng; bấm `Q` để
+đóng từng cửa sổ. `tat_app.bat` sẽ đóng cả hai cửa sổ và các tiến trình con.
+`run_web.bat` là script build Flutter Web rồi chạy web server tĩnh bằng Python;
+thông báo `Dang phuc vu build\web` nghĩa là app đã chạy, không phải bị treo.
+
+Sau đó chạy Flutter Web:
+
+```powershell
+cd C:\Users\Admin\Desktop\Do_AN_2\app-tim-dia-diem-xung-quanh
+flutter build web --no-pub
+python -m http.server 5000 --directory build\web --bind 127.0.0.1
+# Mở http://localhost:5000 bằng trình duyệt
+# Chế độ debug nếu cần hot reload:
 flutter run -d web-server --web-port 5000
 flutter run               # máy thật hoặc emulator Android
 ```
 
+Nếu báo lỗi cổng `5000` đã được sử dụng, chạy `tat_app.bat` trước rồi chạy
+lại. Cách đơn giản hơn là chỉ chạy `bat_app.bat`; file này tự build và mở web
+server đúng cấu hình.
+
 Khi dùng server local cho dữ liệu bản đồ, khởi động server trước rồi chạy
-Flutter Web. URL proxy cần được cấu hình trong service truy vấn Overpass; nếu
-chưa cấu hình proxy, ứng dụng sẽ tiếp tục gọi Overpass trực tiếp và có thể gặp
+Flutter Web. Proxy mặc định ở `http://localhost:8787`.
+
+### Deploy web và Firestore
+
+Sau khi cập nhật giao diện hoặc Rules, chạy:
+
+```powershell
+firebase.cmd deploy --only hosting,firestore:rules --project do-an-2-b1f35
+```
+
+Kiểm tra nhanh dữ liệu cloud:
+
+```powershell
+Invoke-RestMethod `
+  -Uri "https://firestore.googleapis.com/v1/projects/do-an-2-b1f35/databases/(default)/documents/places?pageSize=1"
+```
+
+Không xóa collection `places` khi chỉ deploy Hosting. Nếu cần nạp snapshot
+địa điểm mới, dùng chức năng admin **Đăng địa điểm lên cloud** hoặc chạy quy
+trình seed Firestore đã được cấp quyền; không đưa service-account JSON vào
+ứng dụng hay repository.
+
+### Cập nhật dữ liệu bản đồ Cao Lãnh
+
+Đăng nhập bằng tài khoản admin, mở màn hình địa điểm và chọn **Cập nhật bản
+đồ từ Overpass**. Backend sẽ thử Overpass trước, sau đó tự chuyển sang
+OpenStreetMap API nếu Overpass lỗi. Dữ liệu được chia thành nhiều ô nhỏ, ghép
+loại trùng và lưu vào:
+
+- `backend/data/places.sqlite`: dữ liệu SQLite để tìm kiếm.
+- `backend/data/dia_diem_cao_lanh.json`: bản sao JSON để offline.
+- `backend/data/dia_diem_cao_lanh.sql`: các lệnh SQL để khôi phục/chuyển database.
+- Các file `backup_*`: bản sao của lần cập nhật trước.
+
+Có thể gọi trực tiếp bằng PowerShell:
+
+```powershell
+Invoke-RestMethod `
+  -Uri http://localhost:8787/api/admin/update-map `
+  -Method Post `
+  -TimeoutSec 300
+```
+
+Kiểm tra dữ liệu:
+
+```powershell
+Invoke-RestMethod http://localhost:8787/health
+Invoke-RestMethod http://localhost:8787/api/offline-places
+```
+
+Nếu cần tăng thời gian chờ nguồn dữ liệu:
+
+```powershell
+$env:OVERPASS_QUERY_TIMEOUT_SECONDS = "25"
+$env:OVERPASS_TIMEOUT_MS = "30000"
+$env:OSM_API_TIMEOUT_MS = "60000"
+```
+
+Nếu chưa cấu hình proxy, ứng dụng có thể gọi nguồn bản đồ trực tiếp và gặp
 lỗi CORS trên trình duyệt.
 
 ## Định hướng mở rộng: Điểm vui chơi
@@ -95,7 +192,7 @@ lỗi CORS trên trình duyệt.
 - Quy tắc bảo vệ dữ liệu nằm trong `firestore.rules`, được tham chiếu ở cấp gốc `firebase.json`. Trước khi dùng cần bật Firestore API, tạo database ở `asia-southeast1` và bật nhà cung cấp Email/Password trong Firebase Authentication của project.
 - Firebase Core, Authentication và Firestore được cấu hình cho Android, iOS và Web bằng FlutterFire; cấu hình nền tảng nằm trong `lib/firebase_options.dart`.
 - App gọi mạng tới OpenStreetMap (ô bản đồ, tìm địa chỉ qua Nominatim và
-  tra cứu địa điểm qua proxy Overpass), Esri (ô ảnh vệ tinh khi bạn chọn lớp
+  tra cứu địa điểm qua proxy local), Esri (ô ảnh vệ tinh khi bạn chọn lớp
   vệ tinh) và Firebase (xác thực, địa điểm, danh sách yêu thích).
 - `firebase_options.dart` và `google-services.json` là cấu hình client dùng để kết nối Firebase, không phải khóa bí mật. Không đưa service-account JSON, private key hoặc thông tin Firebase Admin vào ứng dụng hay repository.
 - Workflow GitHub dùng secret `FIREBASE_SERVICE_ACCOUNT_DO_AN_2_B1F35`; secret được lưu trong GitHub Actions Secrets, không lưu trong mã nguồn. Để thiết lập lại liên kết repository: chạy `firebase init hosting:github` và làm theo hướng dẫn đăng nhập GitHub.

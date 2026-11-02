@@ -71,7 +71,6 @@ flutter:
     # Shared app artwork: startup splash and the empty-state background.
     - assets/splash/
     - assets/illustrations/
-    - assets/maps/
     # Assets used by the Cao Lanh mini game.
     - assets/mini_game/cards/
     - assets/mini_game/cards/answers/

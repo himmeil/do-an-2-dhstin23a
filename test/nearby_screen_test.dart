@@ -5,7 +5,6 @@ import 'package:diadiem_quanh_day/features/dia_diem/tim_kiem/screens/nearby_scre
 import 'package:diadiem_quanh_day/features/dia_diem/tim_kiem/services/geocoding_service.dart';
 import 'package:diadiem_quanh_day/features/dia_diem/tim_kiem/services/nearby_places_service.dart';
 import 'package:diadiem_quanh_day/features/dia_diem/ban_do/cao_lanh_ward_boundary.dart';
-import 'package:diadiem_quanh_day/features/dia_diem/ban_do/widgets/foreign_countries_layer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -357,22 +356,6 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-
-    expect(find.byType(ForeignCountriesLayer), findsOneWidget);
-
-    await tester.tap(find.byTooltip('Công cụ quản trị'));
-    await tester.pumpAndSettle();
-    expect(find.text('Tắt đơn giản hóa nước ngoài'), findsOneWidget);
-    await tester.tap(find.text('Tắt đơn giản hóa nước ngoài'));
-    await tester.pumpAndSettle();
-    expect(find.byType(ForeignCountriesLayer), findsNothing);
-
-    await tester.tap(find.byTooltip('Công cụ quản trị'));
-    await tester.pumpAndSettle();
-    expect(find.text('Bật đơn giản hóa nước ngoài'), findsOneWidget);
-    await tester.tap(find.text('Bật đơn giản hóa nước ngoài'));
-    await tester.pumpAndSettle();
-    expect(find.byType(ForeignCountriesLayer), findsOneWidget);
   });
 
   testWidgets('bản đồ mặc định lọc địa điểm theo bán kính 1, 5 và 10 km', (
@@ -412,12 +395,12 @@ void main() {
     );
     CircleLayer circleLayer() =>
         tester.widget<CircleLayer>(find.byType(CircleLayer));
-    expect(markerLayer().markers, hasLength(3));
+    expect(markerLayer().markers, hasLength(1));
     expect(circleLayer().circles.single.radius, 5000);
 
     await tester.tap(find.widgetWithText(ChoiceChip, '1 km'));
     await tester.pumpAndSettle();
-    expect(markerLayer().markers, hasLength(2));
+    expect(markerLayer().markers, hasLength(1));
     expect(circleLayer().circles.single.radius, 1000);
 
     await tester.tap(find.widgetWithText(ChoiceChip, '10 km'));
@@ -428,7 +411,7 @@ void main() {
           .selected,
       isTrue,
     );
-    expect(markerLayer().markers, hasLength(4));
+    expect(markerLayer().markers, hasLength(1));
     expect(circleLayer().circles.single.radius, 10000);
   });
 
@@ -473,7 +456,7 @@ void main() {
       matching: find.byType(MarkerLayer),
     );
     expect(mainMapMarkers, findsOneWidget);
-    expect(tester.widget<MarkerLayer>(mainMapMarkers).markers, hasLength(3));
+    expect(tester.widget<MarkerLayer>(mainMapMarkers).markers, hasLength(1));
     expect(
       find.text('Giữ bản đồ để chọn tâm tìm kiếm, không cần bật GPS.'),
       findsOneWidget,

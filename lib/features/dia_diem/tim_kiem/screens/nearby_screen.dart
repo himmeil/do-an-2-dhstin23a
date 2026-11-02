@@ -24,7 +24,7 @@ import '../widgets/place_tile.dart';
 enum _NearbyAction {
   createDraft,
   publishDrafts,
-  toggleForeignMapSimplification,
+  updateMapFromOverpass,
   signIn,
   signOut,
   downloadOfflinePlaces,
@@ -93,7 +93,6 @@ class _NearbyScreenState extends State<NearbyScreen> {
   bool _mapMode = true;
   bool _searchControlsExpanded = false;
   bool _filtersExpanded = false;
-  late bool _simplifyForeignCountries = widget.isAdmin;
   bool _favoritesOnly = false;
   bool _publishing = false;
   bool _showDonation = false;
@@ -128,9 +127,6 @@ class _NearbyScreenState extends State<NearbyScreen> {
   @override
   void didUpdateWidget(covariant NearbyScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.isAdmin != widget.isAdmin) {
-      _simplifyForeignCountries = widget.isAdmin;
-    }
   }
 
   @override
@@ -466,14 +462,10 @@ class _NearbyScreenState extends State<NearbyScreen> {
   }
 
   void _handleAction(_NearbyAction action) {
-    if (action == _NearbyAction.toggleForeignMapSimplification) {
-      setState(() => _simplifyForeignCountries = !_simplifyForeignCountries);
-      return;
-    }
     final operation = switch (action) {
       _NearbyAction.createDraft => _openImport(),
       _NearbyAction.publishDrafts => _publishDrafts(),
-      _NearbyAction.toggleForeignMapSimplification => Future<void>.value(),
+      _NearbyAction.updateMapFromOverpass => _updateMapFromOverpass(),
       _NearbyAction.signIn => _openSignIn(),
       _NearbyAction.signOut => _signOut(),
       _NearbyAction.downloadOfflinePlaces => _downloadOfflinePlaces(),
@@ -502,6 +494,7 @@ class _NearbyScreenState extends State<NearbyScreen> {
       _openSignIn();
       return;
     }
+
     try {
       final count =
           await (widget.nearbyPlacesService! as OverpassNearbyPlacesService)
@@ -514,6 +507,29 @@ class _NearbyScreenState extends State<NearbyScreen> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Không tải được dữ liệu offline: $error')),
+      );
+    }
+  }
+
+  Future<void> _updateMapFromOverpass() async {
+    if (!widget.isAdmin ||
+        widget.nearbyPlacesService is! OverpassNearbyPlacesService) {
+      _openSignIn();
+      return;
+    }
+    try {
+      final count =
+          await (widget.nearbyPlacesService! as OverpassNearbyPlacesService)
+              .updateMapFromOverpass();
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Đã cập nhật $count địa điểm từ Overpass.')),
+      );
+      _scheduleNearbySearch();
+    } catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Cập nhật bản đồ thất bại: $error')),
       );
     }
   }
@@ -598,20 +614,12 @@ class _NearbyScreenState extends State<NearbyScreen> {
                     title: const Text('Duyệt và đăng bản nháp'),
                   ),
                 ),
-                PopupMenuItem(
-                  value: _NearbyAction.toggleForeignMapSimplification,
+                const PopupMenuItem(
+                  value: _NearbyAction.updateMapFromOverpass,
                   child: ListTile(
                     contentPadding: EdgeInsets.zero,
-                    leading: Icon(
-                      _simplifyForeignCountries
-                          ? Icons.check_box_outlined
-                          : Icons.check_box_outline_blank,
-                    ),
-                    title: Text(
-                      _simplifyForeignCountries
-                          ? 'Tắt đơn giản hóa nước ngoài'
-                          : 'Bật đơn giản hóa nước ngoài',
-                    ),
+                    leading: Icon(Icons.sync),
+                    title: Text('Cập nhật bản đồ từ Overpass'),
                   ),
                 ),
               ],
@@ -781,7 +789,6 @@ class _NearbyScreenState extends State<NearbyScreen> {
                                 unawaited(_promptSignIn('Xem ảnh vệ tinh')),
                             radiusKm: _radiusKm,
                             showTerritorialInfo: _showDonation,
-                            simplifyForeignCountries: false,
                             zoom: switch (_radiusKm) {
                               null => 11.5,
                               <= 1 => 14.5,

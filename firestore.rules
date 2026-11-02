@@ -22,7 +22,7 @@ service cloud.firestore {
         && data.name.size() > 0
         && data.name.size() <= 150
         && data.category in [
-          'quan_an', 'cafe', 'tro', 'vui_choi', 'mua_sam', 'khac'
+          'quan_an', 'cafe', 'truong_hoc', 'tro', 'vui_choi', 'mua_sam', 'khac'
         ]
         && data.address is string
         && data.address.size() <= 500

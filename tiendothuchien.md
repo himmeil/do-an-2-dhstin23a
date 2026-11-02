@@ -25,14 +25,15 @@ ngày 01/11/2026.
 - [x] Khai báo Firestore Rules trong cấu hình Firebase; client không thể tự cấp quyền admin.
 - [x] Ghi nhận kiến trúc demo: Firebase dùng để minh họa khả năng vận hành web
   thực tế; dữ liệu bản đồ được phục vụ qua server local để tránh CORS khi gọi
-  Overpass trực tiếp từ trình duyệt.
+  nguồn OpenStreetMap trực tiếp từ trình duyệt.
 - [ ] Bật Firestore API, tạo database `asia-southeast1`, bật Email/Password trong Firebase Authentication và tạo document admin trên Firebase Console; đây là bước cấu hình project cần hoàn tất trước khi dùng backend thật.
 - [ ] Tích hợp Firebase Storage để lưu ảnh địa điểm; hiện chức năng này chưa có.
-- [x] Tạo proxy/server local trong `backend/` cho Overpass, trả dữ liệu cửa
-  hàng, quán cà phê, rạp phim, công viên và khu vui chơi cho Flutter Web trong
-  buổi demo.
-- [x] Lưu dữ liệu Cao Lãnh do Overpass trả về vào SQLite server và cho người
-  dùng đã đăng nhập tải bản sao về bộ nhớ cục bộ để dùng offline.
+- [x] Tạo proxy/server local trong `backend/` cho dữ liệu OpenStreetMap, ưu tiên
+  Overpass và tự fallback sang OpenStreetMap API khi Overpass timeout.
+- [x] Tải toàn bộ dữ liệu có tên trong bbox Cao Lãnh theo nhiều ô, ghép loại
+  trùng, lưu vào SQLite và cho người dùng đã đăng nhập tải bản sao offline.
+- [x] Tạo các bản sao `dia_diem_cao_lanh.json` và
+  `dia_diem_cao_lanh.sql`, đồng thời backup bản cũ sau mỗi lần cập nhật map.
 
 ## Kiểm thử hiện có
 
@@ -61,6 +62,18 @@ Các module tính năng chưa triển khai được liệt kê trong
 - Lọc theo dịp: học nhóm, hẹn hò, đi nhóm bạn, giá rẻ.
 - Xem đánh giá và ảnh thực tế từ người đã đến.
 - Lưu địa điểm yêu thích để rủ bạn bè đi sau.
+
+## Cách chạy và kiểm tra
+
+Chi tiết lệnh chạy backend, Flutter Web, cập nhật map và kiểm tra endpoint nằm
+trong [README.md](README.md) và [backend/README.md](backend/README.md).
+
+Các kiểm tra gần nhất đã đạt:
+
+- `node --check backend/server.js`
+- `flutter analyze`
+- `flutter test test/nearby_places_service_test.dart`
+- Cập nhật map thật từ `osm-api`: 1.018 đối tượng, 16 ô dữ liệu.
 
 ## Cách cập nhật tiến độ
 
