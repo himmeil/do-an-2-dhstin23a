@@ -27,6 +27,7 @@ enum _NearbyAction {
   toggleForeignMapSimplification,
   signIn,
   signOut,
+  downloadOfflinePlaces,
 }
 
 /// Màn chính: tìm địa điểm quanh vị trí hiện tại, lọc theo loại / bán kính /
@@ -95,6 +96,13 @@ class _NearbyScreenState extends State<NearbyScreen> {
   late bool _simplifyForeignCountries = widget.isAdmin;
   bool _favoritesOnly = false;
   bool _publishing = false;
+  bool _showDonation = false;
+
+  static const _minMapZoom = 11.0;
+  static const _maxMapZoom = 18.0;
+  static const _farZoomVisibilityFraction = 0.5;
+  static const _donationZoomThreshold =
+      _minMapZoom + (_maxMapZoom - _minMapZoom) * _farZoomVisibilityFraction;
 
   @override
   void initState() {
@@ -138,6 +146,16 @@ class _NearbyScreenState extends State<NearbyScreen> {
     setState(() => _locating = true);
     final result = await widget.locationService.current();
     if (!mounted || request != _locationRequest) return;
+    if (result.position != null &&
+        !caoLanhMapBounds.contains(result.position!)) {
+      setState(() => _locating = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Chỉ hỗ trợ vị trí trong khu vực Cao Lãnh.'),
+        ),
+      );
+      return;
+    }
     setState(() {
       _locating = false;
       _manualLabel = null;
@@ -155,6 +173,14 @@ class _NearbyScreenState extends State<NearbyScreen> {
           LocationPickerSheet(geocoder: widget.geocoder, places: places),
     );
     if (choice == null || !mounted) return;
+    if (!choice.isGps && !caoLanhMapBounds.contains(choice.position!)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Chỉ hỗ trợ tìm kiếm trong khu vực Cao Lãnh.'),
+        ),
+      );
+      return;
+    }
     if (choice.isGps) {
       await _locate();
     } else {
@@ -220,6 +246,14 @@ class _NearbyScreenState extends State<NearbyScreen> {
   }
 
   void _chooseMapOrigin(LatLng point) {
+    if (!caoLanhMapBounds.contains(point)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Chỉ hỗ trợ tìm kiếm trong khu vực Cao Lãnh.'),
+        ),
+      );
+      return;
+    }
     _nearbySearchRequest++;
     setState(() {
       _origin = point;
@@ -227,6 +261,12 @@ class _NearbyScreenState extends State<NearbyScreen> {
       _failure = null;
     });
     _scheduleNearbySearch();
+  }
+
+  void _updateMapZoom(double zoom) {
+    final shouldShowDonation = zoom <= _donationZoomThreshold;
+    if (shouldShowDonation == _showDonation || !mounted) return;
+    setState(() => _showDonation = shouldShowDonation);
   }
 
   void _retryStream() => setState(() => _stream = widget.service.watchAll());
@@ -436,6 +476,7 @@ class _NearbyScreenState extends State<NearbyScreen> {
       _NearbyAction.toggleForeignMapSimplification => Future<void>.value(),
       _NearbyAction.signIn => _openSignIn(),
       _NearbyAction.signOut => _signOut(),
+      _NearbyAction.downloadOfflinePlaces => _downloadOfflinePlaces(),
     };
     unawaited(operation);
   }
@@ -452,6 +493,28 @@ class _NearbyScreenState extends State<NearbyScreen> {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text('Không đăng xuất được: $error')));
+    }
+  }
+
+  Future<void> _downloadOfflinePlaces() async {
+    if (widget.isGuest ||
+        widget.nearbyPlacesService is! OverpassNearbyPlacesService) {
+      _openSignIn();
+      return;
+    }
+    try {
+      final count =
+          await (widget.nearbyPlacesService! as OverpassNearbyPlacesService)
+              .downloadOfflinePlaces();
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Đã tải $count địa điểm để dùng offline.')),
+      );
+    } catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Không tải được dữ liệu offline: $error')),
+      );
     }
   }
 
@@ -575,6 +638,15 @@ class _NearbyScreenState extends State<NearbyScreen> {
                   PopupMenuItem<_NearbyAction>(
                     enabled: false,
                     child: Text(widget.userEmail),
+                  ),
+                if (widget.onSignOut != null)
+                  const PopupMenuItem(
+                    value: _NearbyAction.downloadOfflinePlaces,
+                    child: ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: Icon(Icons.download_for_offline_outlined),
+                      title: Text('Tải dữ liệu Cao Lãnh để dùng offline'),
+                    ),
                   ),
                 if (widget.onSignOut != null)
                   const PopupMenuItem(
@@ -702,13 +774,14 @@ class _NearbyScreenState extends State<NearbyScreen> {
                             origin: _origin,
                             onSelect: _openDetail,
                             onChooseOrigin: _chooseMapOrigin,
+                            onZoomChanged: _updateMapZoom,
                             isManualOrigin: _manualLabel != null,
                             canUseSatellite: !widget.isGuest,
                             onRequireSignIn: () =>
                                 unawaited(_promptSignIn('Xem ảnh vệ tinh')),
                             radiusKm: _radiusKm,
-                            simplifyForeignCountries:
-                                widget.isAdmin && _simplifyForeignCountries,
+                            showTerritorialInfo: _showDonation,
+                            simplifyForeignCountries: false,
                             zoom: switch (_radiusKm) {
                               null => 11.5,
                               <= 1 => 14.5,
@@ -716,6 +789,43 @@ class _NearbyScreenState extends State<NearbyScreen> {
                               _ => 11.5,
                             },
                           ),
+                          if (_showDonation)
+                            Positioned(
+                              left: 12,
+                              bottom: 12,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  DecoratedBox(
+                                    decoration: BoxDecoration(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .surface
+                                          .withValues(alpha: 0.94),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: const Padding(
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                        vertical: 4,
+                                      ),
+                                      child: Text(
+                                        'Đã khóa vùng bản đồ Cao Lãnh',
+                                        style: TextStyle(fontSize: 11),
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  FilledButton.icon(
+                                    onPressed: _showDonationInfo,
+                                    icon: const Icon(Icons.volunteer_activism),
+                                    label: const Text(
+                                      'Donate cho dự án để nâng cấp bản đồ',
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                         ],
                       )
                     : _buildList(hits),
@@ -844,6 +954,25 @@ class _NearbyScreenState extends State<NearbyScreen> {
             ),
         ],
       ],
+    );
+  }
+
+  void _showDonationInfo() {
+    showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Đóng góp cho dự án'),
+        content: const Text(
+          'Cảm ơn bạn đã quan tâm. Thông tin đóng góp sẽ được cập nhật '
+          'khi dự án hoàn thiện kênh tiếp nhận.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Đóng'),
+          ),
+        ],
+      ),
     );
   }
 

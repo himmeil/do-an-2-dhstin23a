@@ -1,6 +1,13 @@
+import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
 const caoLanhWardCenter = LatLng(10.4562617, 105.6329173);
+
+/// Vùng bản đồ cho phép xem khi trình diễn; không cho pan sang tỉnh khác.
+final caoLanhMapBounds = LatLngBounds(
+  const LatLng(10.35, 105.50),
+  const LatLng(10.56, 105.76),
+);
 
 // Simplified from OpenStreetMap administrative boundary relation 15487119.
 const caoLanhWardBoundary = <LatLng>[

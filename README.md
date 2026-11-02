@@ -3,6 +3,10 @@
 App Flutter chỉ làm một việc: **tìm địa điểm xung quanh vị trí người dùng chọn**.
 
 - Tiến độ chức năng: [tiendothuchien.md](tiendothuchien.md).
+- Kiến trúc demo: Firebase dùng để chứng minh khả năng triển khai web thực tế
+  (Authentication, Firestore và Hosting); khi trình diễn, dịch vụ quản lý và
+  proxy truy vấn bản đồ được chạy local để chủ động kiểm soát dữ liệu và tránh
+  trình duyệt bị chặn khi gọi Overpass trực tiếp.
 - Dùng GPS theo lựa chọn của người dùng hoặc chọn vị trí thủ công; liệt kê địa điểm gần nhất trước và hiện khoảng cách.
 - Mặc định mở bản đồ quanh tâm Phường Cao Lãnh với ranh giới phường, bán kính 5 km và các ghim quán cà phê/trường học tìm được; có thể đổi 1/5/10 km hoặc chọn tâm khác bằng cách nhấn giữ trên bản đồ.
 - Bộ tìm kiếm có thể thu gọn bằng nút kính lúp trên thanh công cụ để dành thêm diện tích cho bản đồ. Trạng thái lỗi và rỗng được hiển thị gọn phía trên bản đồ, không chồng lên vùng thao tác.
@@ -10,8 +14,17 @@ App Flutter chỉ làm một việc: **tìm địa điểm xung quanh vị trí 
 - Bản đồ tìm kiếm có inset định vị Hoàng Sa và Trường Sa trên nền OpenStreetMap; có thể ẩn/hiện inset. Inset dùng ghim vị trí tham khảo, không vẽ đường biên hay ranh giới chủ quyền.
 - Lọc theo loại (quán ăn, cà phê, trường học, nhà trọ, vui chơi, mua sắm, khác), bán kính (1 / 5 / 10 km / tất cả) và từ khóa (tìm không dấu được). Bộ lọc loại và bán kính chỉ mở khi bấm **Lọc** cạnh ô tìm kiếm.
 - GPS không tự bật khi mở app. Người dùng có thể giữ trên bản đồ để chọn một điểm làm tâm tìm kiếm, không cần cấp quyền vị trí; cũng có thể bấm thanh vị trí để nhập địa chỉ (Nominatim/OpenStreetMap) hoặc chọn địa điểm đã nạp. Nút GPS chỉ lấy vị trí khi người dùng chủ động chọn.
-- App tự tra cứu quán cà phê và trường học có tên quanh tâm bản đồ trong bán kính 1/5/10 km từ dữ liệu OpenStreetMap (Overpass API); kết quả chỉ hiển thị tạm, không ghi vào Firestore. Lựa chọn “Tất cả” gồm địa điểm đã lưu và dữ liệu bản đồ trong tối đa 10 km. Độ đầy đủ tùy dữ liệu OpenStreetMap từng khu vực. Đây không phải Google Places; muốn dữ liệu Google Maps Places cần cấu hình API key, bật Places API và thanh toán theo chính sách Google.
-- **Giới hạn hiện tại trên web:** một số máy chủ Overpass không cho trình duyệt gọi trực tiếp do chính sách CORS hoặc tình trạng quá tải. Khi xảy ra, app hiện lỗi ngắn kèm nút thử lại, không hiện nội dung exception và không nhầm lỗi thành kết quả rỗng. Muốn tra cứu tự động ổn định trên Hosting cần proxy phía máy chủ; cấu hình Firebase Functions/Cloud Run chưa được triển khai.
+- App tự tra cứu các địa điểm có tên quanh tâm bản đồ trong bán kính 1/5/10 km từ OpenStreetMap (Overpass API), gồm quán cà phê, ăn uống, trường học, cửa hàng và các điểm vui chơi; kết quả chỉ hiển thị tạm, không ghi vào Firestore. Lựa chọn “Tất cả” gồm địa điểm đã lưu và dữ liệu bản đồ trong tối đa 10 km. Độ đầy đủ tùy dữ liệu OpenStreetMap từng khu vực. Đây không phải Google Places.
+- **Web local:** Flutter Web mặc định gọi proxy trong thư mục `backend/`, vì vậy trình duyệt không gọi Overpass trực tiếp và tránh lỗi CORS. Khi chạy trên Hosting, cần triển khai proxy tương đương bằng Firebase Functions hoặc Cloud Run.
+- **Chế độ offline:** danh sách địa điểm Cao Lãnh được đóng gói trong
+  bộ nhớ cục bộ sau khi người dùng bấm tải trong menu tài khoản. Khi Overpass
+  hoặc proxy không phản hồi, Flutter đọc dữ liệu đã tải, lọc theo bán kính và
+  vẫn hiển thị danh sách/ghim địa điểm.
+  Dữ liệu nền bản đồ OpenStreetMap vẫn cần mạng nếu tile chưa được tải trước.
+- **Mô hình chạy demo local:** Flutter Web chạy trên trình duyệt, còn server
+  local làm lớp trung gian gọi Overpass và trả dữ liệu cửa hàng, quán cà phê,
+  rạp phim, công viên và khu vui chơi về cho ứng dụng. Khi triển khai chính
+  thức, server local có thể thay bằng Firebase Functions hoặc Cloud Run.
 - Xem dạng danh sách hoặc bản đồ; dùng nút góc trên bên phải để chuyển giữa bản đồ đường phố OpenStreetMap và ảnh vệ tinh Esri. Trang chi tiết cũng có nút chuyển lớp bản đồ và nút **Chỉ đường** (mở Google Maps).
 - Trên bản đồ có thể xem ranh giới phường Cao Lãnh (dữ liệu OpenStreetMap).
 - Quản trị viên có thể bật chế độ giản lược các nước ngoài Việt Nam; lớp này vẫn hiển thị trên cả bản đồ đường phố và ảnh vệ tinh. Ranh giới quốc gia lấy từ Natural Earth, dữ liệu public domain: [Natural Earth 1:110m Admin 0 Countries](https://www.naturalearthdata.com/downloads/110m-cultural-vectors/110m-admin-0-countries/).
@@ -52,6 +65,28 @@ flutter run -d web-server --web-port 5000
 flutter run               # máy thật hoặc emulator Android
 ```
 
+Khi dùng server local cho dữ liệu bản đồ, khởi động server trước rồi chạy
+Flutter Web. URL proxy cần được cấu hình trong service truy vấn Overpass; nếu
+chưa cấu hình proxy, ứng dụng sẽ tiếp tục gọi Overpass trực tiếp và có thể gặp
+lỗi CORS trên trình duyệt.
+
+## Định hướng mở rộng: Điểm vui chơi
+
+### Vai trò Địa điểm (người đăng)
+
+Đối tượng gồm quán cà phê, rạp phim, khu vui chơi và các địa điểm tương tự.
+
+- Tạo trang địa điểm gồm ảnh, mô tả, giờ hoạt động và giá vé/giá dịch vụ nếu có.
+- Cập nhật sự kiện hoặc ưu đãi theo dịp như Giáng sinh, khai giảng.
+- Trả lời đánh giá của người dùng.
+
+### Vai trò Sinh viên tìm chỗ chơi (người tìm kiếm)
+
+- Lọc theo loại hình: cà phê, rạp phim, công viên, khu giải trí, quán nhậu.
+- Lọc theo dịp và nhu cầu: học nhóm, hẹn hò, đi nhóm bạn, giá rẻ.
+- Xem đánh giá và ảnh thực tế từ người đã đến.
+- Lưu địa điểm yêu thích để tham khảo hoặc rủ bạn bè đi sau.
+
 ## Dữ liệu và quyền riêng tư
 
 - Danh sách địa điểm công khai được đọc từ Firestore. Chỉ tài khoản có document tương ứng trong `/admins/{uid}` mới được ghi địa điểm; tài khoản người dùng chỉ đọc/ghi danh sách yêu thích của chính mình.
@@ -59,7 +94,9 @@ flutter run               # máy thật hoặc emulator Android
 - Tạo tài khoản/đăng nhập dùng Firebase Authentication email/mật khẩu. Quyền quản trị không dựa trên email hard-code trong app: cần tạo tài khoản trong Authentication, sau đó thêm document `/admins/{uid}` từ Firebase Console. Firestore Rules chặn client tự cấp quyền admin.
 - Quy tắc bảo vệ dữ liệu nằm trong `firestore.rules`, được tham chiếu ở cấp gốc `firebase.json`. Trước khi dùng cần bật Firestore API, tạo database ở `asia-southeast1` và bật nhà cung cấp Email/Password trong Firebase Authentication của project.
 - Firebase Core, Authentication và Firestore được cấu hình cho Android, iOS và Web bằng FlutterFire; cấu hình nền tảng nằm trong `lib/firebase_options.dart`.
-- App gọi mạng tới OpenStreetMap (ô bản đồ, tìm địa chỉ qua Nominatim và tra cứu quán/trường qua Overpass), Esri (ô ảnh vệ tinh khi bạn chọn lớp vệ tinh) và Firebase (xác thực, địa điểm, danh sách yêu thích).
+- App gọi mạng tới OpenStreetMap (ô bản đồ, tìm địa chỉ qua Nominatim và
+  tra cứu địa điểm qua proxy Overpass), Esri (ô ảnh vệ tinh khi bạn chọn lớp
+  vệ tinh) và Firebase (xác thực, địa điểm, danh sách yêu thích).
 - `firebase_options.dart` và `google-services.json` là cấu hình client dùng để kết nối Firebase, không phải khóa bí mật. Không đưa service-account JSON, private key hoặc thông tin Firebase Admin vào ứng dụng hay repository.
 - Workflow GitHub dùng secret `FIREBASE_SERVICE_ACCOUNT_DO_AN_2_B1F35`; secret được lưu trong GitHub Actions Secrets, không lưu trong mã nguồn. Để thiết lập lại liên kết repository: chạy `firebase init hosting:github` và làm theo hướng dẫn đăng nhập GitHub.
 - Chạy web mỗi lần ở một cổng khác (`localhost:xxxx`) sẽ có kho dữ liệu riêng. Muốn giữ dữ liệu giữa các lần chạy, đặt cổng cố định: `flutter run -d edge --web-port 5000` hoặc `flutter run -d web-server --web-port 5000`.

@@ -4,6 +4,7 @@ import 'package:latlong2/latlong.dart';
 
 import '../cao_lanh_ward_boundary.dart';
 import '../map_tile_source.dart';
+import '../../du_lieu/models/place_category.dart';
 import 'foreign_countries_layer.dart';
 import 'map_source_attribution.dart';
 import 'map_style_button.dart';
@@ -17,11 +18,13 @@ class NearbyMap extends StatefulWidget {
     required this.origin,
     required this.onSelect,
     this.onChooseOrigin,
+    this.onZoomChanged,
     this.isManualOrigin = false,
     this.canUseSatellite = true,
     this.onRequireSignIn,
     this.zoom = 15,
     this.radiusKm,
+    this.showTerritorialInfo = true,
     this.simplifyForeignCountries = false,
     super.key,
   });
@@ -30,11 +33,13 @@ class NearbyMap extends StatefulWidget {
   final LatLng? origin;
   final ValueChanged<PlaceHit> onSelect;
   final ValueChanged<LatLng>? onChooseOrigin;
+  final ValueChanged<double>? onZoomChanged;
   final bool isManualOrigin;
   final bool canUseSatellite;
   final VoidCallback? onRequireSignIn;
   final double zoom;
   final double? radiusKm;
+  final bool showTerritorialInfo;
   final bool simplifyForeignCountries;
 
   @override
@@ -42,6 +47,7 @@ class NearbyMap extends StatefulWidget {
 }
 
 class _NearbyMapState extends State<NearbyMap> {
+  static const _maxZoom = 18.0;
   MapStyle _style = MapStyle.street;
 
   LatLng get _center {
@@ -63,6 +69,16 @@ class _NearbyMapState extends State<NearbyMap> {
             initialZoom: widget.origin == null && widget.hits.isEmpty
                 ? 11
                 : widget.zoom,
+            minZoom: 11,
+            maxZoom: _maxZoom,
+            cameraConstraint: CameraConstraint.contain(
+              bounds: caoLanhMapBounds,
+            ),
+            onPositionChanged: (camera, _) =>
+                widget.onZoomChanged?.call(camera.zoom),
+            onMapReady: () => widget.onZoomChanged?.call(
+              widget.origin == null && widget.hits.isEmpty ? 11 : widget.zoom,
+            ),
             onLongPress: (_, point) => widget.onChooseOrigin?.call(point),
           ),
           children: [
@@ -70,8 +86,7 @@ class _NearbyMapState extends State<NearbyMap> {
               urlTemplate: _style.tileUrl,
               userAgentPackageName: 'vn.diadiem.quanhday',
             ),
-            if (widget.simplifyForeignCountries)
-              const ForeignCountriesLayer(),
+            if (widget.simplifyForeignCountries) const ForeignCountriesLayer(),
             PolygonLayer(
               polygons: [
                 Polygon(
@@ -113,17 +128,26 @@ class _NearbyMapState extends State<NearbyMap> {
                 for (final hit in widget.hits)
                   Marker(
                     point: hit.place.latLng,
-                    width: 44,
-                    height: 44,
-                    alignment: Alignment.topCenter,
+                    width: 42,
+                    height: 42,
                     child: GestureDetector(
                       onTap: () => widget.onSelect(hit),
                       child: Tooltip(
                         message: hit.place.name,
-                        child: Icon(
-                          Icons.location_pin,
-                          size: 44,
-                          color: colors.error,
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            color: colors.surface,
+                            shape: BoxShape.circle,
+                            border: Border.all(color: colors.primary, width: 2),
+                            boxShadow: const [
+                              BoxShadow(blurRadius: 4, color: Colors.black26),
+                            ],
+                          ),
+                          child: Icon(
+                            categoryOf(hit.place.category).icon,
+                            size: 24,
+                            color: colors.primary,
+                          ),
                         ),
                       ),
                     ),
@@ -133,7 +157,7 @@ class _NearbyMapState extends State<NearbyMap> {
             MapSourceAttribution(style: _style, includeOpenStreetMapData: true),
           ],
         ),
-        const VietnamIslandsMapInset(),
+        if (widget.showTerritorialInfo) const VietnamIslandsMapInset(),
         MapStyleButton(
           style: _style,
           canUseSatellite: widget.canUseSatellite,

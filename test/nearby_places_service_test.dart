@@ -5,8 +5,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   test('tải quán cà phê và trường học quanh tâm tìm kiếm', () async {
     late String query;
     final client = MockClient((request) async {
@@ -67,14 +70,161 @@ void main() {
     expect(places.last.hours, '07:00-17:00');
   });
 
-  test('nêu lỗi khi dịch vụ tìm địa điểm không phản hồi thành công', () async {
+  test('web dùng proxy local và gửi vị trí dạng JSON', () async {
+    late String body;
+    final client = MockClient((request) async {
+      expect(request.url.host, 'localhost');
+      expect(request.url.path, '/api/nearby');
+      body = request.body;
+      return http.Response(jsonEncode({'elements': []}), 200);
+    });
+
+    final places = await OverpassNearbyPlacesService(
+      client: client,
+      webBaseUrl: 'http://localhost:8787',
+      useProxy: true,
+    ).search(center: const LatLng(10.456, 105.632), radiusMeters: 5000);
+
+    expect(places, isEmpty);
+    expect(body, contains('"radiusMeters":5000'));
+  });
+
+  test('phân loại dữ liệu Overpass để dùng chung với bộ lọc', () async {
+    final client = MockClient((_) async {
+      return http.Response.bytes(
+        utf8.encode(
+          jsonEncode({
+            'elements': [
+              {
+                'type': 'node',
+                'lat': 10.456,
+                'lon': 105.632,
+                'tags': {'name': 'Công viên OSM', 'leisure': 'park'},
+              },
+              {
+                'type': 'node',
+                'lat': 10.457,
+                'lon': 105.633,
+                'tags': {'name': 'Cửa hàng OSM', 'shop': 'supermarket'},
+              },
+            ],
+          }),
+        ),
+        200,
+      );
+    });
+
+    final places = await OverpassNearbyPlacesService(
+      client: client,
+      useProxy: true,
+      webBaseUrl: 'http://localhost:8787',
+    ).search(center: const LatLng(10.456, 105.632), radiusMeters: 1000);
+
+    expect(places, hasLength(2));
+    expect(places[0].category, 'vui_choi');
+    expect(places[1].category, 'mua_sam');
+  });
+
+  test('chuyển sang dữ liệu offline khi dịch vụ không phản hồi', () async {
+    SharedPreferences.setMockInitialValues({});
+    final offlineElements = jsonEncode({
+      'elements': [
+        {
+          'type': 'node',
+          'lat': 10.4578,
+          'lon': 105.6322,
+          'tags': {
+            'name': 'UBND Phuong Cao Lanh',
+            'app:category': 'Co quan hanh chinh',
+            'addr:full': 'So 03, duong 30/4',
+          },
+        },
+      ],
+    });
     final service = OverpassNearbyPlacesService(
-      client: MockClient((_) async => http.Response('busy', 503)),
+      client: MockClient((request) async {
+        if (request.method == 'GET') return http.Response(offlineElements, 200);
+        return http.Response('busy', 503);
+      }),
+      useProxy: true,
     );
 
-    await expectLater(
-      service.search(center: const LatLng(10.456, 105.632), radiusMeters: 1000),
-      throwsA(isA<Exception>()),
+    await service.downloadOfflinePlaces();
+    final places = await service.search(
+      center: const LatLng(10.456, 105.632),
+      radiusMeters: 1000,
+    );
+
+    expect(places, isNotEmpty);
+    expect(places.any((place) => place.name == 'UBND Phuong Cao Lanh'), isTrue);
+  });
+
+  test('đưa dữ liệu SQL đã tải offline vào đúng bộ lọc danh mục', () async {
+    SharedPreferences.setMockInitialValues({});
+    final service = OverpassNearbyPlacesService(
+      useProxy: true,
+      client: MockClient((request) async {
+        if (request.method == 'GET') {
+          return http.Response(
+            jsonEncode({
+              'elements': [
+                {
+                  'type': 'node',
+                  'lat': 10.456,
+                  'lon': 105.632,
+                  'tags': {
+                    'name': 'Van Mieu Cao Lanh & Cong vien Van Mieu',
+                    'app:category': 'Cong vien - Van hoa',
+                  },
+                },
+                {
+                  'type': 'node',
+                  'lat': 10.457,
+                  'lon': 105.633,
+                  'tags': {
+                    'name': 'Cho Cao Lanh',
+                    'app:category': 'Thuong mai',
+                  },
+                },
+                {
+                  'type': 'node',
+                  'lat': 10.458,
+                  'lon': 105.634,
+                  'tags': {
+                    'name': 'Dai hoc Dong Thap',
+                    'app:category': 'Giao duc',
+                  },
+                },
+              ],
+            }),
+            200,
+          );
+        }
+        return http.Response('offline', 503);
+      }),
+    );
+    await service.downloadOfflinePlaces();
+
+    final places = await service.search(
+      center: const LatLng(10.456, 105.632),
+      radiusMeters: 5000,
+    );
+
+    expect(
+      places
+          .firstWhere(
+            (place) => place.name == 'Van Mieu Cao Lanh & Cong vien Van Mieu',
+          )
+          .category,
+      'vui_choi',
+    );
+    expect(
+      places.firstWhere((place) => place.name == 'Cho Cao Lanh').category,
+      'mua_sam',
+    );
+    expect(
+      places.firstWhere((place) => place.name == 'Dai hoc Dong Thap').category,
+      'truong_hoc',
     );
   });
 }

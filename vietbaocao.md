@@ -47,10 +47,10 @@ GPS hoặc cấp quyền vị trí.
   bản đồ để làm tâm tìm kiếm. Dữ liệu tùy khu vực và có thể không đầy đủ; đây
   không phải Google Places API. Lựa chọn “Tất cả” vẫn giới hạn tra cứu tự động
   trong 10 km; dữ liệu địa điểm đã lưu vẫn được lọc theo lựa chọn này. Tìm kiếm
-  được gắn attribution OpenStreetMap. Trên web, máy chủ Overpass có thể từ chối
-  yêu cầu trực tiếp từ trình duyệt do CORS hoặc quá tải; giao diện hiện thông
-  báo dễ hiểu và nút thử lại. Muốn tra cứu tự động ổn định trên Hosting cần bổ
-  sung proxy phía máy chủ (Firebase Functions/Cloud Run), hiện chưa triển khai.
+  được gắn attribution OpenStreetMap. Trên web local, ứng dụng gọi proxy trong
+  thư mục `backend/` để tránh việc trình duyệt gọi Overpass trực tiếp và bị
+  CORS. Khi triển khai Hosting, proxy này cần được chuyển sang Firebase
+  Functions hoặc Cloud Run.
 - Thêm nút thu gọn/mở bộ tìm kiếm khi đang ở chế độ bản đồ; mặc định thu gọn để
   dành thêm diện tích hiển thị bản đồ. Trạng thái lỗi tra cứu và trạng thái
   không có kết quả hiển thị gọn phía trên bản đồ, không che khu vực bản đồ và
@@ -189,6 +189,23 @@ GPS hoặc cấp quyền vị trí.
 
 Phần này ghi nhận phạm vi đề xuất cho phiên bản mở rộng. Các nội dung dưới đây
 chưa được xem là chức năng đã triển khai trong ứng dụng hiện tại.
+
+### Kiến trúc phục vụ demo và khả năng triển khai
+
+- **Firebase:** dùng để chứng minh khả năng triển khai web thực tế, gồm
+  Firebase Authentication, Cloud Firestore và Firebase Hosting. Firebase là
+  backend cloud minh họa cho tài khoản, dữ liệu địa điểm, yêu thích và quy
+  trình publish.
+- **Server local:** dùng trong buổi demo để quản lý phần truy vấn dữ liệu bản
+  đồ và làm proxy gọi Overpass. Flutter Web gọi server local thay vì gọi
+  Overpass trực tiếp, nhờ đó tránh giới hạn CORS và chủ động phục vụ dữ liệu
+  cửa hàng, quán cà phê, rạp phim, công viên và khu vui chơi.
+- **Khả năng triển khai sau demo:** server local có thể chuyển sang Firebase
+  Functions hoặc Cloud Run khi cần vận hành thực tế; giao diện Flutter Web và
+  mô hình dữ liệu Firebase vẫn được giữ lại.
+- **Trình tự demo:** khởi động server local, chạy Flutter Web, kiểm tra bản
+  đồ và các điểm vui chơi quanh vị trí chọn; sau đó trình bày Firebase project
+  để chứng minh khả năng xác thực, lưu dữ liệu và triển khai web.
 
 ### Các giai đoạn phát triển
 

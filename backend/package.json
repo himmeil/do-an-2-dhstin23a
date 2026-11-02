@@ -1,0 +1,13 @@
+{
+  "name": "diadiem-quanh-day-local-proxy",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Proxy local cho Overpass khi demo Flutter Web",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=22.5.0"
+  }
+}

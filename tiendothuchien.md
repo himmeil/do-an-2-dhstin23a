@@ -23,8 +23,16 @@ ngày 01/11/2026.
 - [x] Cho phép xem công khai với tư cách khách; yêu cầu đăng nhập để tìm/lọc địa điểm, tra vị trí thủ công và xem ảnh vệ tinh.
 - [x] Admin có thể nhập dữ liệu vào bản nháp cục bộ riêng, xem lại và xác nhận publish lên Firestore; dữ liệu local cũ được giữ nguyên, không tự chuyển lên cloud.
 - [x] Khai báo Firestore Rules trong cấu hình Firebase; client không thể tự cấp quyền admin.
+- [x] Ghi nhận kiến trúc demo: Firebase dùng để minh họa khả năng vận hành web
+  thực tế; dữ liệu bản đồ được phục vụ qua server local để tránh CORS khi gọi
+  Overpass trực tiếp từ trình duyệt.
 - [ ] Bật Firestore API, tạo database `asia-southeast1`, bật Email/Password trong Firebase Authentication và tạo document admin trên Firebase Console; đây là bước cấu hình project cần hoàn tất trước khi dùng backend thật.
 - [ ] Tích hợp Firebase Storage để lưu ảnh địa điểm; hiện chức năng này chưa có.
+- [x] Tạo proxy/server local trong `backend/` cho Overpass, trả dữ liệu cửa
+  hàng, quán cà phê, rạp phim, công viên và khu vui chơi cho Flutter Web trong
+  buổi demo.
+- [x] Lưu dữ liệu Cao Lãnh do Overpass trả về vào SQLite server và cho người
+  dùng đã đăng nhập tải bản sao về bộ nhớ cục bộ để dùng offline.
 
 ## Kiểm thử hiện có
 
@@ -38,6 +46,21 @@ chọn vị trí thủ công, ranh giới phường và chuyển lớp bản đ�
 Các module tính năng chưa triển khai được liệt kê trong
 [`lib/features/README.md`](lib/features/README.md); chưa được xem là chức năng
 đã hoàn thành của ứng dụng.
+
+## Định hướng mở rộng: Điểm vui chơi
+
+### Vai trò Địa điểm (người đăng)
+
+- Tạo trang địa điểm với ảnh, mô tả, giờ hoạt động và giá vé/giá dịch vụ nếu có.
+- Cập nhật sự kiện, ưu đãi theo dịp như Giáng sinh hoặc khai giảng.
+- Trả lời đánh giá của người dùng.
+
+### Vai trò Sinh viên tìm chỗ chơi (người tìm kiếm)
+
+- Lọc theo loại hình: cà phê, rạp phim, công viên, khu giải trí, quán nhậu.
+- Lọc theo dịp: học nhóm, hẹn hò, đi nhóm bạn, giá rẻ.
+- Xem đánh giá và ảnh thực tế từ người đã đến.
+- Lưu địa điểm yêu thích để rủ bạn bè đi sau.
 
 ## Cách cập nhật tiến độ
 
