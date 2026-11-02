@@ -91,6 +91,11 @@ GPS hoặc cấp quyền vị trí.
 
 ## Tận dụng assets cho giao diện web
 
+> Ghi chú: các mô tả về `assets/source_game/` và `assets/character/` bên dưới
+> là lịch sử xử lý tài nguyên. Hai thư mục nguồn này đã được xoá vì không được
+> khai báo hoặc sử dụng trực tiếp trong ứng dụng; các asset đang dùng nằm trong
+> `assets/mini_game/` và các nhóm được khai báo trong `pubspec.yaml`.
+
 - Dùng `assets/splash/launch.jpg` làm ảnh nền màn hình khởi động và banner khám
   phá trên màn danh sách địa điểm; banner có lớp phủ tối để nội dung dễ đọc và
   tự điều chỉnh chiều cao theo kích thước màn hình.
