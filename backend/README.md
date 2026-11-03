@@ -1,6 +1,6 @@
-# Local map proxy
+# Nearby places API
 
-Proxy này phục vụ demo Flutter Web. Nó nhận vị trí từ Flutter, gọi nguồn dữ liệu
+API phục vụ Flutter Web local và production. Nó nhận vị trí từ Flutter, gọi nguồn dữ liệu
 OpenStreetMap server-side để tránh lỗi CORS, rồi trả về các phần tử có tên.
 Proxy truy vấn các đối tượng có tên trong khu vực Cao Lãnh và thử nhiều máy
 chủ Overpass nếu một máy chủ bị quá tải. Nếu tất cả Overpass không kết nối
@@ -82,6 +82,29 @@ flutter run -d edge --dart-define=NEARBY_API_BASE_URL=http://localhost:8787
 ```
 
 Android không dùng proxy local; Android tiếp tục gọi nguồn bản đồ trực tiếp.
+
+## Firebase Hosting API
+
+Trên Firebase Hosting, web app tự dùng origin hiện tại thay vì
+`http://localhost:8787`. `firebase.json` rewrite `/api/**` tới Firebase Function
+`nearbyApi` ở `us-central1`; API khởi tạo SQLite tạm từ
+`data/dia_diem_cao_lanh.sql` trong `/tmp` của mỗi instance. Endpoint health:
+
+```text
+https://do-an-2-b1f35.web.app/health
+```
+
+Các API tra cứu và tải offline hoạt động trên Hosting. Endpoint cập nhật/chọn
+snapshot bản đồ chỉ khả dụng khi chạy backend local vì filesystem của Functions
+là tạm thời. Chưa dùng các endpoint quản trị local để thay đổi dữ liệu production.
+
+Khi merge lên `main`, GitHub Actions deploy Functions rồi mới deploy Hosting.
+Cần bật billing Blaze cho Firebase project và cấp quyền deploy Functions cho
+service account `FIREBASE_SERVICE_ACCOUNT_DO_AN_2_B1F35`.
+
+## Nhật ký chỉnh sửa
+
+- 2026-11-03 12:59 (UTC+7): Triển khai API production bằng Firebase Functions, seed SQLite từ SQL kèm theo và giữ endpoint quản trị chỉ chạy local.
 
 Ứng dụng Flutter có thể tải bản sao dữ liệu SQLite qua menu tài khoản, nên có
 thể xem các địa điểm Cao Lãnh ngay cả khi không chạy proxy. Tile nền bản đồ

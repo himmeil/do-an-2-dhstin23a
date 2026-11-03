@@ -1,7 +1,7 @@
 # Tiến độ thực hiện
 
 Tài liệu này ghi nhận trạng thái hiện hành của các chức năng trong mã nguồn ứng
-dụng, các việc còn chờ và hướng làm tiếp theo. Cập nhật ngày 03/11/2026 09:53
+dụng, các việc còn chờ và hướng làm tiếp theo. Cập nhật ngày 03/11/2026 12:59
 (UTC+7).
 
 ## Trạng thái hiện hành
@@ -33,8 +33,14 @@ dụng, các việc còn chờ và hướng làm tiếp theo. Cập nhật ngày
   alias, gộp trùng và `flutter analyze` đều đạt.
 - Đã sửa fixture kiểm thử sắp xếp khoảng cách dùng tọa độ ngoài vùng thành điểm
   nằm trong Cao Lãnh, giữ nguyên các ngưỡng khoảng cách cần kiểm tra.
-- Backend local phục vụ web demo; proxy vẫn cần phương án tương đương khi triển
-  khai Hosting.
+- Đã sửa nguồn kết nối Web: local tiếp tục gọi `localhost:8787`, còn Firebase
+  Hosting dùng origin hiện tại và rewrite `/api/**` tới Firebase Function
+  `nearbyApi`. Function seed SQLite tạm từ SQL đã theo dõi trong Git.
+- Endpoint tìm gần đây/tải offline chạy trên cloud; endpoint thay đổi snapshot
+  bản đồ vẫn giới hạn local vì filesystem của Functions không bền vững.
+- Chờ triển khai Functions production và kiểm tra `/health`, `/api/nearby` trên
+  Hosting; deploy Functions cần project bật billing Blaze và service account có
+  quyền triển khai.
 
 ## Chức năng đã có
 
@@ -136,9 +142,9 @@ Các kiểm tra gần nhất (03/11/2026) đã đạt:
    hoặc chạy `npm start` trong `backend/`, xác nhận `/health` trả `ok: true`.
 3. Nếu dữ liệu khác với SQL, cập nhật map từ Admin, kiểm tra phân loại và đồng
    bộ snapshot SQL/JSON.
-4. Trước khi triển khai Hosting, cấu hình proxy tương đương trên Cloud Run hoặc
-   Firebase Functions; hoàn tất cấu hình Firestore/Auth và tích hợp Storage nếu
-   các chức năng này cần cho bản production.
+4. Deploy `nearbyApi` lên Firebase Functions rồi xác minh các API từ Hosting.
+   Duy trì quyền cập nhật snapshot qua backend local cho tới khi có kho lưu trữ
+   cloud bền vững và kiểm soát quyền admin ở backend.
 
 ## Cách cập nhật tiến độ
 

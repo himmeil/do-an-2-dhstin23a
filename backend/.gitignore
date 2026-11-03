@@ -1,3 +1,4 @@
+node_modules/
 data/places.sqlite
 data/dia_diem_cao_lanh.json
 data/backup_dia_diem_cao_lanh.json

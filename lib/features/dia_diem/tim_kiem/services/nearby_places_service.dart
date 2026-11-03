@@ -11,6 +11,23 @@ import '../../../../core/utils/text_utils.dart';
 import '../../du_lieu/models/place.dart';
 import '../utils/geo.dart';
 
+String _defaultNearbyApiBaseUrl() {
+  const configuredUrl = String.fromEnvironment('NEARBY_API_BASE_URL');
+  if (configuredUrl.isNotEmpty) return configuredUrl;
+
+  if (kIsWeb) {
+    final uri = Uri.base;
+    final host = uri.host.toLowerCase();
+    if (uri.scheme != 'file' &&
+        host != 'localhost' &&
+        host != '127.0.0.1' &&
+        host != '::1') {
+      return uri.origin;
+    }
+  }
+  return 'http://localhost:8787';
+}
+
 abstract interface class NearbyPlacesService {
   Future<List<Place>> search({
     required LatLng center,
@@ -69,11 +86,7 @@ class OverpassNearbyPlacesService implements NearbyPlacesService {
     bool? useProxy,
   }) : _client = client ?? http.Client(),
        _webBaseUrl =
-           webBaseUrl ??
-           const String.fromEnvironment(
-             'NEARBY_API_BASE_URL',
-             defaultValue: 'http://localhost:8787',
-           ),
+           webBaseUrl ?? _defaultNearbyApiBaseUrl(),
        _useProxy = useProxy ?? kIsWeb;
 
   final http.Client _client;

@@ -26,7 +26,7 @@ App Flutter chỉ làm một việc: **tìm địa điểm xung quanh vị trí 
   phóng tới vị trí đó và đánh dấu bằng ghim đỏ.
 - GPS không tự bật khi mở app. Người dùng có thể giữ trên bản đồ để chọn một điểm làm tâm tìm kiếm, không cần cấp quyền vị trí; cũng có thể bấm thanh vị trí để nhập địa chỉ (Nominatim/OpenStreetMap) hoặc chọn địa điểm đã nạp. Nút GPS chỉ lấy vị trí khi người dùng chủ động chọn.
 - App truy vấn SQLite local theo bán kính 1/5/10 km. Admin cập nhật dữ liệu từ Overpass; nếu Overpass timeout, backend tự dùng OpenStreetMap API, lưu dữ liệu Cao Lãnh vào SQLite. Lựa chọn “Tất cả” gồm địa điểm đã lưu và dữ liệu bản đồ local.
-- **Web local:** Flutter Web mặc định gọi proxy trong thư mục `backend/`, vì vậy trình duyệt không gọi Overpass trực tiếp và tránh lỗi CORS. Cần backend ở `localhost:8787`; `run_web.bat` và `bat_app.bat` tự kiểm tra/khởi động backend để tránh màn hình rỗng khi proxy chưa chạy. Khi chạy trên Hosting, cần triển khai proxy tương đương bằng Firebase Functions hoặc Cloud Run.
+- **Web local:** Flutter Web gọi proxy trong thư mục `backend/` tại `localhost:8787`; `run_web.bat` và `bat_app.bat` tự khởi động proxy. **Firebase Hosting:** web app dùng cùng origin, Firebase Hosting rewrite `/api/**` tới Firebase Function `nearbyApi`; không gọi localhost trên production.
 - Khi vào màn hình chính, splash sẽ gọi trước `GET /api/offline-places` của
   backend local và tải trước 9 tile bản đồ HOT quanh Cao Lãnh, sau đó lưu
   cache địa điểm để danh sách/bản đồ có dữ liệu sớm hơn. Bước này có timeout
@@ -50,7 +50,7 @@ App Flutter chỉ làm một việc: **tìm địa điểm xung quanh vị trí 
 - Khách có thể vào xem danh sách, chi tiết và bản đồ đường phố không cần tài khoản. Đăng nhập bằng email/mật khẩu để tìm kiếm/lọc, tra vị trí thủ công, xem ảnh vệ tinh và lưu địa điểm yêu thích; quản trị viên có thể tạo bản nháp trên thiết bị, xem lại rồi xác nhận đăng lên Firestore.
 - Màn tạo bản nháp có 3 cách: dán CSV/JSON (hoặc copy từ Excel/Google Sheets), thêm tay từng điểm, hoặc tạo dữ liệu mẫu quanh bạn để thử. Dữ liệu cũ trong bộ nhớ trên thiết bị được giữ nguyên và không tự tải lên.
 - Firebase Core đã được cấu hình cho Android, iOS và Web bằng FlutterFire; cấu hình nền tảng nằm trong `lib/firebase_options.dart`. Chạy lại `flutterfire configure --project=do-an-2-b1f35 --platforms=android,ios,web` khi thêm nền tảng hoặc cấu hình Firebase.
-- Bản Web được cấu hình deploy lên Firebase Hosting tại `https://do-an-2-b1f35.web.app`. GitHub Actions build và deploy tự động khi có push lên `main`; Pull Request nội bộ có thể tạo bản preview. Thiết lập hosting nằm trong `firebase.json`, workflow trong `.github/workflows/`.
+- Bản Web được cấu hình deploy lên Firebase Hosting tại `https://do-an-2-b1f35.web.app`. GitHub Actions deploy Firebase Functions trước Hosting khi có push lên `main`; Pull Request nội bộ có thể tạo bản preview. Thiết lập nằm trong `firebase.json` và `.github/workflows/`.
 - Dữ liệu bản đồ Cao Lãnh đã được nạp lên Firestore project `do-an-2-b1f35`,
   collection `places` (1.018 địa điểm). Hosting và Firestore là hai phần
   riêng: deploy web không tự nạp SQLite local lên cloud.
@@ -235,3 +235,4 @@ lịch sử thay đổi.
 - 2026-11-03 08:12 (UTC+7): Thiết lập nhật ký thay đổi theo thư mục và định dạng thời gian UTC+7.
 - 2026-11-03 08:28 (UTC+7): Chuẩn hóa nhật ký Markdown còn tối đa 10 lần chỉnh sửa; quy định tài liệu tiến độ/báo cáo lưu trạng thái hiện hành.
 - 2026-11-03 09:43 (UTC+7): Sửa bộ lọc tìm quanh đây để có thể kết hợp nhiều danh mục cùng lúc.
+- 2026-11-03 12:59 (UTC+7): Chuyển API production từ localhost sang Firebase Functions và rewrite `/api/**` qua Hosting.

@@ -1,6 +1,7 @@
 import http from 'node:http';
 import {DatabaseSync} from 'node:sqlite';
 import {readFileSync, renameSync, writeFileSync, existsSync, unlinkSync} from 'node:fs';
+import {tmpdir} from 'node:os';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 
@@ -10,15 +11,22 @@ const databasePath = path.join(
   'data',
   'places.sqlite',
 );
-const database = new DatabaseSync(databasePath);
 const schemaPath = path.join(path.dirname(fileURLToPath(import.meta.url)), 'data', 'places.sql');
 const dataDirectory = path.dirname(schemaPath);
 const currentMapPath = path.join(dataDirectory, 'dia_diem_cao_lanh.json');
+const currentSqlPath = path.join(dataDirectory, 'dia_diem_cao_lanh.sql');
 const backupMapPath = path.join(dataDirectory, 'backup_dia_diem_cao_lanh.json');
 const activeMapPath = path.join(dataDirectory, 'active_map_source.json');
-const currentSqlPath = path.join(dataDirectory, 'dia_diem_cao_lanh.sql');
 const backupSqlPath = path.join(dataDirectory, 'backup_dia_diem_cao_lanh.sql');
+const isCloudRuntime = Boolean(process.env.K_SERVICE || process.env.FUNCTION_TARGET);
+const runtimeDatabasePath = process.env.SQLITE_DATABASE_PATH
+  || (isCloudRuntime ? path.join(tmpdir(), 'places.sqlite') : databasePath);
+const database = new DatabaseSync(runtimeDatabasePath);
 database.exec(readFileSync(schemaPath, 'utf8'));
+const seededPlaceCount = database.prepare('SELECT COUNT(*) AS count FROM places').get().count;
+if (seededPlaceCount === 0 && existsSync(currentSqlPath)) {
+  database.exec(readFileSync(currentSqlPath, 'utf8'));
+}
 const overpassQueryTimeoutSeconds = Number(process.env.OVERPASS_QUERY_TIMEOUT_SECONDS || 25);
 const upstreamTimeoutMs = Number(
   process.env.OVERPASS_TIMEOUT_MS || (overpassQueryTimeoutSeconds + 5) * 1000,
@@ -45,6 +53,13 @@ function sendJson(response, status, body) {
     'Content-Type': 'application/json; charset=utf-8',
   });
   response.end(JSON.stringify(body));
+}
+
+async function requestJson(request) {
+  if (request.body !== undefined) return request.body;
+  const chunks = [];
+  for await (const chunk of request) chunks.push(chunk);
+  return JSON.parse(Buffer.concat(chunks).toString('utf8'));
 }
 
 function queryFor({latitude, longitude, radiusMeters}) {
@@ -581,6 +596,12 @@ const server = http.createServer(async (request, response) => {
     return;
   }
   if (request.method === 'GET' && request.url === '/api/admin/map-sources') {
+    if (isCloudRuntime) {
+      sendJson(response, 501, {
+        error: 'Quản lý snapshot bản đồ hiện chỉ được hỗ trợ trên backend local.',
+      });
+      return;
+    }
     try {
       sendJson(response, 200, {sources: availableMapSources()});
     } catch (error) {
@@ -592,10 +613,14 @@ const server = http.createServer(async (request, response) => {
     return;
   }
   if (request.method === 'POST' && request.url === '/api/admin/select-map') {
+    if (isCloudRuntime) {
+      sendJson(response, 501, {
+        error: 'Chọn snapshot bản đồ hiện chỉ được hỗ trợ trên backend local.',
+      });
+      return;
+    }
     try {
-      const chunks = [];
-      for await (const chunk of request) chunks.push(chunk);
-      const input = JSON.parse(Buffer.concat(chunks).toString('utf8'));
+      const input = await requestJson(request);
       if (!input || !['current', 'backup'].includes(input.source)) {
         sendJson(response, 400, {error: 'Nguồn dữ liệu bản đồ không hợp lệ.'});
         return;
@@ -610,6 +635,12 @@ const server = http.createServer(async (request, response) => {
     return;
   }
   if (request.method === 'POST' && request.url === '/api/admin/update-map') {
+    if (isCloudRuntime) {
+      sendJson(response, 501, {
+        error: 'Cập nhật dữ liệu bản đồ hiện chỉ được hỗ trợ trên backend local.',
+      });
+      return;
+    }
     try {
       const result = await updateMapFromSources();
       sendJson(response, 200, {
@@ -633,9 +664,7 @@ const server = http.createServer(async (request, response) => {
   }
 
   try {
-    const chunks = [];
-    for await (const chunk of request) chunks.push(chunk);
-    const input = JSON.parse(Buffer.concat(chunks).toString('utf8'));
+    const input = await requestJson(request);
     if (!validRequest(input)) {
       sendJson(response, 400, {error: 'Invalid location or radius'});
       return;
@@ -656,6 +685,10 @@ const server = http.createServer(async (request, response) => {
   }
 });
 
-server.listen(port, '127.0.0.1', () => {
-  console.log(`Nearby proxy listening on http://localhost:${port}`);
-});
+export {database, server};
+
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  server.listen(port, process.env.HOST || '127.0.0.1', () => {
+    console.log(`Nearby proxy listening on http://localhost:${port}`);
+  });
+}

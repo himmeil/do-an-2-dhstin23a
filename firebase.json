@@ -8,10 +8,22 @@
     ],
     "rewrites": [
       {
+        "source": "/api/**",
+        "function": {
+          "functionId": "nearbyApi",
+          "region": "us-central1"
+        }
+      },
+      {
         "source": "**",
         "destination": "/index.html"
       }
     ]
+  },
+  "functions": {
+    "source": "backend",
+    "codebase": "nearby-api",
+    "runtime": "nodejs22"
   },
   "firestore": {
     "rules": "firestore.rules"

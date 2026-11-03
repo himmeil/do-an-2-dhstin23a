@@ -17,6 +17,11 @@ jobs:
           channel: stable
           cache: true
       - run: flutter pub get && flutter test && flutter build web
+      - uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_DO_AN_2_B1F35 }}
+      - run: npm install --global firebase-tools
+      - run: firebase deploy --only functions --project do-an-2-b1f35 --non-interactive
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
