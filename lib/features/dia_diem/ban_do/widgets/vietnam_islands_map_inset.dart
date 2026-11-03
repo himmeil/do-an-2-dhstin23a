@@ -42,7 +42,9 @@ class _VietnamIslandsMapInsetState extends State<VietnamIslandsMapInset> {
                             ),
                             children: [
                               TileLayer(
-                                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                                urlTemplate:
+                                    'https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',
+                                subdomains: const ['a', 'b', 'c'],
                                 userAgentPackageName: 'vn.diadiem.quanhday',
                               ),
                               MarkerLayer(

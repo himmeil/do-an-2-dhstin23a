@@ -10,11 +10,12 @@ import '../../../mini_game/screens/cao_lanh_quiz_screen.dart';
 import '../../ban_do/cao_lanh_ward_boundary.dart';
 import '../../ban_do/widgets/nearby_map.dart';
 import '../../du_lieu/models/place.dart';
-import '../../du_lieu/models/place_category.dart';
 import '../../du_lieu/services/place_service.dart';
 import '../../gps/services/location_service.dart';
 import '../../chi_tiet/screens/place_detail_screen.dart';
 import '../../nap_du_lieu/screens/import_screen.dart';
+import '../bo_loc/services/place_category_filter.dart';
+import '../bo_loc/widgets/nearby_filter_chips.dart';
 import '../services/geocoding_service.dart';
 import '../services/nearby_places_service.dart';
 import '../utils/geo.dart';
@@ -25,6 +26,7 @@ enum _NearbyAction {
   createDraft,
   publishDrafts,
   updateMapFromOverpass,
+  selectMapDataSource,
   signIn,
   signOut,
   downloadOfflinePlaces,
@@ -65,9 +67,6 @@ class NearbyScreen extends StatefulWidget {
 }
 
 class _NearbyScreenState extends State<NearbyScreen> {
-  /// Bán kính tìm kiếm (km); null = không giới hạn.
-  static const _radii = <double?>[1, 5, 10, null];
-
   late Stream<List<Place>> _stream = widget.service.watchAll();
   final _searchController = TextEditingController();
   final Set<String> _favoriteIds = {};
@@ -87,14 +86,17 @@ class _NearbyScreenState extends State<NearbyScreen> {
   bool _locating = false;
   int _locationRequest = 0;
 
-  String _category = 'all';
+  final Set<String> _selectedCategories = {};
   double? _radiusKm = 5;
   String _query = '';
+  String _searchInput = '';
+  String? _selectedPlaceId;
   bool _mapMode = true;
   bool _searchControlsExpanded = false;
   bool _filtersExpanded = false;
   bool _favoritesOnly = false;
   bool _publishing = false;
+  bool _selectingMapData = false;
   bool _showDonation = false;
 
   static const _minMapZoom = 11.0;
@@ -232,6 +234,10 @@ class _NearbyScreenState extends State<NearbyScreen> {
   }
 
   String _nearbySearchErrorMessage(String error) {
+    if (error.contains('localhost:8787')) {
+      return 'Backend địa điểm chưa chạy. Hãy chạy run_web.bat hoặc '
+          'bat_app.bat rồi tải lại trang.';
+    }
     if (error.contains('429')) {
       return 'Nguồn dữ liệu OpenStreetMap đang quá tải. Bản đồ vẫn hoạt động; hãy thử lại sau.';
     }
@@ -268,14 +274,24 @@ class _NearbyScreenState extends State<NearbyScreen> {
   void _retryStream() => setState(() => _stream = widget.service.watchAll());
 
   List<PlaceHit> _filter(List<Place> all) {
-    final query = foldVietnamese(_query.trim());
+    final query = _selectedPlaceId == null ? foldVietnamese(_query.trim()) : '';
     final hits = <PlaceHit>[];
     final placesById = {for (final place in all) place.id: place};
     for (final place in _nearbyPlaces) {
       placesById.putIfAbsent(place.id, () => place);
     }
-    for (final place in placesById.values) {
-      if (_category != 'all' && place.category != _category) continue;
+    final placesMatchingCategories = placesById.values.where(
+      (place) =>
+          _selectedPlaceId == place.id ||
+          PlaceCategoryFilter.matches(
+            selectedCategories: _selectedCategories,
+            placeCategory: place.category,
+          ),
+    );
+    for (final place in deduplicatePlaces(
+      placesMatchingCategories,
+      preserveDifferentCategories: _selectedCategories.isNotEmpty,
+    )) {
       if (query.isNotEmpty &&
           !foldVietnamese('${place.name} ${place.address}').contains(query)) {
         continue;
@@ -285,10 +301,15 @@ class _NearbyScreenState extends State<NearbyScreen> {
           : distanceMeters(_origin!, place.latLng);
       if (distance != null &&
           _radiusKm != null &&
+          place.id != _selectedPlaceId &&
           distance > _radiusKm! * 1000) {
         continue;
       }
-      if (_favoritesOnly && !_favoriteIds.contains(place.id)) continue;
+      if (_selectedPlaceId != place.id &&
+          _favoritesOnly &&
+          !_favoriteIds.contains(place.id)) {
+        continue;
+      }
       hits.add(PlaceHit(place, distance));
     }
     hits.sort((a, b) {
@@ -466,6 +487,7 @@ class _NearbyScreenState extends State<NearbyScreen> {
       _NearbyAction.createDraft => _openImport(),
       _NearbyAction.publishDrafts => _publishDrafts(),
       _NearbyAction.updateMapFromOverpass => _updateMapFromOverpass(),
+      _NearbyAction.selectMapDataSource => _selectMapDataSource(),
       _NearbyAction.signIn => _openSignIn(),
       _NearbyAction.signOut => _signOut(),
       _NearbyAction.downloadOfflinePlaces => _downloadOfflinePlaces(),
@@ -534,8 +556,108 @@ class _NearbyScreenState extends State<NearbyScreen> {
     }
   }
 
-  String _radiusLabel(double? km) =>
-      km == null ? 'Tất cả' : '${km.toStringAsFixed(0)} km';
+  Future<void> _selectMapDataSource() async {
+    if (!widget.isAdmin ||
+        widget.nearbyPlacesService is! OverpassNearbyPlacesService ||
+        _selectingMapData) {
+      _openSignIn();
+      return;
+    }
+
+    final service = widget.nearbyPlacesService! as OverpassNearbyPlacesService;
+    try {
+      final sources = await service.listMapDataSources();
+      if (!mounted) return;
+      if (sources.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Backend chưa có snapshot bản đồ nào.')),
+        );
+        return;
+      }
+
+      final selected = await showDialog<MapDataSource>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Chọn dữ liệu bản đồ Cao Lãnh'),
+          content: SizedBox(
+            width: 480,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                for (final source in sources)
+                  ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    leading: Icon(
+                      source.active ? Icons.radio_button_checked : Icons.map,
+                    ),
+                    title: Text(source.label),
+                    subtitle: Text(
+                      '${source.file} • ${source.count} địa điểm'
+                      '${source.updatedAt == null ? '' : '\nCập nhật: ${_formatMapDate(source.updatedAt!)}'}'
+                      '${source.active ? '\nĐang sử dụng' : ''}',
+                    ),
+                    isThreeLine: source.updatedAt != null || source.active,
+                    onTap: () => Navigator.of(context).pop(source),
+                  ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Đóng'),
+            ),
+          ],
+        ),
+      );
+      if (selected == null || selected.active || !mounted) return;
+
+      final confirmed = await showDialog<bool>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text('Dùng ${selected.label.toLowerCase()}?'),
+          content: Text(
+            'Backend sẽ thay dữ liệu bản đồ đang dùng bằng '
+            '${selected.file} (${selected.count} địa điểm). '
+            'Các file snapshot mới và cũ sẽ được giữ nguyên.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Hủy'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: const Text('Áp dụng'),
+            ),
+          ],
+        ),
+      );
+      if (confirmed != true || !mounted) return;
+
+      setState(() => _selectingMapData = true);
+      final count = await service.selectMapDataSource(selected.source);
+      if (!mounted) return;
+      _scheduleNearbySearch();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Đã dùng ${selected.file}: $count địa điểm.')),
+      );
+    } catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Không chọn được dữ liệu bản đồ: $error')),
+      );
+    } finally {
+      if (mounted) setState(() => _selectingMapData = false);
+    }
+  }
+
+  String _formatMapDate(DateTime date) {
+    final local = date.toLocal();
+    String twoDigits(int value) => value.toString().padLeft(2, '0');
+    return '${twoDigits(local.day)}/${twoDigits(local.month)}/${local.year} '
+        '${twoDigits(local.hour)}:${twoDigits(local.minute)}';
+  }
 
   void _openCaoLanhQuiz() {
     Navigator.of(
@@ -620,6 +742,19 @@ class _NearbyScreenState extends State<NearbyScreen> {
                     contentPadding: EdgeInsets.zero,
                     leading: Icon(Icons.sync),
                     title: Text('Cập nhật bản đồ từ Overpass'),
+                  ),
+                ),
+                PopupMenuItem(
+                  value: _NearbyAction.selectMapDataSource,
+                  enabled: !_selectingMapData,
+                  child: ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    leading: const Icon(Icons.layers_outlined),
+                    title: Text(
+                      _selectingMapData
+                          ? 'Đang chọn dữ liệu bản đồ...'
+                          : 'Chọn dữ liệu bản đồ Cao Lãnh',
+                    ),
                   ),
                 ),
               ],
@@ -735,7 +870,7 @@ class _NearbyScreenState extends State<NearbyScreen> {
                       ),
                     ),
                   ),
-                _buildFilters(),
+                _buildFilters(all),
               ],
               if (_searchingNearby) const LinearProgressIndicator(),
               if (_nearbySearchError != null)
@@ -780,10 +915,10 @@ class _NearbyScreenState extends State<NearbyScreen> {
                           NearbyMap(
                             hits: hits,
                             origin: _origin,
+                            selectedPlaceId: _selectedPlaceId,
                             onSelect: _openDetail,
                             onChooseOrigin: _chooseMapOrigin,
                             onZoomChanged: _updateMapZoom,
-                            isManualOrigin: _manualLabel != null,
                             canUseSatellite: !widget.isGuest,
                             onRequireSignIn: () =>
                                 unawaited(_promptSignIn('Xem ảnh vệ tinh')),
@@ -844,7 +979,39 @@ class _NearbyScreenState extends State<NearbyScreen> {
     );
   }
 
-  Widget _buildFilters() {
+  Widget _buildFilters(List<Place> all) {
+    final placesById = <String, Place>{
+      for (final place in all) place.id: place,
+      for (final place in _nearbyPlaces) place.id: place,
+    };
+    final matchingPlaces =
+        deduplicatePlaces(placesById.values)
+            .where(
+              (place) =>
+                  foldVietnamese('${place.name} ${place.address}')
+                      .contains(foldVietnamese(_searchInput.trim())),
+            )
+            .toList()
+          ..sort((a, b) => a.name.compareTo(b.name));
+    final suggestionsByName = <String, Place>{};
+    if (_searchInput.trim().isNotEmpty) {
+      for (final place in matchingPlaces) {
+        final name = foldVietnamese(place.name)
+            .trim()
+            .replaceAll(RegExp(r'\s+'), ' ');
+        if (name.isEmpty) continue;
+
+        final current = suggestionsByName[name];
+        if (current == null ||
+            (_origin != null &&
+                distanceMeters(_origin!, place.latLng) <
+                    distanceMeters(_origin!, current.latLng))) {
+          suggestionsByName[name] = place;
+        }
+      }
+    }
+    final suggestions = suggestionsByName.values.toList()
+      ..sort((a, b) => a.name.compareTo(b.name));
     return Column(
       children: [
         Padding(
@@ -876,15 +1043,21 @@ class _NearbyScreenState extends State<NearbyScreen> {
                       : null,
                   onChanged: widget.isGuest
                       ? null
-                      : (value) => setState(() => _query = value),
+                      : (value) => setState(() {
+                          _searchInput = value;
+                          _selectedPlaceId = null;
+                        }),
                   decoration: InputDecoration(
                     hintText: widget.isGuest
                         ? 'Đăng nhập để tìm kiếm địa điểm'
                         : 'Tìm theo tên hoặc địa chỉ',
                     prefixIcon: const Icon(Icons.search),
-                    suffixIcon: _query.isEmpty
-                        ? null
-                        : IconButton(
+                    suffixIcon: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (_searchInput.isNotEmpty)
+                          IconButton(
+                            tooltip: 'Xóa tìm kiếm',
                             icon: const Icon(Icons.clear),
                             onPressed: widget.isGuest
                                 ? () => unawaited(
@@ -892,9 +1065,27 @@ class _NearbyScreenState extends State<NearbyScreen> {
                                   )
                                 : () {
                                     _searchController.clear();
-                                    setState(() => _query = '');
+                                    setState(() {
+                                      _searchInput = '';
+                                      _query = '';
+                                      _selectedPlaceId = null;
+                                    });
                                   },
                           ),
+                        IconButton(
+                          tooltip: 'Tìm địa điểm',
+                          icon: const Icon(Icons.arrow_forward),
+                          onPressed: widget.isGuest
+                              ? () => unawaited(
+                                  _promptSignIn('Tìm kiếm địa điểm'),
+                                )
+                              : () => setState(() {
+                                  _query = _searchInput;
+                                  _selectedPlaceId = null;
+                                }),
+                        ),
+                      ],
+                    ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(AppSizes.radius),
                     ),
@@ -905,60 +1096,64 @@ class _NearbyScreenState extends State<NearbyScreen> {
             ],
           ),
         ),
-        if (_filtersExpanded) ...[
-          SizedBox(
-            height: 48,
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 8),
+        if (suggestions.isNotEmpty)
+          Card(
+            margin: const EdgeInsets.fromLTRB(12, 4, 12, 0),
+            child: Column(
               children: [
-                for (final entry in [
-                  ('all', 'Tất cả'),
-                  for (final c in placeCategories) (c.code, c.label),
-                ])
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4),
-                    child: ChoiceChip(
-                      label: Text(entry.$2),
-                      selected: _category == entry.$1,
-                      onSelected: (_) => widget.isGuest
-                          ? unawaited(_promptSignIn('Lọc địa điểm'))
-                          : setState(() => _category = entry.$1),
-                    ),
+                for (final place in suggestions)
+                  ListTile(
+                    dense: true,
+                    leading: const Icon(Icons.place_outlined),
+                    title: Text(place.name),
+                    subtitle: place.address.isEmpty
+                        ? null
+                        : Text(
+                            place.address,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                    onTap: () {
+                      setState(() {
+                        _searchInput = place.name;
+                        _query = '';
+                        _selectedPlaceId = place.id;
+                        _searchController.text = place.name;
+                        _mapMode = true;
+                        _searchControlsExpanded = false;
+                      });
+                    },
                   ),
               ],
             ),
           ),
-          if (_origin != null)
-            SizedBox(
-              height: 44,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 8),
-                    child: Center(child: Text('Bán kính:')),
-                  ),
-                  for (final km in _radii)
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 4),
-                      child: ChoiceChip(
-                        label: Text(_radiusLabel(km)),
-                        selected: _radiusKm == km,
-                        onSelected: (_) {
-                          if (widget.isGuest) {
-                            unawaited(_promptSignIn('Lọc địa điểm'));
-                            return;
-                          }
-                          setState(() => _radiusKm = km);
-                          _scheduleNearbySearch();
-                        },
-                      ),
-                    ),
-                ],
-              ),
-            ),
+        if (_filtersExpanded) ...[
+          NearbyFilterChips(
+            selectedCategories: _selectedCategories,
+            selectedRadiusKm: _radiusKm,
+            showRadius: _origin != null,
+            onCategorySelected: (category) {
+              if (widget.isGuest) {
+                unawaited(_promptSignIn('Lọc địa điểm'));
+                return;
+              }
+              setState(() {
+                if (category == 'all') {
+                  _selectedCategories.clear();
+                } else if (!_selectedCategories.add(category)) {
+                  _selectedCategories.remove(category);
+                }
+              });
+            },
+            onRadiusSelected: (radiusKm) {
+              if (widget.isGuest) {
+                unawaited(_promptSignIn('Lọc địa điểm'));
+                return;
+              }
+              setState(() => _radiusKm = radiusKm);
+              _scheduleNearbySearch();
+            },
+          ),
         ],
       ],
     );
@@ -989,7 +1184,7 @@ class _NearbyScreenState extends State<NearbyScreen> {
         return const EmptyView(message: 'Bạn chưa lưu địa điểm yêu thích nào.');
       }
       final radius = _origin != null && _radiusKm != null
-          ? ' trong bán kính ${_radiusLabel(_radiusKm)}'
+          ? ' trong bán kính ${NearbyFilterChips.radiusLabel(_radiusKm)}'
           : '';
       return EmptyView(
         message:
@@ -997,6 +1192,7 @@ class _NearbyScreenState extends State<NearbyScreen> {
       );
     }
     return ListView.builder(
+      key: const ValueKey('nearby-places-list'),
       padding: const EdgeInsets.only(bottom: 16),
       itemCount: hits.length,
       itemBuilder: (context, index) => PlaceTile(

@@ -8,6 +8,8 @@ import 'package:diadiem_quanh_day/features/dia_diem/ban_do/cao_lanh_ward_boundar
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:http/http.dart' as http;
+import 'package:http/testing.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -52,7 +54,7 @@ class _FailingNearbyPlacesService implements NearbyPlacesService {
     required LatLng center,
     required int radiusMeters,
   }) async {
-    throw Exception('ClientException: Failed to fetch, uri=overpass-api.de');
+    throw StateError('Backend địa điểm không khả dụng tại localhost:8787.');
   }
 }
 
@@ -81,6 +83,70 @@ Place _place(String name, double lat, {double longitude = 105}) => Place.create(
 );
 
 void main() {
+  testWidgets('admin có thể chọn và áp dụng snapshot bản đồ cũ', (
+    tester,
+  ) async {
+    SharedPreferences.setMockInitialValues({});
+    String? selectedSource;
+    final nearbyService = OverpassNearbyPlacesService(
+      useProxy: true,
+      client: MockClient((request) async {
+        if (request.url.path == '/api/admin/map-sources') {
+          return http.Response(
+            r'{"sources":['
+            r'{"source":"current","label":"\u0110\u1ecba \u0111i\u1ec3m Cao L\u00e3nh m\u1edbi",'
+            r'"file":"dia_diem_cao_lanh.json","count":20,"active":true},'
+            r'{"source":"backup","label":"\u0110\u1ecba \u0111i\u1ec3m Cao L\u00e3nh c\u0169",'
+            r'"file":"backup_dia_diem_cao_lanh.json","count":15,"active":false}'
+            r']}',
+            200,
+          );
+        }
+        if (request.url.path == '/api/admin/select-map') {
+          selectedSource = request.body;
+          return http.Response(
+            '{"source":"backup","file":"backup_dia_diem_cao_lanh.json",'
+            '"count":15}',
+            200,
+          );
+        }
+        if (request.url.path == '/api/nearby') {
+          return http.Response('{"elements":[]}', 200);
+        }
+        return http.Response('Not found', 404);
+      }),
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: NearbyScreen(
+          service: _FakePlaceService(const []),
+          nearbyPlacesService: nearbyService,
+          isAdmin: true,
+          geocoder: _FakeGeocoder(),
+          locationService: _FakeLocationService(
+            const LocationResult.ok(LatLng(10.46, 105.63)),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Công cụ quản trị'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Chọn dữ liệu bản đồ Cao Lãnh'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Địa điểm Cao Lãnh cũ'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Áp dụng'));
+    await tester.pumpAndSettle();
+
+    expect(selectedSource, '{"source":"backup"}');
+    expect(
+      find.text('Đã dùng backup_dia_diem_cao_lanh.json: 15 địa điểm.'),
+      findsOneWidget,
+    );
+  });
+
   testWidgets('hiển thị banner khám phá khi có danh sách địa điểm', (
     tester,
   ) async {
@@ -415,6 +481,174 @@ void main() {
     expect(circleLayer().circles.single.radius, 10000);
   });
 
+  testWidgets('bộ lọc nhận mã OSM cũ của bến xe và khách sạn', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: NearbyScreen(
+          service: _FakePlaceService([
+            const Place(
+              id: 'old-bus-stop',
+              name: 'Điểm dừng cũ',
+              category: 'bus_stop',
+              address: 'Đường A',
+              latitude: 10.46,
+              longitude: 105.63,
+            ),
+            const Place(
+              id: 'old-bus-station',
+              name: 'Bến xe cũ',
+              category: 'bus_station',
+              address: 'Đường B',
+              latitude: 10.461,
+              longitude: 105.63,
+            ),
+            const Place(
+              id: 'old-hotel',
+              name: 'Khách sạn cũ',
+              category: 'hotel',
+              address: 'Đường C',
+              latitude: 10.462,
+              longitude: 105.63,
+            ),
+            const Place(
+              id: 'nearby-cafe',
+              name: 'Quán cà phê gần',
+              category: 'cafe',
+              address: 'Đường D',
+              latitude: 10.463,
+              longitude: 105.63,
+            ),
+            const Place(
+              id: 'nearby-restaurant',
+              name: 'Quán ăn gần',
+              category: 'quan_an',
+              address: 'Đường E',
+              latitude: 10.464,
+              longitude: 105.63,
+            ),
+            const Place(
+              id: 'conflicting-library-category',
+              name: 'Điểm dừng có nhãn lệch',
+              category: 'khac',
+              address: '',
+              latitude: 10.461,
+              longitude: 105.631,
+            ),
+          ]),
+          nearbyPlacesService: _FakeNearbyPlacesService([
+            const Place(
+              id: 'conflicting-bus-category',
+              name: 'Điểm dừng có nhãn lệch',
+              category: 'bus_stop',
+              address: '',
+              latitude: 10.46105,
+              longitude: 105.631,
+            ),
+          ]),
+          geocoder: _FakeGeocoder(),
+          locationService: _FakeLocationService(
+            const LocationResult.ok(LatLng(10.46, 105.63)),
+          ),
+        ),
+      ),
+    );
+    await tester.pump(const Duration(milliseconds: 400));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Xem danh sách'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('toggle-nearby-filters')));
+    await tester.pumpAndSettle();
+
+    Future<void> scrollToResult(String name) async {
+      final list = find.byKey(const ValueKey('nearby-places-list'));
+      await tester.drag(list, const Offset(0, 1000));
+      await tester.pumpAndSettle();
+      for (var attempt = 0; attempt < 5; attempt++) {
+        if (find.text(name).evaluate().isNotEmpty) return;
+        await tester.drag(list, const Offset(0, -180));
+        await tester.pumpAndSettle();
+      }
+    }
+
+    await tester.drag(
+      find.byKey(const ValueKey('nearby-category-filters')),
+      const Offset(-500, 0),
+    );
+    await tester.pumpAndSettle();
+    final busFilter = find.widgetWithText(FilterChip, 'Bến xe / điểm dừng');
+    await tester.tap(busFilter);
+    await tester.pumpAndSettle();
+    expect(tester.widget<FilterChip>(busFilter).selected, isTrue);
+    await scrollToResult('Điểm dừng cũ');
+    expect(find.text('Điểm dừng cũ'), findsOneWidget);
+    await scrollToResult('Bến xe cũ');
+    expect(find.text('Bến xe cũ'), findsOneWidget);
+    await scrollToResult('Điểm dừng có nhãn lệch');
+    expect(find.text('Điểm dừng có nhãn lệch'), findsOneWidget);
+    expect(find.text('Khách sạn cũ'), findsNothing);
+    expect(find.text('Quán cà phê gần'), findsNothing);
+
+    final lodgingFilter = find.widgetWithText(FilterChip, 'Nhà trọ');
+    await tester.ensureVisible(lodgingFilter);
+    await tester.tap(lodgingFilter);
+    await tester.pumpAndSettle();
+    expect(tester.widget<FilterChip>(lodgingFilter).selected, isTrue);
+    expect(tester.widget<FilterChip>(busFilter).selected, isTrue);
+    await scrollToResult('Khách sạn cũ');
+    expect(find.text('Khách sạn cũ'), findsOneWidget);
+
+    await tester.drag(
+      find.byKey(const ValueKey('nearby-category-filters')),
+      const Offset(600, 0),
+    );
+    await tester.pumpAndSettle();
+    final cafeFilter = find.widgetWithText(FilterChip, 'Cà phê');
+    await tester.tap(cafeFilter);
+    await tester.pumpAndSettle();
+    final foodFilter = find.widgetWithText(FilterChip, 'Quán ăn');
+    await tester.tap(foodFilter);
+    await tester.pumpAndSettle();
+    expect(tester.widget<FilterChip>(cafeFilter).selected, isTrue);
+    expect(tester.widget<FilterChip>(foodFilter).selected, isTrue);
+    await scrollToResult('Quán cà phê gần');
+    expect(find.text('Quán cà phê gần'), findsOneWidget);
+    await scrollToResult('Khách sạn cũ');
+    expect(find.text('Khách sạn cũ'), findsOneWidget);
+
+    await tester.drag(
+      find.byKey(const ValueKey('nearby-category-filters')),
+      const Offset(-600, 0),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(busFilter);
+    await tester.pumpAndSettle();
+    expect(tester.widget<FilterChip>(busFilter).selected, isFalse);
+    expect(find.text('Điểm dừng cũ'), findsNothing);
+    expect(find.text('Bến xe cũ'), findsNothing);
+    await scrollToResult('Khách sạn cũ');
+    expect(find.text('Khách sạn cũ'), findsOneWidget);
+    await scrollToResult('Quán cà phê gần');
+    expect(find.text('Quán cà phê gần'), findsOneWidget);
+    await scrollToResult('Quán ăn gần');
+    expect(find.text('Quán ăn gần'), findsOneWidget);
+
+    await tester.drag(
+      find.byKey(const ValueKey('nearby-category-filters')),
+      const Offset(600, 0),
+    );
+    await tester.pumpAndSettle();
+    final allFilter = find.widgetWithText(FilterChip, 'Tất cả');
+    await tester.tap(allFilter);
+    await tester.pumpAndSettle();
+    expect(tester.widget<FilterChip>(allFilter).selected, isTrue);
+    expect(tester.widget<FilterChip>(busFilter).selected, isFalse);
+    expect(tester.widget<FilterChip>(lodgingFilter).selected, isFalse);
+    expect(tester.widget<FilterChip>(cafeFilter).selected, isFalse);
+    expect(tester.widget<FilterChip>(foodFilter).selected, isFalse);
+    await scrollToResult('Điểm dừng cũ');
+    expect(find.text('Điểm dừng cũ'), findsOneWidget);
+  });
+
   testWidgets('tự tìm quán và trường theo bán kính, không cần GPS', (
     tester,
   ) async {
@@ -496,7 +730,7 @@ void main() {
     expect(locationService.calls, 0);
   });
 
-  testWidgets('lỗi Overpass không phủ bản đồ hoặc lộ exception kỹ thuật', (
+  testWidgets('backend chưa chạy hiện hướng khởi động mà không che bản đồ', (
     tester,
   ) async {
     await tester.pumpWidget(
@@ -515,11 +749,9 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byKey(const ValueKey('nearby-map-main')), findsOneWidget);
-    expect(
-      find.textContaining('Không kết nối được dữ liệu địa điểm OpenStreetMap'),
-      findsOneWidget,
-    );
-    expect(find.textContaining('CORS'), findsOneWidget);
+    expect(find.textContaining('Backend địa điểm chưa chạy'), findsOneWidget);
+    expect(find.textContaining('run_web.bat'), findsOneWidget);
+    expect(find.textContaining('bat_app.bat'), findsOneWidget);
     expect(find.textContaining('Failed to fetch'), findsNothing);
     expect(find.textContaining('uri=overpass-api.de'), findsNothing);
     expect(find.textContaining('Chưa có địa điểm phù hợp'), findsNothing);
@@ -535,15 +767,19 @@ void main() {
 
   testWidgets('sắp theo khoảng cách và bỏ điểm ngoài bán kính', (tester) async {
     final locationService = _FakeLocationService(
-      const LocationResult.ok(LatLng(10, 105)),
+      const LocationResult.ok(LatLng(10.456, 105.63)),
     );
     await tester.pumpWidget(
       MaterialApp(
         home: NearbyScreen(
           service: _FakePlaceService([
-            _place('Xa', 10.02), // ~2,2 km
-            _place('Gần', 10.001), // ~110 m
-            _place('Rất xa', 10.2), // ~22 km, ngoài bán kính 5 km
+            _place('Xa', 10.476, longitude: 105.63), // ~2,2 km
+            _place('Gần', 10.457, longitude: 105.63), // ~110 m
+            _place(
+              'Rất xa',
+              10.4086,
+              longitude: 105.63,
+            ), // Ngoài bán kính 5 km, vẫn trong Cao Lãnh.
           ]),
           geocoder: _FakeGeocoder(),
           locationService: locationService,
@@ -562,6 +798,89 @@ void main() {
     final near = tester.getTopLeft(find.text('Gần')).dy;
     final far = tester.getTopLeft(find.text('Xa')).dy;
     expect(near, lessThan(far));
+  });
+
+  testWidgets('chỉ hiển thị một bản ghi khi hai nguồn có cùng địa điểm', (
+    tester,
+  ) async {
+    final savedPlace = _place('Cà phê trùng tên', 10.4571, longitude: 105.6332);
+    final mapPlace = _place('Ca phe trung ten', 10.4572, longitude: 105.6332);
+    await tester.pumpWidget(
+      MaterialApp(
+        home: NearbyScreen(
+          service: _FakePlaceService([savedPlace]),
+          nearbyPlacesService: _FakeNearbyPlacesService([mapPlace]),
+          geocoder: _FakeGeocoder(),
+          locationService: _FakeLocationService(
+            const LocationResult.ok(LatLng(10.4571, 105.6332)),
+          ),
+        ),
+      ),
+    );
+    await tester.pump(const Duration(milliseconds: 400));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Xem danh sách'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Cà phê trùng tên'), findsOneWidget);
+  });
+
+  testWidgets('gợi ý tìm kiếm không lặp tên chi nhánh ở nhiều vị trí', (
+    tester,
+  ) async {
+    const duplicatedName = 'Lần xe máy Cầu Cao Lãnh';
+    await tester.pumpWidget(
+      MaterialApp(
+        home: NearbyScreen(
+          service: _FakePlaceService(const []),
+          nearbyPlacesService: _FakeNearbyPlacesService([
+            _place(duplicatedName, 10.461, longitude: 105.63),
+            _place(duplicatedName, 10.462, longitude: 105.63),
+          ]),
+          geocoder: _FakeGeocoder(),
+          locationService: _FakeLocationService(
+            const LocationResult.ok(LatLng(10.46, 105.63)),
+          ),
+        ),
+      ),
+    );
+    await tester.pump(const Duration(milliseconds: 400));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Hiện bộ tìm kiếm'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField), 'máy');
+    await tester.pumpAndSettle();
+
+    expect(find.text(duplicatedName), findsOneWidget);
+  });
+
+  testWidgets('đánh dấu và căn bản đồ tới vị trí GPS hiện tại', (tester) async {
+    const gpsPosition = LatLng(10.4571, 105.6332);
+    await tester.pumpWidget(
+      MaterialApp(
+        home: NearbyScreen(
+          service: _FakePlaceService(const []),
+          geocoder: _FakeGeocoder(),
+          locationService: _FakeLocationService(
+            const LocationResult.ok(gpsPosition),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byTooltip('Dùng GPS'));
+    await tester.pumpAndSettle();
+
+    final map = find.byKey(const ValueKey('nearby-map-main'));
+    final markerLayer = tester.widget<MarkerLayer>(
+      find.descendant(of: map, matching: find.byType(MarkerLayer)).first,
+    );
+    final originMarker = markerLayer.markers.firstWhere(
+      (marker) => marker.point == gpsPosition,
+    );
+    expect(originMarker.child, isA<Icon>());
+    expect((originMarker.child as Icon).icon, Icons.location_pin);
   });
 
   testWidgets('không lấy được vị trí thì vẫn hiện tất cả và báo lý do', (

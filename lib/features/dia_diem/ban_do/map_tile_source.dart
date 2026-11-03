@@ -2,7 +2,7 @@ enum MapStyle { street, satellite }
 
 extension MapStyleSource on MapStyle {
   String get tileUrl => switch (this) {
-    MapStyle.street => 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+    MapStyle.street => 'https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',
     MapStyle.satellite => 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
   };
 

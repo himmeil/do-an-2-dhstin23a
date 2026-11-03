@@ -15,6 +15,7 @@ const schemaPath = path.join(path.dirname(fileURLToPath(import.meta.url)), 'data
 const dataDirectory = path.dirname(schemaPath);
 const currentMapPath = path.join(dataDirectory, 'dia_diem_cao_lanh.json');
 const backupMapPath = path.join(dataDirectory, 'backup_dia_diem_cao_lanh.json');
+const activeMapPath = path.join(dataDirectory, 'active_map_source.json');
 const currentSqlPath = path.join(dataDirectory, 'dia_diem_cao_lanh.sql');
 const backupSqlPath = path.join(dataDirectory, 'backup_dia_diem_cao_lanh.sql');
 database.exec(readFileSync(schemaPath, 'utf8'));
@@ -48,11 +49,61 @@ function sendJson(response, status, body) {
 
 function queryFor({latitude, longitude, radiusMeters}) {
   return `[out:json][timeout:${overpassQueryTimeoutSeconds}];(`
-    + `nwr(around:${radiusMeters},${latitude},${longitude})["name"]["amenity"~"^(cafe|restaurant|fast_food|bar|pub|cinema|school|college|university)$"];`
+    + `nwr(around:${radiusMeters},${latitude},${longitude})["name"]["amenity"~"^(cafe|restaurant|fast_food|bar|pub|cinema|school|college|university|dormitory|bus_station)$"];`
     + `nwr(around:${radiusMeters},${latitude},${longitude})["name"]["leisure"~"^(park|playground|amusement_arcade|water_park|sports_centre|stadium)$"];`
     + `nwr(around:${radiusMeters},${latitude},${longitude})["name"]["shop"];`
-    + `nwr(around:${radiusMeters},${latitude},${longitude})["name"]["tourism"~"^(theme_park|zoo|museum|attraction)$"];`
+    + `nwr(around:${radiusMeters},${latitude},${longitude})["name"]["tourism"~"^(theme_park|zoo|museum|attraction|guest_house|hostel|hotel|motel|apartment|chalet|alpine_hut)$"];`
+    + `nwr(around:${radiusMeters},${latitude},${longitude})["name"]["building"="dormitory"];`
+    + `nwr(around:${radiusMeters},${latitude},${longitude})["name"]["public_transport"="station"]["bus"="yes"];`
+    + `nwr(around:${radiusMeters},${latitude},${longitude})["name"]["highway"="bus_stop"];`
+    + `nwr(around:${radiusMeters},${latitude},${longitude})["name"]["public_transport"~"^(platform|stop_position)$"]["bus"="yes"];`
     + `);out center tags;`;
+}
+
+function categoryForTags(tags) {
+  const appCategory = String(tags['app:category'] || '').toLowerCase();
+  const name = String(tags.name || tags['name:vi'] || '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replaceAll('đ', 'd');
+  if (/nha\s*(khach|tro|nghi)|ky\s*tuc\s*xa|khach\s*san|hostel|guest\s*house/.test(name)) {
+    return 'tro';
+  }
+  if (/ben\s*xe|tram\s*xe\s*buyt|diem\s*dung\s*xe\s*buyt/.test(name)) {
+    return 'ben_xe';
+  }
+  if (/giao\s*duc|truong\s*hoc|hoc\s*tap/.test(name)) return 'truong_hoc';
+  if (/cong\s*vien|\bpark\b/.test(name)) return 'vui_choi';
+  if (['guest_house', 'hostel', 'hotel', 'motel', 'apartment', 'chalet', 'alpine_hut']
+    .includes(appCategory)) return 'tro';
+  if (['bus_station', 'bus_stop', 'bus station'].includes(appCategory)) {
+    return 'ben_xe';
+  }
+  const knownCategories = new Set([
+    'quan_an', 'cafe', 'truong_hoc', 'tro', 'ben_xe', 'vui_choi', 'mua_sam', 'khac',
+  ]);
+  if (knownCategories.has(appCategory)) return appCategory;
+
+  if (['guest_house', 'hostel', 'hotel', 'motel', 'apartment', 'chalet', 'alpine_hut']
+    .includes(tags.tourism)
+    || tags.amenity === 'dormitory'
+    || tags.building === 'dormitory') return 'tro';
+  if (tags.amenity === 'bus_station'
+    || tags.highway === 'bus_stop'
+    || (['platform', 'stop_position', 'station'].includes(tags.public_transport)
+      && tags.bus === 'yes')) return 'ben_xe';
+  if (['school', 'college', 'university'].includes(tags.amenity)) return 'truong_hoc';
+  if (tags.amenity === 'cafe') return 'cafe';
+  if (['restaurant', 'fast_food'].includes(tags.amenity)) return 'quan_an';
+  if (tags.amenity === 'cinema'
+    || ['park', 'playground', 'amusement_arcade', 'water_park', 'sports_centre', 'stadium']
+      .includes(tags.leisure)
+    || ['theme_park', 'zoo', 'museum', 'attraction'].includes(tags.tourism)) {
+    return 'vui_choi';
+  }
+  if (tags.shop) return 'mua_sam';
+  return 'khac';
 }
 
 function updateCenters() {
@@ -156,7 +207,9 @@ function saveMapElements(elements, source = 'overpass') {
   `);
   database.exec('BEGIN');
   try {
-    database.prepare("DELETE FROM places WHERE source IN ('overpass', 'osm-api')").run();
+    database.prepare(
+      "DELETE FROM places WHERE source IN ('overpass', 'osm-api', 'admin-selected')",
+    ).run();
     for (const element of elements) {
       const tags = element.tags || {};
       const latitude = element.lat ?? element.center?.lat;
@@ -165,8 +218,7 @@ function saveMapElements(elements, source = 'overpass') {
       statement.run(
         `osm-${element.type}-${element.id}`,
         tags.name,
-        tags['app:category'] || tags.amenity || tags.leisure || tags.shop
-          || tags.tourism || tags.place || tags.highway || tags.building || 'khac',
+        categoryForTags(tags),
         latitude,
         longitude,
         tags['addr:full'] || [tags['addr:housenumber'], tags['addr:street']]
@@ -196,14 +248,13 @@ function writeMapSnapshot(elements, source = 'overpass') {
   const sql = [
     '-- Generated from OpenStreetMap data. Do not edit manually.',
     'BEGIN TRANSACTION;',
-    "DELETE FROM places WHERE source IN ('overpass', 'osm-api');",
+    "DELETE FROM places WHERE source IN ('overpass', 'osm-api', 'admin-selected');",
     ...elements.flatMap((element) => {
       const tags = element.tags || {};
       const latitude = element.lat ?? element.center?.lat;
       const longitude = element.lon ?? element.center?.lon;
       if (!tags.name || latitude == null || longitude == null) return [];
-      const category = tags['app:category'] || tags.amenity || tags.leisure || tags.shop
-        || tags.tourism || tags.place || tags.highway || tags.building || 'khac';
+      const category = categoryForTags(tags);
       const address = tags['addr:full']
         || [tags['addr:housenumber'], tags['addr:street']].filter(Boolean).join(' ');
       return [
@@ -238,13 +289,70 @@ function writeMapSnapshot(elements, source = 'overpass') {
   writeFileSync(currentSqlPath, sql, 'utf8');
 }
 
-function loadMapSnapshot() {
-  if (!existsSync(currentMapPath)) return;
-  const snapshot = JSON.parse(readFileSync(currentMapPath, 'utf8'));
-  if (!snapshot || !Array.isArray(snapshot.elements)) {
-    throw new Error('dia_diem_cao_lanh.json has no elements array');
+function mapSourcePath(source) {
+  if (source === 'current') return currentMapPath;
+  if (source === 'backup') return backupMapPath;
+  throw new Error('Nguồn dữ liệu bản đồ không hợp lệ.');
+}
+
+function activeMapSource() {
+  if (!existsSync(activeMapPath)) return 'current';
+  try {
+    const selection = JSON.parse(readFileSync(activeMapPath, 'utf8'));
+    if (['current', 'backup'].includes(selection.source)
+      && existsSync(mapSourcePath(selection.source))) {
+      return selection.source;
+    }
+  } catch (error) {
+    console.warn('Could not read active map source:', error);
   }
-  saveMapElements(snapshot.elements, 'overpass');
+  return 'current';
+}
+
+function mapSourceInfo(source) {
+  const file = mapSourcePath(source);
+  if (!existsSync(file)) return null;
+  const snapshot = JSON.parse(readFileSync(file, 'utf8'));
+  if (!snapshot || !Array.isArray(snapshot.elements)) {
+    throw new Error(`${path.basename(file)} không chứa danh sách địa điểm hợp lệ.`);
+  }
+  return {
+    source,
+    label: source === 'current' ? 'Địa điểm Cao Lãnh mới' : 'Địa điểm Cao Lãnh cũ',
+    file: path.basename(file),
+    count: snapshot.elements.length,
+    updatedAt: snapshot.updatedAt || null,
+    active: activeMapSource() === source,
+  };
+}
+
+function availableMapSources() {
+  return ['current', 'backup']
+    .map(mapSourceInfo)
+    .filter(Boolean);
+}
+
+function selectMapSource(source) {
+  const file = mapSourcePath(source);
+  if (!existsSync(file)) {
+    throw new Error(`Không tìm thấy file dữ liệu ${path.basename(file)}.`);
+  }
+  const snapshot = JSON.parse(readFileSync(file, 'utf8'));
+  if (!snapshot || !Array.isArray(snapshot.elements)) {
+    throw new Error(`${path.basename(file)} không chứa danh sách địa điểm hợp lệ.`);
+  }
+  saveMapElements(snapshot.elements, 'admin-selected');
+  writeFileSync(activeMapPath, `${JSON.stringify({source}, null, 2)}\n`, 'utf8');
+  return {source, file: path.basename(file), count: snapshot.elements.length};
+}
+
+function loadMapSnapshot() {
+  const source = activeMapSource();
+  const info = mapSourceInfo(source);
+  if (!info) return;
+  const file = mapSourcePath(source);
+  const snapshot = JSON.parse(readFileSync(file, 'utf8'));
+  saveMapElements(snapshot.elements, source === 'backup' ? 'admin-selected' : snapshot.source || 'overpass');
 }
 
 async function updateMapFromOverpass() {
@@ -305,6 +413,7 @@ async function updateMapFromOverpass() {
   const elements = [...elementsById.values()];
   saveMapElements(elements, 'overpass');
   writeMapSnapshot(elements, 'overpass');
+  writeFileSync(activeMapPath, `${JSON.stringify({source: 'current'}, null, 2)}\n`, 'utf8');
   return {count: elements.length, chunks: centers.length};
 }
 
@@ -418,6 +527,7 @@ async function updateMapFromOsmApi() {
   if (elements.length === 0) throw new Error('OpenStreetMap API returned no named places');
   saveMapElements(elements, 'osm-api');
   writeMapSnapshot(elements, 'osm-api');
+  writeFileSync(activeMapPath, `${JSON.stringify({source: 'current'}, null, 2)}\n`, 'utf8');
   return {count: elements.length, chunks: bounds.length, source: 'osm-api'};
 }
 
@@ -461,12 +571,42 @@ const server = http.createServer(async (request, response) => {
     return;
   }
   if (request.method === 'GET' && request.url === '/api/offline-places') {
+    const activeSource = activeMapSource();
     sendJson(response, 200, {
-      source: existsSync(currentMapPath)
-        ? 'dia_diem_cao_lanh.json'
+      source: existsSync(mapSourcePath(activeSource))
+        ? path.basename(mapSourcePath(activeSource))
         : 'local-cao-lanh-sql',
       elements: localDatabaseElements(),
     });
+    return;
+  }
+  if (request.method === 'GET' && request.url === '/api/admin/map-sources') {
+    try {
+      sendJson(response, 200, {sources: availableMapSources()});
+    } catch (error) {
+      console.error('Could not list map snapshots:', error);
+      sendJson(response, 500, {
+        error: error instanceof Error ? error.message : 'Could not list map snapshots',
+      });
+    }
+    return;
+  }
+  if (request.method === 'POST' && request.url === '/api/admin/select-map') {
+    try {
+      const chunks = [];
+      for await (const chunk of request) chunks.push(chunk);
+      const input = JSON.parse(Buffer.concat(chunks).toString('utf8'));
+      if (!input || !['current', 'backup'].includes(input.source)) {
+        sendJson(response, 400, {error: 'Nguồn dữ liệu bản đồ không hợp lệ.'});
+        return;
+      }
+      sendJson(response, 200, selectMapSource(input.source));
+    } catch (error) {
+      console.error('Admin map selection failed:', error);
+      sendJson(response, 400, {
+        error: error instanceof Error ? error.message : 'Could not select map data',
+      });
+    }
     return;
   }
   if (request.method === 'POST' && request.url === '/api/admin/update-map') {

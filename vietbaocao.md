@@ -1,5 +1,26 @@
 # Báo cáo cập nhật tính năng chọn vị trí
 
+## Trạng thái hiện hành — 03/11/2026 09:53 (UTC+7)
+
+- Luồng tìm quanh đây hỗ trợ chọn tâm thủ công trên bản đồ hoặc dùng GPS theo
+  thao tác người dùng; bộ lọc danh mục và bán kính đã được tách thành module
+  chuyên trách.
+- Mã dữ liệu cũ `bus_stop`, `bus_station`, `hotel` được chuẩn hóa để lọc và
+  hiển thị đúng nhóm bến xe/điểm dừng hoặc nhà trọ.
+- Nguyên nhân hiện tượng nhóm địa điểm thay thế lẫn nhau là UI chỉ cho chọn một
+  danh mục bằng `ChoiceChip`; đã đổi sang chọn nhiều danh mục độc lập. Kết quả
+  hiện là hợp các nhóm được chọn, **Tất cả** bỏ mọi lựa chọn.
+- Đã xác minh thêm nguyên nhân dữ liệu trùng tên khác danh mục bị gộp trước khi
+  lọc, làm bản ghi đúng danh mục bị bỏ. Khi có bộ lọc, ứng dụng lọc danh mục
+  trước khi gộp và giữ riêng các danh mục chuẩn khác nhau; alias cùng danh mục
+  vẫn được gộp.
+- SQL thực tế có 19 quán cà phê, 11 quán ăn, 14 nơi lưu trú và 3 mục xe buýt
+  trong bán kính mặc định; kiểm thử UI xác nhận có thể hiển thị kết hợp.
+- Kiểm thử màn hình, alias, dịch vụ, gộp trùng chéo danh mục và `flutter analyze`
+  đều đạt.
+- Việc còn lại: tải lại/rebuild Flutter Web và xác nhận luồng trên dữ liệu thật;
+  triển khai proxy thay thế backend local khi đưa web lên production.
+
 ## Mục tiêu
 
 Cho phép người dùng tìm địa điểm quanh một vị trí tự chọn khi không muốn bật
@@ -83,6 +104,10 @@ GPS hoặc cấp quyền vị trí.
   xem bản đồ đường phố; yêu cầu đăng nhập khi tìm kiếm/lọc bằng thanh công cụ,
   tra vị trí thủ công bằng địa chỉ hoặc chuyển sang ảnh vệ tinh. Có thể vào màn
   đăng nhập từ lời nhắc để tiếp tục lưu yêu thích.
+- Bổ sung nút **Zoom +** và **Zoom -** có nhãn rõ ràng trên bản đồ chính và
+  bản đồ chi tiết. Các nút điều khiển trực tiếp camera nên người dùng không
+  cần bấm hai lần vào bản đồ; chuyển sang ảnh vệ tinh chỉ thay tile nền và
+  không ảnh hưởng ghim, marker hoặc zoom.
 - Chuyển chức năng nhập địa điểm thành bản nháp local dành riêng cho admin;
   cung cấp bước xác nhận trước khi ghi các bản nháp lên Firestore.
 - Khai báo Firestore Rules trong `firebase.json`, giới hạn quyền đọc/ghi theo

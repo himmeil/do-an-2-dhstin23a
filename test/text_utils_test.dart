@@ -14,6 +14,10 @@ void main() {
     expect(parseCategoryCode('Cà phê'), 'cafe');
     expect(parseCategoryCode('quan_an'), 'quan_an');
     expect(parseCategoryCode('nhà trọ'), 'tro');
+    expect(parseCategoryCode('ký túc xá'), 'tro');
+    expect(parseCategoryCode('nhà khách'), 'tro');
+    expect(parseCategoryCode('bus station'), 'ben_xe');
+    expect(parseCategoryCode('điểm dừng xe buýt'), 'ben_xe');
     expect(parseCategoryCode(''), 'khac');
     expect(parseCategoryCode('không biết'), 'khac');
   });

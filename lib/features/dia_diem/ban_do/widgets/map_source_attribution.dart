@@ -17,7 +17,7 @@ class MapSourceAttribution extends StatelessWidget {
   Widget build(BuildContext context) {
     if (style == MapStyle.street) {
       return const SimpleAttributionWidget(
-        source: Text('OpenStreetMap contributors'),
+        source: Text('OpenStreetMap HOT contributors'),
       );
     }
     return RichAttributionWidget(

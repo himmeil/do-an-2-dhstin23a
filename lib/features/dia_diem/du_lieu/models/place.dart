@@ -1,6 +1,7 @@
 import 'package:latlong2/latlong.dart';
 
 import '../../../../core/utils/text_utils.dart';
+import 'place_category_registry.dart';
 
 /// Dữ liệu địa điểm dùng chung cho lưu cục bộ và Firestore.
 class Place {
@@ -53,7 +54,7 @@ class Place {
   factory Place.fromMap(String id, Map<String, dynamic> map) => Place(
     id: id,
     name: map['name'] as String? ?? '',
-    category: map['category'] as String? ?? 'khac',
+    category: parseCategoryCode(map['category'] as String? ?? ''),
     address: map['address'] as String? ?? '',
     latitude: (map['lat'] as num? ?? 0).toDouble(),
     longitude: (map['lng'] as num? ?? 0).toDouble(),

@@ -47,8 +47,16 @@ class _AuthGate extends StatefulWidget {
 }
 
 class _AuthGateState extends State<_AuthGate> {
+  final _nearbyPlacesService = OverpassNearbyPlacesService();
   bool _guestMode = false;
   String? _signInPrompt;
+
+  Future<void> _prepareMap() async {
+    await Future.wait([
+      _nearbyPlacesService.downloadOfflinePlaces(),
+      _nearbyPlacesService.preloadMapTiles(),
+    ]);
+  }
 
   void _continueAsGuest() {
     setState(() {
@@ -78,13 +86,16 @@ class _AuthGateState extends State<_AuthGate> {
       final user = authSnapshot.data;
       if (user == null) {
         if (_guestMode) {
-          return NearbyScreen(
-            service: FirestorePlaceService(),
-            locationService: const GeolocatorLocationService(),
-            geocoder: NominatimGeocodingService(),
-            nearbyPlacesService: OverpassNearbyPlacesService(),
-            isGuest: true,
-            onRequireSignIn: _requireSignIn,
+          return StartupSplash(
+            onPrepare: _prepareMap,
+            child: NearbyScreen(
+              service: FirestorePlaceService(),
+              locationService: const GeolocatorLocationService(),
+              geocoder: NominatimGeocodingService(),
+              nearbyPlacesService: _nearbyPlacesService,
+              isGuest: true,
+              onRequireSignIn: _requireSignIn,
+            ),
           );
         }
         return SignInScreen(
@@ -108,6 +119,7 @@ class _AuthGateState extends State<_AuthGate> {
           }
           if (!roleSnapshot.hasData) return const _AuthLoading();
           return StartupSplash(
+            onPrepare: _prepareMap,
             child: NearbyScreen(
               service: FirestorePlaceService(),
               draftService: LocalPlaceService(
@@ -115,7 +127,7 @@ class _AuthGateState extends State<_AuthGate> {
               ),
               locationService: const GeolocatorLocationService(),
               geocoder: NominatimGeocodingService(),
-              nearbyPlacesService: OverpassNearbyPlacesService(),
+              nearbyPlacesService: _nearbyPlacesService,
               favoriteService: FirestoreFavoriteService(userId: user.uid),
               userEmail: user.email ?? '',
               isAdmin: roleSnapshot.data!,

@@ -5,9 +5,10 @@ import 'package:flutter/material.dart';
 import '../../constants/app_constants.dart';
 
 class StartupSplash extends StatefulWidget {
-  const StartupSplash({required this.child, super.key});
+  const StartupSplash({required this.child, this.onPrepare, super.key});
 
   final Widget child;
+  final Future<void> Function()? onPrepare;
 
   @override
   State<StartupSplash> createState() => _StartupSplashState();
@@ -36,6 +37,7 @@ class _StartupSplashState extends State<StartupSplash>
   bool _showSplash = true;
   bool _isComplete = false;
   bool _isEnteringApp = false;
+  bool _isPreparing = false;
 
   @override
   void initState() {
@@ -55,8 +57,22 @@ class _StartupSplashState extends State<StartupSplash>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       setState(() => _isComplete = true);
-      _startupController.forward();
+      _prepareAndStart();
     });
+  }
+
+  Future<void> _prepareAndStart() async {
+    if (widget.onPrepare != null) {
+      if (mounted) setState(() => _isPreparing = true);
+      try {
+        await widget.onPrepare!().timeout(const Duration(seconds: 4));
+      } catch (_) {
+        // The local cache is optional; the app can still use Firestore.
+      }
+      if (!mounted) return;
+      setState(() => _isPreparing = false);
+    }
+    if (mounted) _startupController.forward();
   }
 
   @override
@@ -81,6 +97,7 @@ class _StartupSplashState extends State<StartupSplash>
                   progress: _progress,
                   isComplete: _isComplete,
                   isEnteringApp: _isEnteringApp,
+                  isPreparing: _isPreparing,
                 ),
               ),
             ),
@@ -95,11 +112,13 @@ class _SplashArtwork extends StatelessWidget {
     required this.progress,
     required this.isComplete,
     required this.isEnteringApp,
+    required this.isPreparing,
   });
 
   final Animation<double> progress;
   final bool isComplete;
   final bool isEnteringApp;
+  final bool isPreparing;
 
   @override
   Widget build(BuildContext context) {
@@ -187,6 +206,7 @@ class _SplashArtwork extends StatelessWidget {
                         child: _LoadingStatus(
                           isComplete: isComplete,
                           isEnteringApp: isEnteringApp,
+                          isPreparing: isPreparing,
                         ),
                       ),
                     ],
@@ -202,10 +222,15 @@ class _SplashArtwork extends StatelessWidget {
 }
 
 class _LoadingStatus extends StatelessWidget {
-  const _LoadingStatus({required this.isComplete, required this.isEnteringApp});
+  const _LoadingStatus({
+    required this.isComplete,
+    required this.isEnteringApp,
+    required this.isPreparing,
+  });
 
   final bool isComplete;
   final bool isEnteringApp;
+  final bool isPreparing;
 
   @override
   Widget build(BuildContext context) {
@@ -214,7 +239,9 @@ class _LoadingStatus extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Text(
-          isEnteringApp
+          isPreparing
+              ? 'ĐANG TẢI DỮ LIỆU BẢN ĐỒ'
+              : isEnteringApp
               ? 'ĐANG VÀO APP'
               : isComplete
               ? 'HOÀN THÀNH'

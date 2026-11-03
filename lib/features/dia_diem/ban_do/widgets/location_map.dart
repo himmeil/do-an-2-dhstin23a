@@ -7,6 +7,7 @@ import '../map_tile_source.dart';
 import 'map_source_attribution.dart';
 import 'map_style_button.dart';
 import 'map_territorial_note.dart';
+import 'map_zoom_controls.dart';
 
 /// Đường dẫn chỉ đường tới tọa độ (mở bằng app/website Google Maps, không cần API key).
 Uri directionsUri(double latitude, double longitude) => Uri.https(
@@ -46,6 +47,7 @@ class LocationMap extends StatefulWidget {
 
 class _LocationMapState extends State<LocationMap> {
   MapStyle _style = MapStyle.street;
+  final _mapController = MapController();
 
   @override
   Widget build(BuildContext context) {
@@ -61,6 +63,7 @@ class _LocationMapState extends State<LocationMap> {
             child: Stack(
               children: [
                 FlutterMap(
+                  mapController: _mapController,
                   options: MapOptions(
                     initialCenter: point,
                     initialZoom: 16,
@@ -71,6 +74,7 @@ class _LocationMapState extends State<LocationMap> {
                   children: [
                     TileLayer(
                       urlTemplate: _style.tileUrl,
+                      subdomains: const ['a', 'b', 'c'],
                       userAgentPackageName: 'vn.diadiem.quanhday',
                     ),
                     MarkerLayer(
@@ -97,6 +101,11 @@ class _LocationMapState extends State<LocationMap> {
                   canUseSatellite: widget.canUseSatellite,
                   onRequireSignIn: widget.onRequireSignIn,
                   onChanged: (style) => setState(() => _style = style),
+                ),
+                MapZoomControls(
+                  controller: _mapController,
+                  minZoom: 12,
+                  maxZoom: 19,
                 ),
               ],
             ),

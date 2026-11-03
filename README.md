@@ -16,20 +16,36 @@ App Flutter chỉ làm một việc: **tìm địa điểm xung quanh vị trí 
   mức tối đa; danh sách kết quả vẫn giữ đầy đủ dữ liệu.
 - Bản đồ được giới hạn trong khu vực Cao Lãnh; dữ liệu địa điểm không tải quốc gia ngoài vùng này.
 - Bản đồ tìm kiếm có inset định vị Hoàng Sa và Trường Sa trên nền OpenStreetMap; có thể ẩn/hiện inset. Inset dùng ghim vị trí tham khảo, không vẽ đường biên hay ranh giới chủ quyền.
+- Bản đồ chính và bản đồ chi tiết có nút **Zoom +** và **Zoom -** trên màn
+  hình; người dùng không cần bấm hai lần vào bản đồ để phóng to/thu nhỏ.
+  Nút chuyển **Xem vệ tinh** chỉ thay lớp tile nền, không ảnh hưởng marker hay
+  bộ điều khiển zoom.
 - Lọc theo loại (quán ăn, cà phê, trường học, nhà trọ, vui chơi, mua sắm, khác), bán kính (1 / 5 / 10 km / tất cả) và từ khóa (tìm không dấu được). Bộ lọc loại và bán kính chỉ mở khi bấm **Lọc** cạnh ô tìm kiếm.
+- Nhập tên địa điểm rồi bấm nút mũi tên **Tìm** để lọc kết quả. Các tên
+  trùng khớp sẽ hiện thành danh sách gợi ý; bấm một địa điểm để bản đồ tự
+  phóng tới vị trí đó và đánh dấu bằng ghim đỏ.
 - GPS không tự bật khi mở app. Người dùng có thể giữ trên bản đồ để chọn một điểm làm tâm tìm kiếm, không cần cấp quyền vị trí; cũng có thể bấm thanh vị trí để nhập địa chỉ (Nominatim/OpenStreetMap) hoặc chọn địa điểm đã nạp. Nút GPS chỉ lấy vị trí khi người dùng chủ động chọn.
 - App truy vấn SQLite local theo bán kính 1/5/10 km. Admin cập nhật dữ liệu từ Overpass; nếu Overpass timeout, backend tự dùng OpenStreetMap API, lưu dữ liệu Cao Lãnh vào SQLite. Lựa chọn “Tất cả” gồm địa điểm đã lưu và dữ liệu bản đồ local.
-- **Web local:** Flutter Web mặc định gọi proxy trong thư mục `backend/`, vì vậy trình duyệt không gọi Overpass trực tiếp và tránh lỗi CORS. Khi chạy trên Hosting, cần triển khai proxy tương đương bằng Firebase Functions hoặc Cloud Run.
+- **Web local:** Flutter Web mặc định gọi proxy trong thư mục `backend/`, vì vậy trình duyệt không gọi Overpass trực tiếp và tránh lỗi CORS. Cần backend ở `localhost:8787`; `run_web.bat` và `bat_app.bat` tự kiểm tra/khởi động backend để tránh màn hình rỗng khi proxy chưa chạy. Khi chạy trên Hosting, cần triển khai proxy tương đương bằng Firebase Functions hoặc Cloud Run.
+- Khi vào màn hình chính, splash sẽ gọi trước `GET /api/offline-places` của
+  backend local và tải trước 9 tile bản đồ HOT quanh Cao Lãnh, sau đó lưu
+  cache địa điểm để danh sách/bản đồ có dữ liệu sớm hơn. Bước này có timeout
+  4 giây; nếu backend hoặc tile chưa phản hồi, app vẫn tiếp tục dùng Firestore,
+  dữ liệu cache cũ và tải bổ sung khi bản đồ hiển thị.
 - **Chế độ offline:** danh sách địa điểm Cao Lãnh được đóng gói trong
   bộ nhớ cục bộ sau khi người dùng bấm tải trong menu tài khoản. Khi Overpass
   hoặc proxy không phản hồi, Flutter đọc dữ liệu đã tải, lọc theo bán kính và
   vẫn hiển thị danh sách/ghim địa điểm.
-  Dữ liệu nền bản đồ OpenStreetMap vẫn cần mạng nếu tile chưa được tải trước.
+  Dữ liệu địa lý dùng OpenStreetMap; nền bản đồ đường phố tải từ OpenStreetMap
+  HOT để tránh các ô xám khi máy chủ tile OSM chính bị giới hạn hoặc lỗi kết nối. Tile vẫn
+  cần mạng nếu chưa được tải trước.
 - **Mô hình chạy demo local:** Flutter Web chạy trên trình duyệt, còn server
   local làm lớp trung gian gọi Overpass và trả dữ liệu cửa hàng, quán cà phê,
   rạp phim, công viên và khu vui chơi về cho ứng dụng. Khi triển khai chính
   thức, server local có thể thay bằng Firebase Functions hoặc Cloud Run.
-- Xem dạng danh sách hoặc bản đồ; dùng nút góc trên bên phải để chuyển giữa bản đồ đường phố OpenStreetMap và ảnh vệ tinh Esri. Trang chi tiết cũng có nút chuyển lớp bản đồ và nút **Chỉ đường** (mở Google Maps).
+- Xem dạng danh sách hoặc bản đồ; dùng nút góc trên bên phải để chuyển giữa
+  bản đồ đường phố OpenStreetMap HOT và ảnh vệ tinh Esri. Trang chi tiết
+  cũng có nút chuyển lớp bản đồ và nút **Chỉ đường** (mở Google Maps).
 - Trên bản đồ có thể xem ranh giới phường Cao Lãnh (dữ liệu OpenStreetMap).
 - Khách có thể vào xem danh sách, chi tiết và bản đồ đường phố không cần tài khoản. Đăng nhập bằng email/mật khẩu để tìm kiếm/lọc, tra vị trí thủ công, xem ảnh vệ tinh và lưu địa điểm yêu thích; quản trị viên có thể tạo bản nháp trên thiết bị, xem lại rồi xác nhận đăng lên Firestore.
 - Màn tạo bản nháp có 3 cách: dán CSV/JSON (hoặc copy từ Excel/Google Sheets), thêm tay từng điểm, hoặc tạo dữ liệu mẫu quanh bạn để thử. Dữ liệu cũ trong bộ nhớ trên thiết bị được giữ nguyên và không tự tải lên.
@@ -140,6 +156,11 @@ loại trùng và lưu vào:
 - `backend/data/dia_diem_cao_lanh.sql`: các lệnh SQL để khôi phục/chuyển database.
 - Các file `backup_*`: bản sao của lần cập nhật trước.
 
+Admin cũng có thể mở **Công cụ quản trị → Chọn dữ liệu bản đồ Cao Lãnh** để
+xem số lượng/ngày cập nhật và chuyển giữa file bản mới với file backup. Lựa
+chọn đang dùng được giữ lại sau khi khởi động lại backend; thao tác này không
+ghi đè các file snapshot.
+
 Có thể gọi trực tiếp bằng PowerShell:
 
 ```powershell
@@ -191,7 +212,7 @@ lỗi CORS trên trình duyệt.
 - Tạo tài khoản/đăng nhập dùng Firebase Authentication email/mật khẩu. Quyền quản trị không dựa trên email hard-code trong app: cần tạo tài khoản trong Authentication, sau đó thêm document `/admins/{uid}` từ Firebase Console. Firestore Rules chặn client tự cấp quyền admin.
 - Quy tắc bảo vệ dữ liệu nằm trong `firestore.rules`, được tham chiếu ở cấp gốc `firebase.json`. Trước khi dùng cần bật Firestore API, tạo database ở `asia-southeast1` và bật nhà cung cấp Email/Password trong Firebase Authentication của project.
 - Firebase Core, Authentication và Firestore được cấu hình cho Android, iOS và Web bằng FlutterFire; cấu hình nền tảng nằm trong `lib/firebase_options.dart`.
-- App gọi mạng tới OpenStreetMap (ô bản đồ, tìm địa chỉ qua Nominatim và
+- App gọi mạng tới OpenStreetMap HOT (ô bản đồ, tìm địa chỉ qua Nominatim và
   tra cứu địa điểm qua proxy local), Esri (ô ảnh vệ tinh khi bạn chọn lớp
   vệ tinh) và Firebase (xác thực, địa điểm, danh sách yêu thích).
 - `firebase_options.dart` và `google-services.json` là cấu hình client dùng để kết nối Firebase, không phải khóa bí mật. Không đưa service-account JSON, private key hoặc thông tin Firebase Admin vào ứng dụng hay repository.
@@ -199,3 +220,18 @@ lỗi CORS trên trình duyệt.
 - Chạy web mỗi lần ở một cổng khác (`localhost:xxxx`) sẽ có kho dữ liệu riêng. Muốn giữ dữ liệu giữa các lần chạy, đặt cổng cố định: `flutter run -d edge --web-port 5000` hoặc `flutter run -d web-server --web-port 5000`.
 - Xóa dữ liệu: xóa dữ liệu của app, hoặc xóa dữ liệu trang trong trình duyệt.
 - Bộ lọc khoảng cách chạy trên máy, phù hợp vài nghìn địa điểm.
+
+## Nhật ký chỉnh sửa
+
+Mỗi thư mục có thay đổi ghi một dòng trong `README.md` của thư mục đó theo giờ
+Việt Nam (`UTC+7`, `YYYY-MM-DD HH:mm`). Giữ tối đa 10 mục lịch sử; khi thêm
+mục thứ 11, xóa mục cũ nhất. Mỗi mục ghi ngắn gọn thời gian và nội dung đổi.
+Quy tắc này áp dụng cho mọi file Markdown có mục nhật ký: chỉ giữ 10 lần chỉnh
+sửa gần nhất, xếp theo thời gian tăng dần và xóa mục cũ nhất khi vượt giới hạn.
+Các tài liệu báo cáo, thông báo và tiến độ phải phản ánh trạng thái hiện hành,
+bao gồm việc đã hoàn thành, việc đang chờ và hướng làm tiếp theo; không chỉ lưu
+lịch sử thay đổi.
+
+- 2026-11-03 08:12 (UTC+7): Thiết lập nhật ký thay đổi theo thư mục và định dạng thời gian UTC+7.
+- 2026-11-03 08:28 (UTC+7): Chuẩn hóa nhật ký Markdown còn tối đa 10 lần chỉnh sửa; quy định tài liệu tiến độ/báo cáo lưu trạng thái hiện hành.
+- 2026-11-03 09:43 (UTC+7): Sửa bộ lọc tìm quanh đây để có thể kết hợp nhiều danh mục cùng lúc.

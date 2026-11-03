@@ -9,9 +9,12 @@ echo ========================================
 echo       DIA DIEM - FLUTTER WEB
 echo ========================================
 echo Website: http://localhost:5000
+call :ensure_backend
+if errorlevel 1 goto :menu
 for /f "tokens=5" %%P in ('netstat -ano ^| findstr /R /C:":5000 .*LISTENING"') do (
   if not "%%P"=="0" (
-    echo Cong 5000 dang duoc dung boi PID %%P. Hay chay tat_app.bat truoc.
+    echo Cong 5000 dang duoc dung boi PID %%P.
+    echo Backend da san sang; neu trang web dang mo, hay tai lai trang bang F5.
     goto :menu
   )
 )
@@ -36,6 +39,21 @@ if errorlevel 1 (
   echo.
   echo Khong the chay web server. Kiem tra Python va cong 5000.
 )
+goto :menu
+
+:ensure_backend
+curl.exe --fail --silent --max-time 2 --output NUL http://localhost:8787/health 2>NUL
+if not errorlevel 1 exit /b 0
+
+echo Backend chua chay. Dang khoi dong backend tai http://localhost:8787 ...
+start "Dia Diem - Backend" /D "%~dp0backend" cmd /k "call run_backend.bat"
+for /L %%I in (1,1,20) do (
+  curl.exe --fail --silent --max-time 2 --output NUL http://localhost:8787/health 2>NUL
+  if not errorlevel 1 exit /b 0
+  timeout /t 1 /nobreak >nul
+)
+echo Khong the ket noi backend. Kiem tra cua so "Dia Diem - Backend".
+exit /b 1
 
 :menu
 echo.

@@ -1,4 +1,5 @@
 import 'package:diadiem_quanh_day/features/dia_diem/ban_do/widgets/location_map.dart';
+import 'package:diadiem_quanh_day/features/dia_diem/ban_do/widgets/map_zoom_controls.dart';
 import 'package:diadiem_quanh_day/features/dia_diem/ban_do/widgets/nearby_map.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -30,6 +31,26 @@ void main() {
     expect(find.byType(FlutterMap), findsOneWidget);
     await tester.tap(find.text('Chỉ đường'));
     expect(opened, directionsUri(10.46, 105.63));
+  });
+
+  testWidgets('đặt điều khiển Zoom ở góc trên bên trái', (tester) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Scaffold(body: LocationMap(latitude: 10.46, longitude: 105.63)),
+      ),
+    );
+
+    final positioned = tester.widget<Positioned>(
+      find
+          .descendant(
+            of: find.byType(MapZoomControls),
+            matching: find.byType(Positioned),
+          )
+          .first,
+    );
+    expect(positioned.left, 12);
+    expect(positioned.top, 12);
+    expect(positioned.bottom, isNull);
   });
 
   testWidgets('hiển thị chú thích chủ quyền trên các bản đồ', (tester) async {
@@ -91,7 +112,7 @@ void main() {
     TileLayer tileLayer() => tester.widget<TileLayer>(find.byType(TileLayer));
     expect(
       tileLayer().urlTemplate,
-      'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+      'https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',
     );
     expect(find.text('Xem vệ tinh'), findsOneWidget);
 
@@ -111,7 +132,7 @@ void main() {
     await tester.pump();
     expect(
       tileLayer().urlTemplate,
-      'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+      'https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',
     );
     expect(find.text('Xem vệ tinh'), findsOneWidget);
   });

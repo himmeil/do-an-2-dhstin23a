@@ -14,7 +14,13 @@ trước khi Overpass hoàn tất.
 - công viên, sân chơi, khu vui chơi, công viên nước, trung tâm thể thao;
 - cửa hàng;
 - bảo tàng, điểm tham quan, sở thú và công viên chủ đề;
-- trường học, cao đẳng và đại học.
+- trường học, cao đẳng và đại học;
+- nhà khách, nhà nghỉ, khách sạn, nhà trọ, ký túc xá và các điểm lưu trú;
+- bến xe và các điểm dừng xe buýt có tên trong OpenStreetMap.
+
+Bộ điều khiển Zoom và lớp ảnh vệ tinh thuộc Flutter Web, không chạy qua proxy
+backend. Proxy chỉ cung cấp dữ liệu địa điểm; tile bản đồ được trình duyệt tải
+trực tiếp từ OpenStreetMap HOT hoặc Esri.
 
 ## Chạy local
 
@@ -37,6 +43,12 @@ Sau đó chạy Flutter Web:
 flutter run -d web-server --web-port 5000
 ```
 
+Backend tại `http://localhost:8787` phải đang chạy để tìm địa điểm gần đây;
+nếu chỉ mở Flutter Web mà thiếu backend, dữ liệu SQL sẽ không được truy vấn.
+`run_web.bat` tự kiểm tra và khởi động backend trước khi build; `bat_app.bat`
+cũng khởi động backend rồi mới mở web. Nếu cổng `5000` đã có web đang chạy,
+sau khi backend khởi động hãy tải lại trang bằng `F5`.
+
 Mở `http://localhost:5000` bằng Edge/Chrome. Với demo ổn định, có thể build
 trước rồi chạy static server:
 
@@ -44,6 +56,18 @@ trước rồi chạy static server:
 flutter build web
 python -m http.server 5000 --directory build\web --bind 127.0.0.1
 ```
+
+Static server này chỉ phục vụ giao diện, không tự khởi động proxy Node.js. Nếu
+dùng cách chạy trên, mở một terminal khác và chạy backend trước:
+
+```powershell
+cd backend
+npm start
+```
+
+Sau khi `http://localhost:8787/health` trả về `ok: true`, tải lại trang
+`http://localhost:5000`. Nếu backend không chạy và chưa tải dữ liệu offline,
+ứng dụng sẽ hiện hướng dẫn khởi động thay vì báo danh sách rỗng.
 
 Chế độ `web-server` phù hợp khi cần hot reload nhưng có thể mất thời gian chờ
 debug service ở lần chạy đầu.
@@ -85,6 +109,16 @@ các máy chủ Overpass đồng thời và dùng phản hồi thành công đ�
 công, `dia_diem_cao_lanh.json` trở thành bản mới
 và bản cũ được đổi tên thành `backup_dia_diem_cao_lanh.json`. Nếu Overpass lỗi,
 hai file không bị thay đổi.
+
+Trong menu Công cụ quản trị của ứng dụng, mục **Chọn dữ liệu bản đồ Cao Lãnh**
+gọi `GET /api/admin/map-sources` để hiển thị các snapshot hiện có, gồm bản mới
+`dia_diem_cao_lanh.json` và bản cũ `backup_dia_diem_cao_lanh.json` (nếu tồn tại),
+kèm số địa điểm, ngày cập nhật và trạng thái đang dùng. Sau khi xác nhận,
+`POST /api/admin/select-map` áp dụng snapshot đã chọn vào SQLite. Lựa chọn đang
+dùng được lưu tại `data/active_map_source.json` và tự nạp lại khi backend khởi
+động; thao tác chọn không ghi đè hai file snapshot. Cập nhật dữ liệu Overpass
+mới sẽ tạo bản mới, lưu bản hiện tại thành backup và chuyển lựa chọn đang dùng
+sang bản mới.
 
 Các file snapshot này nằm trong `backend/data` và được tạo sau lần cập nhật
 bản đồ thành công từ Overpass hoặc OpenStreetMap API; chúng không được commit
@@ -163,3 +197,10 @@ Invoke-RestMethod `
 
 Mỗi lần cập nhật thành công, dữ liệu được ghi đồng thời vào SQLite, JSON và
 SQL. Nếu nguồn mạng thất bại, bản hiện tại và các file backup không bị xóa.
+
+## Nhật ký chỉnh sửa
+
+- Chỉ giữ tối đa 10 mục nhật ký gần nhất; thêm mục mới ở cuối và xóa mục cũ nhất khi vượt giới hạn.
+- 2026-11-03 08:12 (UTC+7): Ghi nhận chuẩn hóa danh mục SQL/OSM và bổ sung khởi động backend tự động khi chạy Flutter Web.
+- 2026-11-03 08:36 (UTC+7): Nêu rõ static server không tự bật proxy; bổ sung hướng chạy backend và tải lại trang.
+- 2026-11-03 08:28 (UTC+7): Áp dụng quy ước lưu 10 lần chỉnh sửa gần nhất cho nhật ký backend.
