@@ -18,6 +18,8 @@ class PlaceTile extends StatelessWidget {
     required this.onTap,
     this.isFavorite = false,
     this.onFavoriteTap,
+    this.floralStyle = false,
+    this.floralIndex = 0,
     super.key,
   });
 
@@ -25,6 +27,8 @@ class PlaceTile extends StatelessWidget {
   final VoidCallback onTap;
   final bool isFavorite;
   final VoidCallback? onFavoriteTap;
+  final bool floralStyle;
+  final int floralIndex;
 
   @override
   Widget build(BuildContext context) {
@@ -32,14 +36,25 @@ class PlaceTile extends StatelessWidget {
     final place = hit.place;
     final category = categoryOf(place.category);
     return Card(
+      color: floralStyle ? _petalCardColor(floralIndex) : null,
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(floralStyle ? 26 : 12),
+          topRight: const Radius.circular(14),
+          bottomRight: Radius.circular(floralStyle ? 26 : 12),
+          bottomLeft: const Radius.circular(14),
+        ),
+      ),
       child: ListTile(
         onTap: onTap,
-        leading: CircleAvatar(
-          backgroundColor: colors.primaryContainer,
-          foregroundColor: colors.onPrimaryContainer,
-          child: Icon(category.icon),
-        ),
+        leading: floralStyle
+            ? _PetalBadge(icon: category.icon, index: floralIndex)
+            : CircleAvatar(
+                backgroundColor: colors.primaryContainer,
+                foregroundColor: colors.onPrimaryContainer,
+                child: Icon(category.icon),
+              ),
         title: Text(
           place.name,
           maxLines: 1,
@@ -78,4 +93,92 @@ class PlaceTile extends StatelessWidget {
       ),
     );
   }
+
+  Color _petalCardColor(int index) => switch (index % 4) {
+    0 => const Color(0xFFFFF1F6),
+    1 => const Color(0xFFF0F8F1),
+    2 => const Color(0xFFFFF6F8),
+    _ => const Color(0xFFEAF6F0),
+  };
+}
+
+class _PetalBadge extends StatelessWidget {
+  const _PetalBadge({required this.icon, required this.index});
+
+  final IconData icon;
+  final int index;
+
+  @override
+  Widget build(BuildContext context) {
+    const pink = Color(0xFFE989AB);
+    const green = Color(0xFF75A985);
+    final petals = index.isEven
+        ? const [pink, pink, green, pink, green]
+        : const [green, pink, pink, green, pink];
+    return SizedBox(
+      key: const ValueKey('place-petal-badge'),
+      width: 48,
+      height: 48,
+      child: Stack(
+        children: [
+          Positioned(
+            left: 17,
+            top: 0,
+            child: _Petal(color: petals[0], angle: 0),
+          ),
+          Positioned(
+            right: 1,
+            top: 10,
+            child: _Petal(color: petals[1], angle: 0.9),
+          ),
+          Positioned(
+            right: 5,
+            bottom: 1,
+            child: _Petal(color: petals[2], angle: 1.8),
+          ),
+          Positioned(
+            left: 6,
+            bottom: 1,
+            child: _Petal(color: petals[3], angle: -1.8),
+          ),
+          Positioned(
+            left: 1,
+            top: 10,
+            child: _Petal(color: petals[4], angle: -0.9),
+          ),
+          Positioned(
+            left: 12,
+            top: 12,
+            child: CircleAvatar(
+              radius: 12,
+              backgroundColor: const Color(0xFFEAF6F0),
+              foregroundColor: const Color(0xFF397B54),
+              child: Icon(icon, size: 15),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _Petal extends StatelessWidget {
+  const _Petal({required this.color, required this.angle});
+
+  final Color color;
+  final double angle;
+
+  @override
+  Widget build(BuildContext context) => Transform.rotate(
+    angle: angle,
+    child: Container(
+      width: 14,
+      height: 20,
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(99),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.85)),
+      ),
+    ),
+  );
 }

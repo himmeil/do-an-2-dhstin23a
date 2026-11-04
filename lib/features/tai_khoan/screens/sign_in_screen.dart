@@ -26,6 +26,7 @@ class _SignInScreenState extends State<SignInScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _passwordFocusNode = FocusNode();
   bool _register = false;
   bool _busy = false;
   bool _hidePassword = true;
@@ -35,6 +36,7 @@ class _SignInScreenState extends State<SignInScreen> {
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
+    _passwordFocusNode.dispose();
     super.dispose();
   }
 
@@ -93,7 +95,7 @@ class _SignInScreenState extends State<SignInScreen> {
           gradient: const LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [            Color(0xFFE1F1FA), Color(0xFFFFEDF3), Color(0xFFF5FAF6)],
+            colors: [Color(0xFFE1F1FA), Color(0xFFFFEDF3), Color(0xFFF5FAF6)],
           ),
         ),
         child: Stack(
@@ -188,7 +190,10 @@ class _SignInScreenState extends State<SignInScreen> {
                                 TextFormField(
                                   controller: _emailController,
                                   keyboardType: TextInputType.emailAddress,
+                                  textInputAction: TextInputAction.next,
                                   autofillHints: const [AutofillHints.email],
+                                  onFieldSubmitted: (_) =>
+                                      _passwordFocusNode.requestFocus(),
                                   decoration: const InputDecoration(
                                     labelText: 'Email',
                                     prefixIcon: Icon(
@@ -207,7 +212,10 @@ class _SignInScreenState extends State<SignInScreen> {
                                 const SizedBox(height: 12),
                                 TextFormField(
                                   controller: _passwordController,
+                                  focusNode: _passwordFocusNode,
                                   obscureText: _hidePassword,
+                                  textInputAction: TextInputAction.done,
+                                  onFieldSubmitted: (_) => _submit(),
                                   autofillHints: [
                                     _register
                                         ? AutofillHints.newPassword

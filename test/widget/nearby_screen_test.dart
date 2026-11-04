@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:diadiem_quanh_day/features/dia_diem/du_lieu/models/place.dart';
 import 'package:diadiem_quanh_day/features/dia_diem/du_lieu/repositories/place_repository.dart';
 import 'package:diadiem_quanh_day/features/gps/services/location_service.dart';
@@ -5,6 +7,7 @@ import 'package:diadiem_quanh_day/features/tim_kiem/screens/nearby_screen.dart';
 import 'package:diadiem_quanh_day/features/tim_kiem/services/geocoding_service.dart';
 import 'package:diadiem_quanh_day/features/tim_kiem/services/nearby_places_service.dart';
 import 'package:diadiem_quanh_day/features/dia_diem/ban_do/cao_lanh_ward_boundary.dart';
+import 'package:diadiem_quanh_day/features/dia_diem/ban_do/widgets/nearby_map.dart';
 import 'package:diadiem_quanh_day/core/config/display_preferences.dart';
 import 'package:diadiem_quanh_day/core/config/app_links.dart';
 import 'package:flutter/material.dart';
@@ -22,6 +25,18 @@ class _FakePlaceService implements PlaceService {
 
   @override
   Stream<List<Place>> watchAll() => Stream.value(places);
+
+  @override
+  Future<int> importAll(List<Place> places) async => places.length;
+}
+
+class _PendingPlaceService implements PlaceService {
+  _PendingPlaceService(this.places);
+
+  final Stream<List<Place>> places;
+
+  @override
+  Stream<List<Place>> watchAll() => places;
 
   @override
   Future<int> importAll(List<Place> places) async => places.length;
@@ -85,6 +100,63 @@ Place _place(String name, double lat, {double longitude = 105}) => Place.create(
 );
 
 void main() {
+  testWidgets('renders the map while places are still loading', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final places = StreamController<List<Place>>();
+    addTearDown(places.close);
+    await tester.pumpWidget(
+      MaterialApp(
+        home: NearbyScreen(
+          service: _PendingPlaceService(places.stream),
+          geocoder: _FakeGeocoder(),
+          locationService: _FakeLocationService(
+            const LocationResult.failed(LocationFailure.serviceOff),
+          ),
+        ),
+      ),
+    );
+    await tester.pump();
+
+    expect(find.byType(NearbyMap), findsOneWidget);
+    expect(find.byKey(const ValueKey('nearby-list-background')), findsNothing);
+    expect(find.byType(LinearProgressIndicator), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('uses sky-blue and pink-green lotus styling only in the list', (
+    tester,
+  ) async {
+    SharedPreferences.setMockInitialValues({});
+    await tester.pumpWidget(
+      MaterialApp(
+        home: NearbyScreen(
+          service: _FakePlaceService([
+            _place('Quán hoa sen', 10.46, longitude: 105.63),
+          ]),
+          geocoder: _FakeGeocoder(),
+          locationService: _FakeLocationService(
+            const LocationResult.ok(LatLng(10.46, 105.63)),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('nearby-list-background')), findsNothing);
+
+    await tester.tap(find.byTooltip('Xem danh sách'));
+    await tester.pumpAndSettle();
+
+    final background = tester.widget<ColoredBox>(
+      find.byKey(const ValueKey('nearby-list-background')),
+    );
+    expect(background.color, const Color(0xFFE7F5FC));
+    expect(find.byKey(const ValueKey('place-petal-badge')), findsOneWidget);
+    expect(
+      tester.widget<Card>(find.byType(Card).last).color,
+      const Color(0xFFFFF1F6),
+    );
+  });
+
   testWidgets('cài đặt đồ họa và hiệu ứng được lưu trên thiết bị', (
     tester,
   ) async {

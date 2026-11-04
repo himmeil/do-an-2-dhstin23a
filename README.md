@@ -29,6 +29,9 @@ App Flutter chỉ làm một việc: **tìm địa điểm xung quanh vị trí 
 - Nhập tên địa điểm rồi bấm nút mũi tên **Tìm** để lọc kết quả. Các tên
   trùng khớp sẽ hiện thành danh sách gợi ý; bấm một địa điểm để bản đồ tự
   phóng tới vị trí đó và đánh dấu bằng ghim đỏ.
+- Chế độ danh sách dùng nền xanh da trời nhạt, thẻ địa điểm phối hồng/xanh lá
+  và biểu tượng cánh hoa; giao diện bản đồ giữ nguyên. Ở màn đăng nhập, Enter
+  chuyển từ email sang mật khẩu và Enter lần nữa gửi biểu mẫu.
 - GPS không tự bật khi mở app. Người dùng có thể giữ trên bản đồ để chọn một điểm làm tâm tìm kiếm, không cần cấp quyền vị trí; cũng có thể bấm thanh vị trí để nhập địa chỉ (Nominatim/OpenStreetMap) hoặc chọn địa điểm đã nạp. Nút GPS chỉ lấy vị trí khi người dùng chủ động chọn.
 - App truy vấn SQLite local theo bán kính 1/5/10 km. Admin cập nhật dữ liệu từ Overpass; nếu Overpass timeout, backend tự dùng OpenStreetMap API, lưu dữ liệu Cao Lãnh vào SQLite. Lựa chọn “Tất cả” gồm địa điểm đã lưu và dữ liệu bản đồ local.
 - **Web local:** Flutter Web gọi proxy trong thư mục `backend/` tại
@@ -38,8 +41,10 @@ App Flutter chỉ làm một việc: **tìm địa điểm xung quanh vị trí 
   ngay trên thiết bị và không gọi `/api/**`/Firebase Functions. Vì snapshot là
   dữ liệu tĩnh, cập nhật OSM ở local sẽ đồng bộ asset; cần commit asset và
   deploy Hosting để production nhận dữ liệu mới.
-- Splash không tải trước dữ liệu bản đồ; địa điểm truy vấn khi cần. Tính năng
-  tải thủ công dữ liệu bản đồ và endpoint `/api/offline-places` đã tắt.
+- Firebase khởi tạo trên màn chờ xanh da trời thay vì để trang trắng. Khi dữ
+  liệu địa điểm còn tải, bản đồ bắt đầu dựng/tải tile song song; không tải
+  trước toàn bộ dataset. Tính năng tải thủ công dữ liệu bản đồ và endpoint
+  `/api/offline-places` đã tắt.
   Cache JSON cũ (nếu thiết bị từng có) vẫn được đọc làm fallback khi proxy lỗi,
   nhưng ứng dụng không tạo cache mới. Firebase dùng snapshot đã đóng gói, không
   phụ thuộc cache trình duyệt cho dữ liệu địa điểm. Tile raster chỉ tải theo vùng bản đồ

@@ -104,4 +104,41 @@ void main() {
     expect(continuedAsGuest, isTrue);
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets('pressing Enter advances fields and submits sign-in', (
+    tester,
+  ) async {
+    Map<String, Object?>? submitted;
+    await tester.pumpWidget(
+      MaterialApp(
+        home: SignInScreen(
+          onSubmit:
+              ({required email, required password, required register}) async {
+                submitted = {
+                  'email': email,
+                  'password': password,
+                  'register': register,
+                };
+              },
+        ),
+      ),
+    );
+
+    await tester.enterText(
+      find.byType(TextFormField).at(0),
+      'user@example.com',
+    );
+    await tester.testTextInput.receiveAction(TextInputAction.next);
+    await tester.pump();
+    await tester.enterText(find.byType(TextFormField).at(1), 'password123');
+    await tester.testTextInput.receiveAction(TextInputAction.done);
+    await tester.pumpAndSettle();
+
+    expect(submitted, {
+      'email': 'user@example.com',
+      'password': 'password123',
+      'register': false,
+    });
+    expect(tester.takeException(), isNull);
+  });
 }

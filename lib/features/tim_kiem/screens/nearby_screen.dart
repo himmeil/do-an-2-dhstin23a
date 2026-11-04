@@ -1226,13 +1226,19 @@ class _NearbyScreenState extends State<NearbyScreen> {
             );
           }
           _reportedAdminErrorCodes.remove(AdminErrorCode.placesStreamFailed);
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const LoadingView();
+          if (snapshot.connectionState == ConnectionState.waiting &&
+              !_mapMode) {
+            return const ColoredBox(
+              color: Color(0xFFE7F5FC),
+              child: LoadingView(),
+            );
           }
           final all = snapshot.data ?? const <Place>[];
           final hits = _filter(all);
+          final loadingPlaces =
+              snapshot.connectionState == ConnectionState.waiting;
           final showSearchControls = !_mapMode || _searchControlsExpanded;
-          return Column(
+          final content = Column(
             children: [
               if (!_mapMode) _DiscoveryBanner(onPlay: _openCaoLanhQuiz),
               if (_favoriteError != null)
@@ -1282,6 +1288,7 @@ class _NearbyScreenState extends State<NearbyScreen> {
                   ),
                 _buildFilters(all),
               ],
+              if (loadingPlaces) const LinearProgressIndicator(),
               if (_searchingNearby) const LinearProgressIndicator(),
               if (_nearbySearchError != null)
                 _NearbySearchStatus(
@@ -1397,6 +1404,13 @@ class _NearbyScreenState extends State<NearbyScreen> {
               ),
             ],
           );
+          return _mapMode
+              ? content
+              : ColoredBox(
+                  key: const ValueKey('nearby-list-background'),
+                  color: const Color(0xFFE7F5FC),
+                  child: content,
+                );
         },
       ),
     );
@@ -1595,14 +1609,19 @@ class _NearbyScreenState extends State<NearbyScreen> {
       key: const ValueKey('nearby-places-list'),
       padding: const EdgeInsets.only(bottom: 16),
       itemCount: hits.length,
-      itemBuilder: (context, index) => PlaceTile(
-        hit: hits[index],
-        onTap: () => _openDetail(hits[index]),
-        isFavorite: _favoriteIds.contains(hits[index].place.id),
-        onFavoriteTap: widget.favoriteService == null
-            ? null
-            : () => _toggleFavorite(hits[index].place),
-      ),
+      itemBuilder: (context, index) {
+        final hit = hits[index];
+        return PlaceTile(
+          hit: hit,
+          onTap: () => _openDetail(hit),
+          isFavorite: _favoriteIds.contains(hit.place.id),
+          onFavoriteTap: widget.favoriteService == null
+              ? null
+              : () => _toggleFavorite(hit.place),
+          floralStyle: true,
+          floralIndex: index,
+        );
+      },
     );
   }
 }

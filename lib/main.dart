@@ -21,16 +21,21 @@ import 'features/tim_kiem/services/geocoding_service.dart';
 import 'features/tim_kiem/services/nearby_places_service.dart';
 import 'firebase_options.dart';
 
-Future<void> main() async {
+void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  runApp(NearbyApp());
+  runApp(
+    NearbyApp(
+      initializeFirebase: () => Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      ),
+    ),
+  );
 }
 
 class NearbyApp extends StatelessWidget {
-  NearbyApp({super.key});
+  const NearbyApp({required this.initializeFirebase, super.key});
 
-  final _authService = AuthService();
+  final Future<FirebaseApp> Function() initializeFirebase;
 
   @override
   Widget build(BuildContext context) {
@@ -39,9 +44,112 @@ class NearbyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
       darkTheme: AppTheme.dark,
-      home: _AuthGate(authService: _authService),
+      home: _FirebaseBootstrap(
+        initializeFirebase: initializeFirebase,
+        childBuilder: (_) => _AuthGate(authService: AuthService()),
+      ),
     );
   }
+}
+
+class _FirebaseBootstrap extends StatefulWidget {
+  const _FirebaseBootstrap({
+    required this.initializeFirebase,
+    required this.childBuilder,
+  });
+
+  final Future<FirebaseApp> Function() initializeFirebase;
+  final WidgetBuilder childBuilder;
+
+  @override
+  State<_FirebaseBootstrap> createState() => _FirebaseBootstrapState();
+}
+
+class _FirebaseBootstrapState extends State<_FirebaseBootstrap> {
+  late Future<FirebaseApp> _initialization;
+
+  @override
+  void initState() {
+    super.initState();
+    _initialization = Future<FirebaseApp>.sync(widget.initializeFirebase);
+  }
+
+  void _retry() {
+    setState(() {
+      _initialization = Future<FirebaseApp>.sync(widget.initializeFirebase);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) => FutureBuilder<FirebaseApp>(
+    future: _initialization,
+    builder: (context, snapshot) {
+      if (snapshot.connectionState == ConnectionState.waiting) {
+        return const _FirebaseBootstrapLoading();
+      }
+      if (snapshot.hasError) {
+        return _FirebaseBootstrapError(onRetry: _retry);
+      }
+      if (!snapshot.hasData) return const _FirebaseBootstrapLoading();
+      return widget.childBuilder(context);
+    },
+  );
+}
+
+class _FirebaseBootstrapLoading extends StatelessWidget {
+  const _FirebaseBootstrapLoading();
+
+  @override
+  Widget build(BuildContext context) => const Scaffold(
+    backgroundColor: Color(0xFFE7F5FC),
+    body: Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.local_florist, size: 48, color: Color(0xFF3B8EBA)),
+          SizedBox(height: 16),
+          CircularProgressIndicator(color: Color(0xFF3B8EBA)),
+          SizedBox(height: 12),
+          Text('Đang khởi tạo ứng dụng...'),
+        ],
+      ),
+    ),
+  );
+}
+
+class _FirebaseBootstrapError extends StatelessWidget {
+  const _FirebaseBootstrapError({required this.onRetry});
+
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+    backgroundColor: const Color(0xFFE7F5FC),
+    body: Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(
+              Icons.cloud_off_outlined,
+              size: 40,
+              color: Color(0xFF2879A8),
+            ),
+            const SizedBox(height: 12),
+            const Text(
+              'Chưa thể kết nối Firebase để khởi động ứng dụng.',
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 4),
+            const Text('Mã lỗi: FIREBASE_INIT_FAILED'),
+            const SizedBox(height: 12),
+            FilledButton(onPressed: onRetry, child: const Text('Thử lại')),
+          ],
+        ),
+      ),
+    ),
+  );
 }
 
 class _AuthGate extends StatefulWidget {
