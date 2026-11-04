@@ -8,7 +8,7 @@ if not exist "dulieucanhan.env" (
   exit /b 1
 )
 
-for /f "delims=" %%P in ('powershell -NoProfile -Command "(Get-Content dulieucanhan.env -Raw | ConvertFrom-Json).FIREBASE_PROJECT_ID"') do set "FIREBASE_PROJECT_ID=%%P"
+for /f "delims=" %%P in ('powershell -NoProfile -Command "$config = Get-Content dulieucanhan.env -Raw | ConvertFrom-Json; $required = @('FIREBASE_PROJECT_ID','NEARBY_API_BASE_URL','OVERPASS_API_URL','OVERPASS_FALLBACK_URLS','OSM_MAP_API_URL','NOMINATIM_SEARCH_URL','STREET_TILE_URL','SATELLITE_TILE_URL','DIRECTIONS_URL'); foreach ($key in $required) { if ([string]::IsNullOrWhiteSpace($config.$key)) { exit 1 } }; $config.FIREBASE_PROJECT_ID"') do set "FIREBASE_PROJECT_ID=%%P"
 if not defined FIREBASE_PROJECT_ID (
   echo Khong doc duoc FIREBASE_PROJECT_ID tu dulieucanhan.env.
   exit /b 1

@@ -62,6 +62,11 @@ App Flutter chỉ làm một việc: **tìm địa điểm xung quanh vị trí 
   `dulieucanhan.env` khi build. Tạo file này bằng cách sao chép
   `dulieucanhan.env.example`, rồi điền cấu hình Firebase của dự án bạn.
   File cá nhân bị `.gitignore` loại khỏi Git; không commit hoặc gửi file này.
+- Các link dịch vụ `NEARBY_API_BASE_URL`, `OVERPASS_API_URL`,
+  `OVERPASS_FALLBACK_URLS`, `OSM_MAP_API_URL`, `NOMINATIM_SEARCH_URL`,
+  `STREET_TILE_URL`, `SATELLITE_TILE_URL` và `DIRECTIONS_URL` cũng nằm trong
+  file này; mã nguồn không đóng cứng địa chỉ máy chủ. GitHub Actions kiểm tra
+  đủ các link trước khi build.
 - Dùng `deploy_firebase.bat` để build production và deploy riêng Hosting.
   Build này đặt `APP_MODE=firebase`, tự tắt tải map offline và lấy project ID
   từ file cấu hình cá nhân. Endpoint tìm kiếm `/api/**` vẫn cần backend

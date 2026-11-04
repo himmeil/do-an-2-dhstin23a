@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:diadiem_quanh_day/features/tim_kiem/services/nearby_places_service.dart';
+import 'package:diadiem_quanh_day/core/config/app_links.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
@@ -13,7 +14,7 @@ void main() {
   test('tải quán cà phê và trường học quanh tâm tìm kiếm', () async {
     late String query;
     final client = MockClient((request) async {
-      expect(request.url.host, 'overpass-api.de');
+      expect(request.url.host, Uri.parse(AppLinks.overpassApiUrl).host);
       query = request.bodyFields['data']!;
       return http.Response.bytes(
         utf8.encode(
@@ -73,7 +74,7 @@ void main() {
   test('web dùng proxy local và gửi vị trí dạng JSON', () async {
     late String body;
     final client = MockClient((request) async {
-      expect(request.url.host, 'localhost');
+      expect(request.url.host, Uri.parse(AppLinks.nearbyApiBaseUrl).host);
       expect(request.url.path, '/api/nearby');
       body = request.body;
       return http.Response(jsonEncode({'elements': []}), 200);
@@ -81,7 +82,7 @@ void main() {
 
     final places = await OverpassNearbyPlacesService(
       client: client,
-      webBaseUrl: 'http://localhost:8787',
+      webBaseUrl: AppLinks.nearbyApiBaseUrl,
       useProxy: true,
     ).search(center: const LatLng(10.456, 105.632), radiusMeters: 5000);
 
@@ -213,7 +214,7 @@ void main() {
     final places = await OverpassNearbyPlacesService(
       client: client,
       useProxy: true,
-      webBaseUrl: 'http://localhost:8787',
+      webBaseUrl: AppLinks.nearbyApiBaseUrl,
     ).search(center: const LatLng(10.456, 105.632), radiusMeters: 1000);
 
     expect(places, hasLength(6));

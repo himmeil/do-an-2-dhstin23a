@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:latlong2/latlong.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../core/config/app_links.dart';
 import '../../../core/config/app_environment.dart';
 import '../../../core/utils/text_utils.dart';
 import '../../dia_diem/du_lieu/models/place.dart';
@@ -13,7 +14,10 @@ import '../../dia_diem/du_lieu/models/place_category_registry.dart';
 import '../utils/geo.dart';
 
 String _defaultNearbyApiBaseUrl() {
-  const configuredUrl = String.fromEnvironment('NEARBY_API_BASE_URL');
+  final configuredUrl = AppLinks.require(
+    'NEARBY_API_BASE_URL',
+    AppLinks.nearbyApiBaseUrl,
+  );
   if (AppEnvironment.isFirebaseHosted) {
     if (configuredUrl.isNotEmpty) {
       final configuredUri = Uri.tryParse(configuredUrl);
@@ -24,7 +28,7 @@ String _defaultNearbyApiBaseUrl() {
     }
     return Uri.base.origin;
   }
-  return configuredUrl.isNotEmpty ? configuredUrl : 'http://localhost:8787';
+  return configuredUrl;
 }
 
 abstract interface class NearbyPlacesService {
@@ -240,7 +244,9 @@ class OverpassNearbyPlacesService implements NearbyPlacesService {
         ');out center tags;';
     final uri = _useProxy
         ? Uri.parse('${_webBaseUrl.replaceAll(RegExp(r'/$'), '')}/api/nearby')
-        : Uri.https('overpass-api.de', '/api/interpreter');
+        : Uri.parse(
+            AppLinks.require('OVERPASS_API_URL', AppLinks.overpassApiUrl),
+          );
     final http.Response response;
     try {
       response = await _client

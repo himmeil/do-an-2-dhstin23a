@@ -6,6 +6,7 @@ import 'package:diadiem_quanh_day/features/tim_kiem/services/geocoding_service.d
 import 'package:diadiem_quanh_day/features/tim_kiem/services/nearby_places_service.dart';
 import 'package:diadiem_quanh_day/features/dia_diem/ban_do/cao_lanh_ward_boundary.dart';
 import 'package:diadiem_quanh_day/core/config/display_preferences.dart';
+import 'package:diadiem_quanh_day/core/config/app_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -411,7 +412,7 @@ void main() {
             ),
           )
           .urlTemplate,
-      'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+      AppLinks.satelliteTileUrl,
     );
     expect(find.text('Bản đồ thường'), findsOneWidget);
   });

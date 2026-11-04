@@ -1,5 +1,7 @@
 import 'package:flutter_map/flutter_map.dart';
 
+import '../../../core/config/app_links.dart';
+
 TileProvider createCaoLanhTileProvider() => NetworkTileProvider(
   cachingProvider: BuiltInMapCachingProvider.getOrCreateInstance(
     maxCacheSize: 128 * 1024 * 1024,
@@ -10,8 +12,10 @@ enum MapStyle { street, satellite }
 
 extension MapStyleSource on MapStyle {
   String get tileUrl => switch (this) {
-    MapStyle.street => 'https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',
-    MapStyle.satellite => 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+    MapStyle.street =>
+      AppLinks.require('STREET_TILE_URL', AppLinks.streetTileUrl),
+    MapStyle.satellite =>
+      AppLinks.require('SATELLITE_TILE_URL', AppLinks.satelliteTileUrl),
   };
 
   String get switchTooltip => switch (this) {

@@ -4,6 +4,8 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:http/http.dart' as http;
 import 'package:latlong2/latlong.dart';
 
+import '../../../core/config/app_links.dart';
+
 /// Khu vực app phục vụ: TP. Cao Lãnh, Đồng Tháp. Khung tọa độ gần đúng,
 /// chỉnh 4 số dưới đây nếu cần rộng/hẹp hơn.
 class CaoLanhArea {
@@ -44,7 +46,11 @@ class NominatimGeocodingService implements GeocodingService {
   Future<List<GeoResult>> search(String query) async {
     final q = query.trim();
     if (q.isEmpty) return const [];
-    final uri = Uri.https('nominatim.openstreetmap.org', '/search', {
+    final searchUrl = AppLinks.require(
+      'NOMINATIM_SEARCH_URL',
+      AppLinks.nominatimSearchUrl,
+    );
+    final uri = Uri.parse(searchUrl).replace(queryParameters: {
       'format': 'jsonv2',
       'q': q,
       'limit': '8',

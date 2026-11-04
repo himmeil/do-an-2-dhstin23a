@@ -1,4 +1,5 @@
 import 'package:diadiem_quanh_day/core/config/display_preferences.dart';
+import 'package:diadiem_quanh_day/core/config/app_links.dart';
 import 'package:diadiem_quanh_day/features/dia_diem/ban_do/widgets/location_map.dart';
 import 'package:diadiem_quanh_day/features/dia_diem/ban_do/widgets/map_zoom_controls.dart';
 import 'package:diadiem_quanh_day/features/dia_diem/ban_do/widgets/nearby_map.dart';
@@ -11,7 +12,10 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   test('đường dẫn chỉ đường chứa tọa độ đích', () {
     final uri = directionsUri(10.46, 105.63);
-    expect(uri.host, 'www.google.com');
+    expect(uri, Uri.parse(AppLinks.directionsUrl).replace(queryParameters: {
+      'api': '1',
+      'destination': '10.46,105.63',
+    }));
     expect(uri.queryParameters['destination'], '10.46,105.63');
   });
 
@@ -230,7 +234,7 @@ void main() {
     TileLayer tileLayer() => tester.widget<TileLayer>(find.byType(TileLayer));
     expect(
       tileLayer().urlTemplate,
-      'https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',
+      AppLinks.streetTileUrl,
     );
     expect(find.text('Xem vệ tinh'), findsOneWidget);
 
@@ -238,7 +242,7 @@ void main() {
     await tester.pump();
     expect(
       tileLayer().urlTemplate,
-      'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+      AppLinks.satelliteTileUrl,
     );
     expect(find.text('Bản đồ thường'), findsOneWidget);
     expect(
@@ -250,7 +254,7 @@ void main() {
     await tester.pump();
     expect(
       tileLayer().urlTemplate,
-      'https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',
+      AppLinks.streetTileUrl,
     );
     expect(find.text('Xem vệ tinh'), findsOneWidget);
   });

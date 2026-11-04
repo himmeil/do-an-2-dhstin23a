@@ -12,6 +12,8 @@ void main() {
       late Uri requested;
       final client = MockClient((request) async {
         requested = request.url;
+        expect(request.url.host, 'nominatim.openstreetmap.org');
+        expect(request.url.path, '/search');
         return http.Response.bytes(
           utf8.encode(
             jsonEncode([

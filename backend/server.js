@@ -6,6 +6,18 @@ import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 
 const port = Number(process.env.PORT || 8787);
+const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const privateConfigPath = path.join(projectRoot, 'dulieucanhan.env');
+const privateConfig = existsSync(privateConfigPath)
+  ? JSON.parse(readFileSync(privateConfigPath, 'utf8'))
+  : {};
+const configuredUrl = (key) => {
+  const value = process.env[key] || privateConfig[key];
+  if (typeof value !== 'string' || value.trim() === '') {
+    throw new Error(`Missing ${key} in dulieucanhan.env or process environment.`);
+  }
+  return value.trim();
+};
 const databasePath = path.join(
   path.dirname(fileURLToPath(import.meta.url)),
   'data',
@@ -131,11 +143,11 @@ const mapBounds = {
   maxLongitude: 105.6919,
 };
 const overpassUrls = [
-  process.env.OVERPASS_URL,
-  'https://overpass-api.de/api/interpreter',
-  'https://overpass.kumi.systems/api/interpreter',
-  'https://overpass.private.coffee/api/interpreter',
-].filter(Boolean);
+  process.env.OVERPASS_URL || configuredUrl('OVERPASS_API_URL'),
+  ...(process.env.OVERPASS_FALLBACK_URLS
+    || configuredUrl('OVERPASS_FALLBACK_URLS')).split(','),
+].map((url) => url.trim()).filter(Boolean);
+const osmMapApiUrl = configuredUrl('OSM_MAP_API_URL');
 
 function sendJson(response, status, body) {
   response.writeHead(status, {
@@ -723,7 +735,7 @@ async function updateMapFromOsmApi() {
   const elementsById = new Map();
   let nextBoundsIndex = 0;
   async function loadBounds(bound) {
-    const url = `https://api.openstreetmap.org/api/0.6/map?bbox=${
+    const url = `${osmMapApiUrl}?bbox=${
       bound.minLongitude},${bound.minLatitude},${bound.maxLongitude},${bound.maxLatitude}`;
     const response = await fetch(url, {
       headers: {'User-Agent': 'vn.diadiem.quanhday-local-proxy/1.0'},
@@ -910,6 +922,6 @@ export {categoryForTags, database, isPlace, server, writeMapSnapshot};
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   server.listen(port, process.env.HOST || '127.0.0.1', () => {
-    console.log(`Nearby proxy listening on http://localhost:${port}`);
+    console.log(`Nearby proxy listening on port ${port}`);
   });
 }

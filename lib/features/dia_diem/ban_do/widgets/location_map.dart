@@ -3,6 +3,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../../../core/config/app_links.dart';
 import '../map_tile_source.dart';
 import 'map_source_attribution.dart';
 import 'map_style_button.dart';
@@ -10,11 +11,14 @@ import 'map_territorial_note.dart';
 import 'map_zoom_controls.dart';
 
 /// Đường dẫn chỉ đường tới tọa độ (mở bằng app/website Google Maps, không cần API key).
-Uri directionsUri(double latitude, double longitude) => Uri.https(
-  'www.google.com',
-  '/maps/dir/',
-  {'api': '1', 'destination': '$latitude,$longitude'},
-);
+Uri directionsUri(double latitude, double longitude) =>
+    Uri.parse(AppLinks.require('DIRECTIONS_URL', AppLinks.directionsUrl))
+        .replace(
+          queryParameters: {
+            'api': '1',
+            'destination': '$latitude,$longitude',
+          },
+        );
 
 typedef OpenUrl = Future<bool> Function(Uri uri);
 

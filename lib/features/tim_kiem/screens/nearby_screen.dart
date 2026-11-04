@@ -266,8 +266,8 @@ class _NearbyScreenState extends State<NearbyScreen> {
 
   String _nearbySearchErrorMessage(String error) {
     if (AppEnvironment.isFirebaseHosted) {
-      return 'Dữ liệu địa điểm trực tuyến chưa khả dụng trên máy chủ này. '
-          'Bản đồ và địa điểm đã lưu vẫn hoạt động.';
+      return 'Tra cứu địa điểm OpenStreetMap chưa được triển khai trên máy '
+          'chủ này. Đăng địa điểm lên Firestore vẫn hoạt động.';
     }
     if (error.contains('localhost:8787')) {
       return 'Backend địa điểm chưa chạy. Hãy chạy run_web.bat hoặc '
