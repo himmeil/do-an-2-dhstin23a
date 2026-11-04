@@ -32,6 +32,8 @@ nằm ở cấp `features/` riêng; xem [tổng quan feature](../README.md) và
 - Cập nhật bảng này khi thêm chức năng hoặc đổi vị trí file.
 - Lớp vệ tinh chỉ thay tile nền; marker, ghim đỏ và nút Zoom dùng chung cho
   mọi lớp bản đồ.
+- Ranh giới camera chỉ giới hạn tâm kéo trong Cao Lãnh, không khóa Zoom;
+  nút Zoom chỉ bật sau khi controller của bản đồ sẵn sàng.
 - Vị trí xuất phát được đánh dấu trên bản đồ bằng cùng một ghim, dù dùng GPS
   hay chọn vị trí thủ công; bản đồ căn lại tâm khi vị trí thay đổi.
 - Khi gộp địa điểm đã lưu và dữ liệu bản đồ, các bản ghi trùng tên cùng địa chỉ

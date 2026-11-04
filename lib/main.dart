@@ -16,6 +16,7 @@ import 'features/dia_diem/services/local_place_service.dart';
 import 'features/dia_diem/du_lieu/repositories/place_comment_repository.dart';
 import 'features/gps/services/location_service.dart';
 import 'features/tim_kiem/screens/nearby_screen.dart';
+import 'features/tim_kiem/services/admin_error_log_service.dart';
 import 'features/tim_kiem/services/geocoding_service.dart';
 import 'features/tim_kiem/services/nearby_places_service.dart';
 import 'firebase_options.dart';
@@ -141,6 +142,9 @@ class _AuthGateState extends State<_AuthGate> {
               locationService: const GeolocatorLocationService(),
               geocoder: NominatimGeocodingService(),
               nearbyPlacesService: _nearbyPlacesService,
+              adminErrorLogService: roleSnapshot.data!
+                  ? FirestoreAdminErrorLogService()
+                  : null,
               commentService: _commentService(user: user),
               favoriteService: FirestoreFavoriteService(userId: user.uid),
               userEmail: user.email ?? '',

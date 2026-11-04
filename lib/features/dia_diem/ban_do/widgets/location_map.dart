@@ -11,14 +11,9 @@ import 'map_territorial_note.dart';
 import 'map_zoom_controls.dart';
 
 /// Đường dẫn chỉ đường tới tọa độ (mở bằng app/website Google Maps, không cần API key).
-Uri directionsUri(double latitude, double longitude) =>
-    Uri.parse(AppLinks.require('DIRECTIONS_URL', AppLinks.directionsUrl))
-        .replace(
-          queryParameters: {
-            'api': '1',
-            'destination': '$latitude,$longitude',
-          },
-        );
+Uri directionsUri(double latitude, double longitude) => Uri.parse(
+  AppLinks.require('DIRECTIONS_URL', AppLinks.directionsUrl),
+).replace(queryParameters: {'api': '1', 'destination': '$latitude,$longitude'});
 
 typedef OpenUrl = Future<bool> Function(Uri uri);
 
@@ -53,6 +48,7 @@ class _LocationMapState extends State<LocationMap> {
   MapStyle _style = MapStyle.street;
   final _mapController = MapController();
   late final _tileProvider = createCaoLanhTileProvider();
+  bool _mapReady = false;
 
   @override
   void dispose() {
@@ -78,6 +74,10 @@ class _LocationMapState extends State<LocationMap> {
                   options: MapOptions(
                     initialCenter: point,
                     initialZoom: 16,
+                    onMapReady: () {
+                      if (!mounted || _mapReady) return;
+                      setState(() => _mapReady = true);
+                    },
                     interactionOptions: const InteractionOptions(
                       flags: InteractiveFlag.pinchZoom | InteractiveFlag.drag,
                     ),
@@ -116,6 +116,7 @@ class _LocationMapState extends State<LocationMap> {
                 ),
                 MapZoomControls(
                   controller: _mapController,
+                  enabled: _mapReady,
                   minZoom: 12,
                   maxZoom: 19,
                 ),

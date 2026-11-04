@@ -15,8 +15,8 @@ abstract final class AppLinks {
   static String require(String name, String value) {
     if (value.isEmpty) {
       throw StateError(
-        'Thiếu $name trong dulieucanhan.env. Hãy sao chép file mẫu và '
-        'điền các liên kết dịch vụ cần dùng.',
+        'Thiếu $name trong ca_nhan/dulieucanhan.env. Hãy sao chép file mẫu '
+        'vào thư mục ca_nhan và điền các liên kết dịch vụ cần dùng.',
       );
     }
     return value;

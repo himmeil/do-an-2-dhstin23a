@@ -1,7 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/foundation.dart' show FlutterError, kIsWeb;
+import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:latlong2/latlong.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -11,14 +12,12 @@ import '../../../core/config/app_environment.dart';
 import '../../../core/utils/text_utils.dart';
 import '../../dia_diem/du_lieu/models/place.dart';
 import '../../dia_diem/du_lieu/models/place_category_registry.dart';
+import 'admin_error_log_service.dart';
 import '../utils/geo.dart';
 
 String _defaultNearbyApiBaseUrl() {
-  final configuredUrl = AppLinks.require(
-    'NEARBY_API_BASE_URL',
-    AppLinks.nearbyApiBaseUrl,
-  );
   if (AppEnvironment.isFirebaseHosted) {
+    final configuredUrl = AppLinks.nearbyApiBaseUrl;
     if (configuredUrl.isNotEmpty) {
       final configuredUri = Uri.tryParse(configuredUrl);
       if (configuredUri != null &&
@@ -28,7 +27,7 @@ String _defaultNearbyApiBaseUrl() {
     }
     return Uri.base.origin;
   }
-  return configuredUrl;
+  return AppLinks.require('NEARBY_API_BASE_URL', AppLinks.nearbyApiBaseUrl);
 }
 
 abstract interface class NearbyPlacesService {
@@ -36,6 +35,16 @@ abstract interface class NearbyPlacesService {
     required LatLng center,
     required int radiusMeters,
   });
+}
+
+class NearbyPlacesFailure implements Exception {
+  const NearbyPlacesFailure(this.code, this.message);
+
+  final AdminErrorCode code;
+  final String message;
+
+  @override
+  String toString() => '${code.value}: $message';
 }
 
 class MapDataSource {
@@ -81,22 +90,45 @@ class MapDataSource {
   }
 }
 
+class MapSnapshotMetadata {
+  const MapSnapshotMetadata({required this.count, this.updatedAt});
+
+  final int count;
+  final DateTime? updatedAt;
+}
+
 /// Finds nearby OpenStreetMap places, optionally through the local proxy.
 class OverpassNearbyPlacesService implements NearbyPlacesService {
   OverpassNearbyPlacesService({
     http.Client? client,
     String? webBaseUrl,
     bool? useProxy,
+    bool? useStaticSnapshot,
+    this.loadStaticSnapshot,
     this.getIdToken,
   }) : _client = client ?? http.Client(),
        _webBaseUrl = webBaseUrl ?? _defaultNearbyApiBaseUrl(),
-       _useProxy = useProxy ?? kIsWeb;
+       _useProxy = useProxy ?? kIsWeb,
+       _useStaticSnapshot =
+           useStaticSnapshot ?? AppEnvironment.isFirebaseHosted;
 
   final http.Client _client;
   final String _webBaseUrl;
   final bool _useProxy;
+  final bool _useStaticSnapshot;
+  final Future<String> Function()? loadStaticSnapshot;
   final Future<String?> Function()? getIdToken;
+  Future<List<dynamic>>? _staticSnapshotElements;
+  DateTime? _staticSnapshotUpdatedAt;
   static const offlineCacheKey = 'nearby_places_sql_download_v1';
+
+  Future<MapSnapshotMetadata> staticSnapshotMetadata() async {
+    final elements = await (_staticSnapshotElements ??= _readStaticSnapshot());
+    return MapSnapshotMetadata(
+      count: elements.length,
+      updatedAt: _staticSnapshotUpdatedAt,
+    );
+  }
 
   Future<int> updateMapFromOverpass() async {
     if (!_useProxy) {
@@ -198,6 +230,10 @@ class OverpassNearbyPlacesService implements NearbyPlacesService {
       );
     }
 
+    if (_useStaticSnapshot) {
+      return _searchStaticSnapshot(center, radiusMeters);
+    }
+
     final query =
         '[out:json][timeout:20];'
         '('
@@ -263,6 +299,49 @@ class OverpassNearbyPlacesService implements NearbyPlacesService {
       return await _offlineSearch(center, radiusMeters);
     }
     return _placesFromElements(decoded['elements'] as List, center);
+  }
+
+  Future<List<Place>> _searchStaticSnapshot(
+    LatLng center,
+    int radiusMeters,
+  ) async {
+    final elements = await (_staticSnapshotElements ??= _readStaticSnapshot());
+    return _placesFromElements(elements, center)
+        .where((place) => distanceMeters(center, place.latLng) <= radiusMeters)
+        .toList(growable: false);
+  }
+
+  Future<List<dynamic>> _readStaticSnapshot() async {
+    final String contents;
+    try {
+      contents =
+          await (loadStaticSnapshot?.call() ??
+              rootBundle.loadString('assets/data/osm_places.json'));
+    } on FlutterError {
+      throw const NearbyPlacesFailure(
+        AdminErrorCode.nearbySnapshotReadFailed,
+        'Không tìm thấy snapshot bản đồ OpenStreetMap trong bản build.',
+      );
+    }
+    final dynamic decoded;
+    try {
+      decoded = jsonDecode(contents);
+    } on FormatException {
+      throw const NearbyPlacesFailure(
+        AdminErrorCode.nearbySnapshotReadFailed,
+        'Dữ liệu bản đồ OpenStreetMap không đúng định dạng.',
+      );
+    }
+    if (decoded is! Map || decoded['elements'] is! List) {
+      throw const NearbyPlacesFailure(
+        AdminErrorCode.nearbySnapshotReadFailed,
+        'Snapshot bản đồ OpenStreetMap không có danh sách địa điểm hợp lệ.',
+      );
+    }
+    _staticSnapshotUpdatedAt = DateTime.tryParse(
+      '${decoded['updatedAt'] ?? ''}',
+    );
+    return decoded['elements'] as List<dynamic>;
   }
 
   List<Place> _placesFromElements(List elements, LatLng center) {

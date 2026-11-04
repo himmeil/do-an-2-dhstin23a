@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../tim_kiem/services/admin_error_log_service.dart';
 import '../../du_lieu/models/place_comment.dart';
 import '../../du_lieu/repositories/place_comment_repository.dart';
 
@@ -10,6 +11,7 @@ class PlaceCommentsSection extends StatefulWidget {
     required this.isSignedIn,
     required this.accountName,
     this.onRequireSignIn,
+    this.onAdminError,
     super.key,
   });
 
@@ -18,6 +20,7 @@ class PlaceCommentsSection extends StatefulWidget {
   final bool isSignedIn;
   final String accountName;
   final VoidCallback? onRequireSignIn;
+  final ValueChanged<AdminErrorCode>? onAdminError;
 
   @override
   State<PlaceCommentsSection> createState() => _PlaceCommentsSectionState();
@@ -73,6 +76,7 @@ class _PlaceCommentsSectionState extends State<PlaceCommentsSection> {
         _comments = widget.service.watchForPlace(widget.placeId);
       });
     } catch (error) {
+      widget.onAdminError?.call(AdminErrorCode.commentWriteFailed);
       if (!mounted) return;
       setState(() => _error = 'Chưa gửi được bình luận: $error');
     } finally {
@@ -90,6 +94,7 @@ class _PlaceCommentsSectionState extends State<PlaceCommentsSection> {
         stream: _comments,
         builder: (context, snapshot) {
           if (snapshot.hasError) {
+            widget.onAdminError?.call(AdminErrorCode.commentsReadFailed);
             return Text('Không tải được bình luận: ${snapshot.error}');
           }
           if (!snapshot.hasData) {

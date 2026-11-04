@@ -1,0 +1,4898 @@
+{
+  "source": "osm-api",
+  "updatedAt": "2026-11-02T10:00:08.757Z",
+  "elements": [
+    {
+      "type": "node",
+      "id": 3424368474,
+      "lat": 10.4167997,
+      "lon": 105.5784926,
+      "tags": {
+        "amenity": "ferry_terminal",
+        "name": "bến phà cồn lân",
+        "name:vi": "bến phà cồn lân",
+        "app:category": "ferry_terminal",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 3776005961,
+      "lat": 10.4176381,
+      "lon": 105.6447817,
+      "tags": {
+        "name": "Chợ Tân Tịch",
+        "shop": "supermarket",
+        "app:category": "supermarket",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 3776005962,
+      "lat": 10.4287456,
+      "lon": 105.6356714,
+      "tags": {
+        "name": "Tân Việt Hòa",
+        "shop": "supermarket",
+        "app:category": "supermarket",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 3776005963,
+      "lat": 10.4299931,
+      "lon": 105.634159,
+      "tags": {
+        "amenity": "hospital",
+        "name": "TYT Phường 6",
+        "app:category": "hospital",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 4912915122,
+      "lat": 10.426732,
+      "lon": 105.6358001,
+      "tags": {
+        "addr:street": "Phạm Hữu Lầu",
+        "internet_access": "wlan",
+        "name": "Mong Yen Hotel",
+        "name:vi": "Mong Yen Hotel",
+        "tourism": "hotel",
+        "app:category": "tro",
+        "addr:full": "Phạm Hữu Lầu"
+      }
+    },
+    {
+      "type": "node",
+      "id": 4918128921,
+      "lat": 10.4089927,
+      "lon": 105.6439895,
+      "tags": {
+        "highway": "bus_stop",
+        "name": "phà cao lanh",
+        "name:vi": "phà cao lanh",
+        "public_transport": "platform",
+        "app:category": "ben_xe",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 4935721121,
+      "lat": 10.4088597,
+      "lon": 105.6416872,
+      "tags": {
+        "highway": "bus_stop",
+        "name": "quán nem",
+        "name:vi": "quán nem",
+        "public_transport": "platform",
+        "app:category": "ben_xe",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 4952827427,
+      "lat": 10.4099085,
+      "lon": 105.6336175,
+      "tags": {
+        "highway": "bus_stop",
+        "name": "cầu",
+        "name:vi": "cầu",
+        "public_transport": "platform",
+        "app:category": "ben_xe",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 5279142122,
+      "lat": 10.4089151,
+      "lon": 105.6417229,
+      "tags": {
+        "highway": "bus_stop",
+        "name": "quán nem.nguyen binh",
+        "name:vi": "quán nem.nguyen binh",
+        "public_transport": "platform",
+        "app:category": "ben_xe",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 5828066387,
+      "lat": 10.4087666,
+      "lon": 105.6471055,
+      "tags": {
+        "highway": "bus_stop",
+        "name": "Cong an duong thuy",
+        "public_transport": "platform",
+        "app:category": "ben_xe",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 5835749586,
+      "lat": 10.4088603,
+      "lon": 105.6448484,
+      "tags": {
+        "highway": "bus_stop",
+        "name": "Nga 3 lap vo vam cong",
+        "public_transport": "platform",
+        "app:category": "ben_xe",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 6034056076,
+      "lat": 10.4188817,
+      "lon": 105.6440609,
+      "tags": {
+        "addr:city": "TP. Cao Lãnh",
+        "addr:housenumber": "Nhà A1, Trường ĐHĐT",
+        "addr:province": "Đồng Tháp",
+        "addr:street": "Phạm Hữu Lầu",
+        "addr:subdistrict": "Phường 6",
+        "description": "Khoa Kỹ thuật Công nghệ được chính thức thành lập theo Quyết định số 124/QĐ-ĐHĐT ngày 21 tháng 3 năm 2018 của Hiệu trưởng Trường Đại học Đồng Tháp về việc tái cấu trúc các đơn vị trực thuộc Trường nhiệm kỳ 2017 - 2022. Hiện tại, Khoa đang quản lý 06 chuyê",
+        "name": "Khoa Kỹ thuật - Công nghệ",
+        "phone": "+84 0277 3881713",
+        "website": "https://websrv2.dthu.edu.vn/tnmt/",
+        "app:category": "khac",
+        "addr:full": "Nhà A1, Trường ĐHĐT Phạm Hữu Lầu",
+        "contact:phone": "+84 0277 3881713"
+      }
+    },
+    {
+      "type": "node",
+      "id": 8995689738,
+      "lat": 10.416532,
+      "lon": 105.642291,
+      "tags": {
+        "addr:city": "Thành phố Cao Lãnh",
+        "addr:province": "Đồng Tháp",
+        "addr:street": "Phạm Hữu Lầu",
+        "addr:subdistrict": "phường 6",
+        "leisure": "park",
+        "name": "Đài tưởng niệm 1954",
+        "operator": "UBND",
+        "app:category": "park",
+        "addr:full": "Phạm Hữu Lầu"
+      }
+    },
+    {
+      "type": "node",
+      "id": 14152691246,
+      "lat": 10.4258692,
+      "lon": 105.631026,
+      "tags": {
+        "name": "An Nhơn",
+        "place": "neighbourhood",
+        "app:category": "neighbourhood",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 14152691247,
+      "lat": 10.4185619,
+      "lon": 105.6359267,
+      "tags": {
+        "name": "Bến Bắc",
+        "place": "neighbourhood",
+        "app:category": "neighbourhood",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 14152711874,
+      "lat": 10.4200009,
+      "lon": 105.6462556,
+      "tags": {
+        "name": "Tân Thuận",
+        "place": "neighbourhood",
+        "app:category": "neighbourhood",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "way",
+      "id": 26753403,
+      "center": {
+        "lat": 10.423378565137618,
+        "lon": 105.6088808816514
+      },
+      "tags": {
+        "name": "Cồn Chài",
+        "name:fa": "کون‌چای",
+        "place": "island",
+        "app:category": "island",
+        "addr:full": ""
+      },
+      "lat": 10.423378565137618,
+      "lon": 105.6088808816514
+    },
+    {
+      "type": "way",
+      "id": 373171157,
+      "center": {
+        "lat": 10.420899776470591,
+        "lon": 105.64326064117644
+      },
+      "tags": {
+        "amenity": "university",
+        "name": "Trường Đại học Đồng Tháp",
+        "app:category": "university",
+        "addr:full": ""
+      },
+      "lat": 10.420899776470591,
+      "lon": 105.64326064117644
+    },
+    {
+      "type": "way",
+      "id": 373171158,
+      "center": {
+        "lat": 10.41951748,
+        "lon": 105.64227793999999
+      },
+      "tags": {
+        "building": "yes",
+        "name": "UBND Phường 6",
+        "office": "government",
+        "app:category": "yes",
+        "addr:full": ""
+      },
+      "lat": 10.41951748,
+      "lon": 105.64227793999999
+    },
+    {
+      "type": "way",
+      "id": 447717911,
+      "center": {
+        "lat": 10.416528077343749,
+        "lon": 105.66833687968753
+      },
+      "tags": {
+        "alt_name": "Sông Cửu Long;Tiền Giang",
+        "boat": "yes",
+        "name": "Sông Tiền",
+        "name:de": "Mekong",
+        "name:en": "Mekong",
+        "name:eo": "Mekongo",
+        "name:fr": "Fleuve Antérieur",
+        "name:km": "មេគង្គ",
+        "name:km-Latn": "Mekong",
+        "name:kn": "ಮೆಕಾಂಗ್",
+        "name:ko": "띠엔강",
+        "name:lo": "ແມ່ນ້ຳຂອງ",
+        "name:my": "မဲခောင္‌မ္ရစ",
+        "name:nl": "Mekong",
+        "name:ru": "Тьен",
+        "name:th": "แม่น้ำโขง",
+        "name:vi": "Sông Tiền",
+        "name:vi-Hani": "瀧前",
+        "name:zh": "湄公河",
+        "waterway": "river",
+        "app:category": "khac",
+        "addr:full": ""
+      },
+      "lat": 10.416528077343749,
+      "lon": 105.66833687968753
+    },
+    {
+      "type": "way",
+      "id": 483892222,
+      "center": {
+        "lat": 10.42242807142857,
+        "lon": 105.63996614285715
+      },
+      "tags": {
+        "addr:city": "TP Cao Lãnh",
+        "addr:housenumber": "964",
+        "addr:province": "Đồng Tháp",
+        "addr:street": "Phạm Hữu Lầu",
+        "addr:subdistrict": "Phường 6",
+        "building": "house",
+        "building:levels": "1",
+        "name": "Nhà của Tân",
+        "app:category": "house",
+        "addr:full": "964 Phạm Hữu Lầu"
+      },
+      "lat": 10.42242807142857,
+      "lon": 105.63996614285715
+    },
+    {
+      "type": "way",
+      "id": 727436715,
+      "center": {
+        "lat": 10.43276009473684,
+        "lon": 105.60992408421053
+      },
+      "tags": {
+        "name": "Sông Hổ Cứ",
+        "waterway": "river",
+        "app:category": "khac",
+        "addr:full": ""
+      },
+      "lat": 10.43276009473684,
+      "lon": 105.60992408421053
+    },
+    {
+      "type": "way",
+      "id": 970059982,
+      "center": {
+        "lat": 10.41889215,
+        "lon": 105.64492795000001
+      },
+      "tags": {
+        "building": "kindergarten",
+        "name": "Trường Mầm non Hoa Hồng",
+        "app:category": "kindergarten",
+        "addr:full": ""
+      },
+      "lat": 10.41889215,
+      "lon": 105.64492795000001
+    },
+    {
+      "type": "way",
+      "id": 1076624499,
+      "center": {
+        "lat": 10.433702029166666,
+        "lon": 105.6530290861111
+      },
+      "tags": {
+        "name": "Rạch Sông Tiên",
+        "waterway": "stream",
+        "app:category": "khac",
+        "addr:full": ""
+      },
+      "lat": 10.433702029166666,
+      "lon": 105.6530290861111
+    },
+    {
+      "type": "way",
+      "id": 1147085787,
+      "center": {
+        "lat": 10.428881465217392,
+        "lon": 105.61491263913042
+      },
+      "tags": {
+        "name": "Rạch Hồ Chúa Cang",
+        "waterway": "stream",
+        "app:category": "khac",
+        "addr:full": ""
+      },
+      "lat": 10.428881465217392,
+      "lon": 105.61491263913042
+    },
+    {
+      "type": "way",
+      "id": 1147085788,
+      "center": {
+        "lat": 10.419979048148148,
+        "lon": 105.64867367777778
+      },
+      "tags": {
+        "name": "Rạch Long Sa",
+        "waterway": "stream",
+        "app:category": "khac",
+        "addr:full": ""
+      },
+      "lat": 10.419979048148148,
+      "lon": 105.64867367777778
+    },
+    {
+      "type": "way",
+      "id": 1147085792,
+      "center": {
+        "lat": 10.420535871428573,
+        "lon": 105.61345545714286
+      },
+      "tags": {
+        "name": "Khém Lớn Đông Hòa",
+        "waterway": "stream",
+        "app:category": "khac",
+        "addr:full": ""
+      },
+      "lat": 10.420535871428573,
+      "lon": 105.61345545714286
+    },
+    {
+      "type": "way",
+      "id": 1147085793,
+      "center": {
+        "lat": 10.436602307142858,
+        "lon": 105.64658337499999
+      },
+      "tags": {
+        "name": "Khém Cái Chốt",
+        "waterway": "stream",
+        "app:category": "khac",
+        "addr:full": ""
+      },
+      "lat": 10.436602307142858,
+      "lon": 105.64658337499999
+    },
+    {
+      "type": "node",
+      "id": 3763484697,
+      "lat": 10.4316033,
+      "lon": 105.6060051,
+      "tags": {
+        "name": "UBND xã Tân Thuận Đông",
+        "office": "government",
+        "app:category": "khac",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 3763484698,
+      "lat": 10.4174017,
+      "lon": 105.601963,
+      "tags": {
+        "name": "Bến đò",
+        "app:category": "khac",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 4381773290,
+      "lat": 10.4327491,
+      "lon": 105.606821,
+      "tags": {
+        "addr:housenumber": "240, Tổ 7",
+        "addr:street": "Tân Thuận Đông",
+        "email": "trn.minhsang80@gmail.com",
+        "internet_access": "wlan",
+        "name": "Cửa Hàng Gạo Nhanh",
+        "name:vi": "Cửa Hàng Gạo Nhanh",
+        "opening_hours": "Mo-Su 06:00-18:00",
+        "phone": "0972467972",
+        "shop": "convenience",
+        "website": "http://facebook.com/kulak97",
+        "app:category": "convenience",
+        "addr:full": "240, Tổ 7 Tân Thuận Đông",
+        "contact:phone": "0972467972"
+      }
+    },
+    {
+      "type": "node",
+      "id": 4383664189,
+      "lat": 10.4447191,
+      "lon": 105.5405152,
+      "tags": {
+        "amenity": "ferry_terminal",
+        "name": "bến đò rạch sâu",
+        "app:category": "ferry_terminal",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 4907095726,
+      "lat": 10.4174094,
+      "lon": 105.5720399,
+      "tags": {
+        "highway": "bus_stop",
+        "name": "chợ tong sơn",
+        "name:vi": "chợ tong sơn",
+        "public_transport": "platform",
+        "app:category": "ben_xe",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 4907096822,
+      "lat": 10.4147873,
+      "lon": 105.5785175,
+      "tags": {
+        "highway": "bus_stop",
+        "name": "bến phà cồn lân",
+        "name:vi": "bến phà cồn lân",
+        "public_transport": "platform",
+        "app:category": "ben_xe",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 4907115121,
+      "lat": 10.4105667,
+      "lon": 105.5846955,
+      "tags": {
+        "highway": "bus_stop",
+        "name": "C X an thái",
+        "name:vi": "C X an thái",
+        "public_transport": "platform",
+        "app:category": "ben_xe",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 5192248623,
+      "lat": 10.4093659,
+      "lon": 105.5895168,
+      "tags": {
+        "highway": "bus_stop",
+        "name": "suong dong tau nhon",
+        "name:vi": "suong dong tau nhon",
+        "public_transport": "platform",
+        "app:category": "ben_xe",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 14152691249,
+      "lat": 10.4271515,
+      "lon": 105.5840423,
+      "tags": {
+        "name": "Đông Định",
+        "place": "neighbourhood",
+        "app:category": "neighbourhood",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 14152691250,
+      "lat": 10.4326603,
+      "lon": 105.6084407,
+      "tags": {
+        "name": "Đông Thạnh",
+        "place": "neighbourhood",
+        "app:category": "neighbourhood",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 14152711875,
+      "lat": 10.4196409,
+      "lon": 105.6091004,
+      "tags": {
+        "name": "Tân Thuận Đông",
+        "place": "neighbourhood",
+        "app:category": "neighbourhood",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "way",
+      "id": 26753391,
+      "center": {
+        "lat": 10.429490761068703,
+        "lon": 105.58431345877855
+      },
+      "tags": {
+        "name": "Cồn Lân",
+        "name:fa": "کون‌لان",
+        "place": "island",
+        "app:category": "island",
+        "addr:full": ""
+      },
+      "lat": 10.429490761068703,
+      "lon": 105.58431345877855
+    },
+    {
+      "type": "way",
+      "id": 1105976545,
+      "center": {
+        "lat": 10.430505908333332,
+        "lon": 105.56482719166668
+      },
+      "tags": {
+        "admin_level": "4",
+        "boundary": "administrative",
+        "name": "Ranh giới Đồng Tháp - An Giang",
+        "name:en": "Boundary Đồng Tháp - An Giang",
+        "name:vi": "Ranh giới Đồng Tháp - An Giang",
+        "app:category": "khac",
+        "addr:full": ""
+      },
+      "lat": 10.430505908333332,
+      "lon": 105.56482719166668
+    },
+    {
+      "type": "way",
+      "id": 1147085786,
+      "center": {
+        "lat": 10.426984181249999,
+        "lon": 105.60472969374999
+      },
+      "tags": {
+        "name": "Kinh Xáng",
+        "waterway": "stream",
+        "app:category": "khac",
+        "addr:full": ""
+      },
+      "lat": 10.426984181249999,
+      "lon": 105.60472969374999
+    },
+    {
+      "type": "way",
+      "id": 1547600483,
+      "center": {
+        "lat": 10.43673979,
+        "lon": 105.57459285
+      },
+      "tags": {
+        "admin_level": "4",
+        "boundary": "administrative",
+        "name": "Ranh giới Đồng Tháp - An Giang",
+        "name:en": "Boundary Đồng Tháp - An Giang",
+        "name:vi": "Ranh giới Đồng Tháp - An Giang",
+        "app:category": "khac",
+        "addr:full": ""
+      },
+      "lat": 10.43673979,
+      "lon": 105.57459285
+    },
+    {
+      "type": "way",
+      "id": 148975766,
+      "center": {
+        "lat": 10.45594901130952,
+        "lon": 105.63619097023809
+      },
+      "tags": {
+        "name": "Sông Cao Lãnh",
+        "natural": "water",
+        "water": "river",
+        "app:category": "khac",
+        "addr:full": ""
+      },
+      "lat": 10.45594901130952,
+      "lon": 105.63619097023809
+    },
+    {
+      "type": "way",
+      "id": 1147078440,
+      "center": {
+        "lat": 10.457569099999997,
+        "lon": 105.63308414955756
+      },
+      "tags": {
+        "name": "Sông Cao Lãnh",
+        "waterway": "river",
+        "app:category": "khac",
+        "addr:full": ""
+      },
+      "lat": 10.457569099999997,
+      "lon": 105.63308414955756
+    },
+    {
+      "type": "node",
+      "id": 14152711877,
+      "lat": 10.4179574,
+      "lon": 105.658923,
+      "tags": {
+        "name": "Tân Tịch",
+        "place": "neighbourhood",
+        "app:category": "neighbourhood",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 14152711880,
+      "lat": 10.4319012,
+      "lon": 105.6595859,
+      "tags": {
+        "name": "Tịnh Châu",
+        "place": "neighbourhood",
+        "app:category": "neighbourhood",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 14152711882,
+      "lat": 10.4198404,
+      "lon": 105.6699597,
+      "tags": {
+        "name": "Tịnh Hưng",
+        "place": "neighbourhood",
+        "app:category": "neighbourhood",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 14152711883,
+      "lat": 10.4203419,
+      "lon": 105.6830176,
+      "tags": {
+        "name": "Tịnh Mỹ",
+        "place": "neighbourhood",
+        "app:category": "neighbourhood",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "way",
+      "id": 1147085796,
+      "center": {
+        "lat": 10.430517872727272,
+        "lon": 105.67060282272729
+      },
+      "tags": {
+        "name": "Rạch Chùa",
+        "waterway": "stream",
+        "app:category": "khac",
+        "addr:full": ""
+      },
+      "lat": 10.430517872727272,
+      "lon": 105.67060282272729
+    },
+    {
+      "type": "way",
+      "id": 1147085797,
+      "center": {
+        "lat": 10.417886126086957,
+        "lon": 105.68185367826088
+      },
+      "tags": {
+        "name": "Rạch Long Sơn",
+        "waterway": "stream",
+        "app:category": "khac",
+        "addr:full": ""
+      },
+      "lat": 10.417886126086957,
+      "lon": 105.68185367826088
+    },
+    {
+      "type": "way",
+      "id": 1147085798,
+      "center": {
+        "lat": 10.42619839,
+        "lon": 105.67330489999999
+      },
+      "tags": {
+        "layer": "-1",
+        "name": "Rạch Đình",
+        "waterway": "stream",
+        "app:category": "khac",
+        "addr:full": ""
+      },
+      "lat": 10.42619839,
+      "lon": 105.67330489999999
+    },
+    {
+      "type": "way",
+      "id": 1546995799,
+      "center": {
+        "lat": 10.42809547,
+        "lon": 105.66933723
+      },
+      "tags": {
+        "layer": "-1",
+        "name": "Rạch Đình",
+        "waterway": "stream",
+        "app:category": "khac",
+        "addr:full": ""
+      },
+      "lat": 10.42809547,
+      "lon": 105.66933723
+    },
+    {
+      "type": "way",
+      "id": 1546995800,
+      "center": {
+        "lat": 10.4277605,
+        "lon": 105.67026
+      },
+      "tags": {
+        "layer": "-1",
+        "name": "Rạch Đình",
+        "tunnel": "culvert",
+        "waterway": "stream",
+        "app:category": "khac",
+        "addr:full": ""
+      },
+      "lat": 10.4277605,
+      "lon": 105.67026
+    },
+    {
+      "type": "node",
+      "id": 3763484696,
+      "lat": 10.4394831,
+      "lon": 105.6089518,
+      "tags": {
+        "name": "Bến đò Tân Thuận Đông",
+        "app:category": "khac",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 5829164426,
+      "lat": 10.4519186,
+      "lon": 105.5993476,
+      "tags": {
+        "addr:city": "TP Cao Lãnh",
+        "addr:housename": "45",
+        "addr:street": "Hòa Tây",
+        "description": "Dốc cầu Hòa Lợi",
+        "information": "120L: 0;240L: 3;660L: 0",
+        "name": "Điểm tập trung rác",
+        "note": "DTTR",
+        "app:category": "khac",
+        "addr:full": "Hòa Tây"
+      }
+    },
+    {
+      "type": "node",
+      "id": 14152711866,
+      "lat": 10.448422,
+      "lon": 105.6069554,
+      "tags": {
+        "name": "Hòa Lợi",
+        "place": "neighbourhood",
+        "app:category": "neighbourhood",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 14152711870,
+      "lat": 10.4538205,
+      "lon": 105.594018,
+      "tags": {
+        "name": "Tân Chủ",
+        "place": "neighbourhood",
+        "app:category": "neighbourhood",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 14152711872,
+      "lat": 10.4498,
+      "lon": 105.5879804,
+      "tags": {
+        "name": "Tân Hậu",
+        "place": "neighbourhood",
+        "app:category": "neighbourhood",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "way",
+      "id": 485677015,
+      "center": {
+        "lat": 10.463791655555555,
+        "lon": 105.57321261111112
+      },
+      "tags": {
+        "admin_level": "4",
+        "boundary": "administrative",
+        "name": "Ranh giới Đồng Tháp - An Giang",
+        "name:en": "Boundary Đồng Tháp - An Giang",
+        "name:vi": "Ranh giới Đồng Tháp - An Giang",
+        "app:category": "khac",
+        "addr:full": ""
+      },
+      "lat": 10.463791655555555,
+      "lon": 105.57321261111112
+    },
+    {
+      "type": "way",
+      "id": 1547600487,
+      "center": {
+        "lat": 10.452281344444444,
+        "lon": 105.5747245
+      },
+      "tags": {
+        "admin_level": "4",
+        "boundary": "administrative",
+        "name": "Ranh giới Đồng Tháp - An Giang",
+        "name:en": "Boundary Đồng Tháp - An Giang",
+        "name:vi": "Ranh giới Đồng Tháp - An Giang",
+        "app:category": "khac",
+        "addr:full": ""
+      },
+      "lat": 10.452281344444444,
+      "lon": 105.5747245
+    },
+    {
+      "type": "node",
+      "id": 1805807502,
+      "lat": 10.4472881,
+      "lon": 105.632215,
+      "tags": {
+        "building": "residential",
+        "name": "Nhà sàn Bác Hồ",
+        "app:category": "residential",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 1805807506,
+      "lat": 10.4466867,
+      "lon": 105.6310305,
+      "tags": {
+        "amenity": "grave_yard",
+        "name": "Lăng mộ cụ Phó Bảng",
+        "app:category": "grave_yard",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 1805807509,
+      "lat": 10.4471984,
+      "lon": 105.6316624,
+      "tags": {
+        "building": "residential",
+        "name": "Nhà trưng bày Khu di tích Lăng cụ Phó Bảng Nguyễn Sinh Sắc",
+        "app:category": "residential",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 3763530580,
+      "lat": 10.4554891,
+      "lon": 105.6336019,
+      "tags": {
+        "name": "Siêu Thị Phan Khang",
+        "shop": "supermarket",
+        "app:category": "supermarket",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 3763530581,
+      "lat": 10.4560819,
+      "lon": 105.6340817,
+      "tags": {
+        "leisure": "park",
+        "name": "Nhà Thiếu Nhi",
+        "app:category": "park",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 3763530582,
+      "lat": 10.4585859,
+      "lon": 105.6316282,
+      "tags": {
+        "leisure": "park",
+        "name": "CV Thiếu Nhi",
+        "app:category": "park",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 3763543513,
+      "lat": 10.454596,
+      "lon": 105.6371641,
+      "tags": {
+        "name": "Chợ Tạp Hóa",
+        "shop": "supermarket",
+        "app:category": "supermarket",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 3763545364,
+      "lat": 10.4553874,
+      "lon": 105.6318514,
+      "tags": {
+        "amenity": "cafe",
+        "name": "Cafe TiNo",
+        "app:category": "cafe",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 3763545365,
+      "lat": 10.4577436,
+      "lon": 105.6306099,
+      "tags": {
+        "amenity": "restaurant",
+        "name": "Tứ Hòa",
+        "app:category": "restaurant",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 3763545370,
+      "lat": 10.4555398,
+      "lon": 105.6347541,
+      "tags": {
+        "amenity": "bank",
+        "name": "Sacombank",
+        "app:category": "bank",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 3763545371,
+      "lat": 10.4550533,
+      "lon": 105.6344971,
+      "tags": {
+        "amenity": "library",
+        "name": "Nhà sách Nguyễn Văn Cừ",
+        "app:category": "library",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 3763545372,
+      "lat": 10.4541305,
+      "lon": 105.6341063,
+      "tags": {
+        "leisure": "park",
+        "name": "Thống Linh",
+        "app:category": "park",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 3763545373,
+      "lat": 10.4545264,
+      "lon": 105.6358688,
+      "tags": {
+        "amenity": "bank",
+        "name": "Agribank Cao Lãnh",
+        "app:category": "bank",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 3766820547,
+      "lat": 10.4570631,
+      "lon": 105.6364379,
+      "tags": {
+        "amenity": "cafe",
+        "name": "Văn nghệ",
+        "app:category": "cafe",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 3775978173,
+      "lat": 10.4518258,
+      "lon": 105.6324376,
+      "tags": {
+        "building": "residential",
+        "name": "Trung Tâm văn hóa",
+        "app:category": "residential",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 3775984155,
+      "lat": 10.4580899,
+      "lon": 105.6316935,
+      "tags": {
+        "name": "Hội Người mù Thành phố Cao Lãnh",
+        "app:category": "khac",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 3775990382,
+      "lat": 10.45529,
+      "lon": 105.6347803,
+      "tags": {
+        "amenity": "bank",
+        "name": "Sacombank",
+        "app:category": "bank",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 3775990558,
+      "lat": 10.4548584,
+      "lon": 105.6349855,
+      "tags": {
+        "name": "Tài Lợi",
+        "shop": "motorcycle",
+        "app:category": "motorcycle",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 3775992467,
+      "lat": 10.4564348,
+      "lon": 105.6359962,
+      "tags": {
+        "name": "TGDD",
+        "shop": "mobile_phone",
+        "app:category": "mobile_phone",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 3775992468,
+      "lat": 10.4568266,
+      "lon": 105.6356628,
+      "tags": {
+        "name": "Xuân Mai",
+        "tourism": "hotel",
+        "app:category": "tro",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 3775992476,
+      "lat": 10.4573863,
+      "lon": 105.6381509,
+      "tags": {
+        "name": "TGDD",
+        "shop": "mobile_phone",
+        "app:category": "mobile_phone",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 3775992477,
+      "lat": 10.4553554,
+      "lon": 105.6350693,
+      "tags": {
+        "name": "Viettelstore",
+        "shop": "mobile_phone",
+        "app:category": "mobile_phone",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 3775992478,
+      "lat": 10.4564428,
+      "lon": 105.637411,
+      "tags": {
+        "name": "Viettelstore",
+        "shop": "mobile_phone",
+        "app:category": "mobile_phone",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 3775997482,
+      "lat": 10.4523372,
+      "lon": 105.6330383,
+      "tags": {
+        "amenity": "cafe",
+        "name": "Cội Nguồn",
+        "app:category": "cafe",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 3775997494,
+      "lat": 10.4451603,
+      "lon": 105.6304469,
+      "tags": {
+        "amenity": "restaurant",
+        "name": "Việt Hà",
+        "app:category": "restaurant",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 3776005050,
+      "lat": 10.4471214,
+      "lon": 105.6308006,
+      "tags": {
+        "amenity": "place_of_worship",
+        "name": "Chùa Hòa Long",
+        "religion": "buddhist",
+        "app:category": "place_of_worship",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 4415909891,
+      "lat": 10.4542554,
+      "lon": 105.6292481,
+      "tags": {
+        "addr:street": "Trần Thị Nhượng",
+        "leisure": "fitness_centre",
+        "name": "Câu Lạc Bộ Thể Hình Nam Nữ Phương Anh",
+        "name:vi": "Câu Lạc Bộ Thể Hình Nam Nữ Phương Anh",
+        "opening_hours": "Mo-Su 04:00-20:00",
+        "app:category": "fitness_centre",
+        "addr:full": "Trần Thị Nhượng"
+      }
+    },
+    {
+      "type": "node",
+      "id": 4483333692,
+      "lat": 10.4575196,
+      "lon": 105.6387402,
+      "tags": {
+        "addr:housenumber": "66-68-70",
+        "addr:street": "Nguyễn Huệ",
+        "email": "viettienhouse@gmail.com",
+        "internet_access": "wlan",
+        "name": "Cửa hàng thời trang Việt tiến",
+        "name:en": "viettien house",
+        "name:vi": "Cửa hàng thời trang Việt tiến",
+        "opening_hours": "Mo-Su 07:30-07:30, 21:00-21:00",
+        "phone": "0673877768",
+        "shop": "clothes",
+        "app:category": "clothes",
+        "addr:full": "66-68-70 Nguyễn Huệ",
+        "contact:phone": "0673877768"
+      }
+    },
+    {
+      "type": "node",
+      "id": 4483338490,
+      "lat": 10.4555254,
+      "lon": 105.6349939,
+      "tags": {
+        "addr:housenumber": "66-68-70",
+        "addr:street": "Nguyễn Huệ",
+        "email": "viettienhouse@gmail.com",
+        "internet_access": "wlan",
+        "name": "Cửa hàng thời trang Việt tiến",
+        "name:en": "Viettien house",
+        "name:vi": "Cửa hàng thời trang Việt tiến",
+        "opening_hours": "Mo-Su 07:30-07:30, 21:00-21:00",
+        "operator": "Công ty TNHH TMDV Phúc Thịnh Tiến",
+        "phone": "0673877768",
+        "shop": "clothes",
+        "app:category": "clothes",
+        "addr:full": "66-68-70 Nguyễn Huệ",
+        "contact:phone": "0673877768"
+      }
+    },
+    {
+      "type": "node",
+      "id": 4483357391,
+      "lat": 10.4544889,
+      "lon": 105.6351437,
+      "tags": {
+        "addr:housenumber": "65-67",
+        "addr:street": "Nguyễn Trãi",
+        "email": "viettiendongthap@gmail.com",
+        "internet_access": "wlan",
+        "name": "Cửa hàng Việt tiến",
+        "name:en": "viettien store",
+        "name:vi": "Cửa hàng Việt tiến",
+        "opening_hours": "Mo-Su 07:30-21:00",
+        "operator": "Công ty TNHH TMDV Phúc Thịnh Tiến",
+        "phone": "0673851117",
+        "shop": "clothes",
+        "app:category": "clothes",
+        "addr:full": "65-67 Nguyễn Trãi",
+        "contact:phone": "0673851117"
+      }
+    },
+    {
+      "type": "node",
+      "id": 4483424990,
+      "lat": 10.4555153,
+      "lon": 105.6349893,
+      "tags": {
+        "addr:housenumber": "66-68-70",
+        "addr:street": "Nguyễn Huệ",
+        "email": "viettienhouse@gmail.com",
+        "internet_access": "wlan",
+        "name": "Cửa hàng thời trang Việt tiến",
+        "name:en": "Viettien house",
+        "opening_hours": "Mo-Su 07:30-21:00",
+        "operator": "Công ty TNHH TMDV Phúc Thịnh Tiến",
+        "phone": "0673877768",
+        "shop": "clothes",
+        "app:category": "clothes",
+        "addr:full": "66-68-70 Nguyễn Huệ",
+        "contact:phone": "0673877768"
+      }
+    },
+    {
+      "type": "node",
+      "id": 4533846099,
+      "lat": 10.4521188,
+      "lon": 105.6375444,
+      "tags": {
+        "amenity": "place_of_worship",
+        "name": "chùa cát tiên",
+        "name:vi": "chùa cát tiên",
+        "app:category": "place_of_worship",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 4534305989,
+      "lat": 10.4550823,
+      "lon": 105.6341316,
+      "tags": {
+        "amenity": "cafe",
+        "name": "cà phê trung nguyên",
+        "name:vi": "cà phê trung nguyên",
+        "app:category": "cafe",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 4569987591,
+      "lat": 10.4582775,
+      "lon": 105.6396791,
+      "tags": {
+        "amenity": "restaurant",
+        "cuisine": "vietnamese",
+        "name": "Ngoc lan",
+        "app:category": "restaurant",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 4646799889,
+      "lat": 10.441697,
+      "lon": 105.6316105,
+      "tags": {
+        "amenity": "bar",
+        "internet_access": "wlan",
+        "name": "Bar Ấn Tượng",
+        "opening_hours": "Mo-Su 20:00-01:00",
+        "app:category": "bar",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 4655909191,
+      "lat": 10.4556947,
+      "lon": 105.6389572,
+      "tags": {
+        "addr:housenumber": "40",
+        "addr:street": "Ly Tu Trong",
+        "email": "hoaanhhotel@yahoo.com.vn",
+        "internet_access": "wlan",
+        "name": "Hoa Anh",
+        "name:vi": "Hoa Anh",
+        "phone": "0672240567",
+        "tourism": "hotel",
+        "app:category": "tro",
+        "addr:full": "40 Ly Tu Trong",
+        "contact:phone": "0672240567"
+      }
+    },
+    {
+      "type": "node",
+      "id": 4696748289,
+      "lat": 10.4546673,
+      "lon": 105.6384935,
+      "tags": {
+        "addr:housenumber": "133, P.2",
+        "addr:street": "Lê Lợi",
+        "name": "TTNT PHÚC THÀNH",
+        "name:en": "PHUCTHANH",
+        "phone": "0989235579",
+        "shop": "furniture",
+        "app:category": "furniture",
+        "addr:full": "133, P.2 Lê Lợi",
+        "contact:phone": "0989235579"
+      }
+    },
+    {
+      "type": "node",
+      "id": 5185391122,
+      "lat": 10.4543571,
+      "lon": 105.6348556,
+      "tags": {
+        "addr:housenumber": "68",
+        "addr:street": "Hùng Vương",
+        "name": "NGÂN TIỀN",
+        "phone": "02773665868",
+        "shop": "variety_store",
+        "app:category": "variety_store",
+        "addr:full": "68 Hùng Vương",
+        "contact:phone": "02773665868"
+      }
+    },
+    {
+      "type": "node",
+      "id": 5715216521,
+      "lat": 10.4539216,
+      "lon": 105.6294591,
+      "tags": {
+        "amenity": "cafe",
+        "name": "Cà phê Xưa",
+        "app:category": "cafe",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 6642864178,
+      "lat": 10.4552307,
+      "lon": 105.6348342,
+      "tags": {
+        "amenity": "bank",
+        "name": "Sacombank",
+        "app:category": "bank",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 6813546193,
+      "lat": 10.4585267,
+      "lon": 105.6396499,
+      "tags": {
+        "addr:full": "78 Nguyễn Huệ, Phường 2, Tp. Cao Lãnh, Đồng Tháp, Việt Nam",
+        "addr:housenumber": "78",
+        "addr:street": "Nguyễn Huệ",
+        "alt_name": "An Phước Cao Lãnh - Đồng Tháp",
+        "clothes": "suits",
+        "name": "An Phước",
+        "name:en": "An Phuoc",
+        "opening_hours": "7:30-21:30",
+        "phone": "0277 3878 669",
+        "shop": "clothes",
+        "app:category": "clothes",
+        "contact:phone": "0277 3878 669"
+      }
+    },
+    {
+      "type": "node",
+      "id": 8089795117,
+      "lat": 10.4581511,
+      "lon": 105.6286221,
+      "tags": {
+        "name": "Quán ăn sáng Sông Hân",
+        "tourism": "artwork",
+        "app:category": "artwork",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 11076315747,
+      "lat": 10.4490072,
+      "lon": 105.6385186,
+      "tags": {
+        "addr:city": "Thành phố Cao Lãnh",
+        "addr:housenumber": "191",
+        "addr:province": "Đồng Tháp",
+        "addr:street": "Cách Mạng Tháng Tám",
+        "amenity": "place_of_worship",
+        "name": "Linh Sơn Cổ tự",
+        "religion": "buddhist",
+        "app:category": "place_of_worship",
+        "addr:full": "191 Cách Mạng Tháng Tám"
+      }
+    },
+    {
+      "type": "node",
+      "id": 11076376289,
+      "lat": 10.4502853,
+      "lon": 105.6431753,
+      "tags": {
+        "addr:city": "Thành phố Cao Lãnh",
+        "addr:province": "Đồng Tháp",
+        "addr:street": "Nguyễn Trãi",
+        "addr:subdistrict": "3",
+        "amenity": "townhall",
+        "name": "UBND phường 3",
+        "app:category": "townhall",
+        "addr:full": "Nguyễn Trãi"
+      }
+    },
+    {
+      "type": "node",
+      "id": 11076379963,
+      "lat": 10.4493683,
+      "lon": 105.637184,
+      "tags": {
+        "addr:city": "Thành phố Cao Lãnh",
+        "addr:province": "Đồng Tháp",
+        "addr:street": "Cách Mạng Tháng Tám",
+        "addr:subdistrict": "13",
+        "amenity": "place_of_worship",
+        "name": "Thánh thất Cao Lãnh",
+        "app:category": "place_of_worship",
+        "addr:full": "Cách Mạng Tháng Tám"
+      }
+    },
+    {
+      "type": "node",
+      "id": 12103763900,
+      "lat": 10.4550591,
+      "lon": 105.6343132,
+      "tags": {
+        "bus": "yes",
+        "highway": "bus_stop",
+        "name": "Nhà sách Nguyễn Văn Cừ",
+        "public_transport": "platform",
+        "app:category": "ben_xe",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 12649543281,
+      "lat": 10.450286,
+      "lon": 105.6225157,
+      "tags": {
+        "addr:district": "Thành phố Cao Lãnh",
+        "addr:province": "Tỉnh Đồng Tháp",
+        "addr:street": "247, trần tế xương, xã hòa an, thành phố cao lãnh, tỉnh Đồng tháp,",
+        "addr:subdistrict": "Xã Hòa An",
+        "name": "247, trần tế xương, xã hòa an, thành phố cao lãnh, tỉnh Đồng tháp,",
+        "app:category": "khac",
+        "addr:full": "247, trần tế xương, xã hòa an, thành phố cao lãnh, tỉnh Đồng tháp,"
+      }
+    },
+    {
+      "type": "node",
+      "id": 12945891070,
+      "lat": 10.4529,
+      "lon": 105.6314,
+      "tags": {
+        "name": "Cao Lãnh",
+        "name:vi-Hani": "高嶺",
+        "name:zh": "高嶺市",
+        "note": "This node represents a previously existing place. For navigational reasons, this node is kept. Please do not delete this!",
+        "place": "city",
+        "population": "197033",
+        "app:category": "city",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 13142162464,
+      "lat": 10.4555549,
+      "lon": 105.6446574,
+      "tags": {
+        "addr:district": "Thành phố Cao Lãnh",
+        "addr:province": "Tỉnh Đồng Tháp",
+        "addr:street": "126 phạm thị uẩn,",
+        "addr:subdistrict": "Phường 3",
+        "name": "126 phạm thị uẩn,",
+        "app:category": "khac",
+        "addr:full": "126 phạm thị uẩn,"
+      }
+    },
+    {
+      "type": "node",
+      "id": 13335547140,
+      "lat": 10.4572611,
+      "lon": 105.6370123,
+      "tags": {
+        "addr:district": "Thành phố Cao Lãnh",
+        "addr:province": "Tỉnh Đồng Tháp",
+        "addr:street": "87 Nguyễn Huệ,",
+        "addr:subdistrict": "Phường 1",
+        "name": "87 Nguyễn Huệ",
+        "app:category": "khac",
+        "addr:full": "87 Nguyễn Huệ,"
+      }
+    },
+    {
+      "type": "node",
+      "id": 13951470750,
+      "lat": 10.4562617,
+      "lon": 105.6329173,
+      "tags": {
+        "name": "Cao Lãnh",
+        "place": "suburb",
+        "app:category": "suburb",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 14152691248,
+      "lat": 10.4403976,
+      "lon": 105.6134949,
+      "tags": {
+        "name": "Đông Bình",
+        "place": "neighbourhood",
+        "app:category": "neighbourhood",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 14152691251,
+      "lat": 10.4516647,
+      "lon": 105.6364882,
+      "tags": {
+        "name": "Đỗ Công Tường",
+        "place": "neighbourhood",
+        "app:category": "neighbourhood",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 14152691252,
+      "lat": 10.4577162,
+      "lon": 105.6415563,
+      "tags": {
+        "name": "Đình Trung",
+        "place": "neighbourhood",
+        "app:category": "neighbourhood",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 14152691253,
+      "lat": 10.4493617,
+      "lon": 105.6332118,
+      "tags": {
+        "name": "Hòa An",
+        "place": "neighbourhood",
+        "app:category": "neighbourhood",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 14152691254,
+      "lat": 10.4487449,
+      "lon": 105.6264859,
+      "tags": {
+        "name": "Hòa Hiệp",
+        "place": "neighbourhood",
+        "app:category": "neighbourhood",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 14152691256,
+      "lat": 10.4523232,
+      "lon": 105.6140699,
+      "tags": {
+        "name": "Hòa Khánh",
+        "place": "neighbourhood",
+        "app:category": "neighbourhood",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 14152691258,
+      "lat": 10.4548762,
+      "lon": 105.6293984,
+      "tags": {
+        "name": "Hòa Thuận",
+        "place": "neighbourhood",
+        "app:category": "neighbourhood",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 14152691261,
+      "lat": 10.4547745,
+      "lon": 105.6364836,
+      "tags": {
+        "name": "Hưng Thịnh",
+        "place": "neighbourhood",
+        "app:category": "neighbourhood",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 14152711862,
+      "lat": 10.4546727,
+      "lon": 105.6423907,
+      "tags": {
+        "name": "Mỹ Hưng",
+        "place": "neighbourhood",
+        "app:category": "neighbourhood",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 14152711863,
+      "lat": 10.4514385,
+      "lon": 105.6462537,
+      "tags": {
+        "name": "Mỹ Long",
+        "place": "neighbourhood",
+        "app:category": "neighbourhood",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 14152711864,
+      "lat": 10.4471111,
+      "lon": 105.64227,
+      "tags": {
+        "name": "Mỹ Phước",
+        "place": "neighbourhood",
+        "app:category": "neighbourhood",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 14152711868,
+      "lat": 10.4363274,
+      "lon": 105.6288749,
+      "tags": {
+        "name": "Phú An",
+        "place": "neighbourhood",
+        "app:category": "neighbourhood",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 14152711876,
+      "lat": 10.4337169,
+      "lon": 105.6465699,
+      "tags": {
+        "name": "Tân Việt Hòa",
+        "place": "neighbourhood",
+        "app:category": "neighbourhood",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 14152711884,
+      "lat": 10.4388824,
+      "lon": 105.6393786,
+      "tags": {
+        "name": "Tịnh Thới",
+        "place": "neighbourhood",
+        "app:category": "neighbourhood",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 14152711889,
+      "lat": 10.4577731,
+      "lon": 105.6501466,
+      "tags": {
+        "name": "Mỹ Phú",
+        "place": "neighbourhood",
+        "app:category": "neighbourhood",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "way",
+      "id": 169406235,
+      "center": {
+        "lat": 10.45330325,
+        "lon": 105.63241295
+      },
+      "tags": {
+        "museum": "local",
+        "name": "Bảo tàng Đồng Tháp",
+        "tourism": "museum",
+        "app:category": "museum",
+        "addr:full": ""
+      },
+      "lat": 10.45330325,
+      "lon": 105.63241295
+    },
+    {
+      "type": "way",
+      "id": 169413835,
+      "center": {
+        "lat": 10.446994030769229,
+        "lon": 105.63236546923076
+      },
+      "tags": {
+        "name": "Ao cá Bác Hồ",
+        "natural": "water",
+        "app:category": "khac",
+        "addr:full": ""
+      },
+      "lat": 10.446994030769229,
+      "lon": 105.63236546923076
+    },
+    {
+      "type": "way",
+      "id": 169414446,
+      "center": {
+        "lat": 10.447048820000001,
+        "lon": 105.63075297999998
+      },
+      "tags": {
+        "building": "yes",
+        "name": "Khu di tích Cụ Phó bảng Nguyễn Sinh Sắc- thân sinh chủ tịch Hồ Chí Minh",
+        "app:category": "yes",
+        "addr:full": ""
+      },
+      "lat": 10.447048820000001,
+      "lon": 105.63075297999998
+    },
+    {
+      "type": "way",
+      "id": 169414601,
+      "center": {
+        "lat": 10.448337516666667,
+        "lon": 105.63537693333335
+      },
+      "tags": {
+        "amenity": "college",
+        "name": "Trường Cao đẳng y tế Đồng Tháp",
+        "app:category": "college",
+        "addr:full": ""
+      },
+      "lat": 10.448337516666667,
+      "lon": 105.63537693333335
+    },
+    {
+      "type": "way",
+      "id": 169422508,
+      "center": {
+        "lat": 10.455778216666666,
+        "lon": 105.63811253333331
+      },
+      "tags": {
+        "amenity": "bus_station",
+        "name": "Bến xe Cao Lãnh",
+        "app:category": "ben_xe",
+        "addr:full": ""
+      },
+      "lat": 10.455778216666666,
+      "lon": 105.63811253333331
+    },
+    {
+      "type": "way",
+      "id": 170065555,
+      "center": {
+        "lat": 10.458330100000001,
+        "lon": 105.64260354000001
+      },
+      "tags": {
+        "amenity": "school",
+        "name": "Tiểu học Chu Văn An",
+        "app:category": "school",
+        "addr:full": ""
+      },
+      "lat": 10.458330100000001,
+      "lon": 105.64260354000001
+    },
+    {
+      "type": "way",
+      "id": 170072611,
+      "center": {
+        "lat": 10.45830648,
+        "lon": 105.63265966000002
+      },
+      "tags": {
+        "amenity": "place_of_worship",
+        "name": "Nhà thờ Cao Lãnh",
+        "app:category": "place_of_worship",
+        "addr:full": ""
+      },
+      "lat": 10.45830648,
+      "lon": 105.63265966000002
+    },
+    {
+      "type": "way",
+      "id": 170072874,
+      "center": {
+        "lat": 10.458968760000001,
+        "lon": 105.63371184
+      },
+      "tags": {
+        "building": "yes",
+        "name": "Sở Giáo dục và Đào tạo Đồng Tháp",
+        "app:category": "Govermont",
+        "addr:full": ""
+      },
+      "lat": 10.458968760000001,
+      "lon": 105.63371184
+    },
+    {
+      "type": "way",
+      "id": 170072985,
+      "center": {
+        "lat": 10.45865506,
+        "lon": 105.63451832000001
+      },
+      "tags": {
+        "building": "yes",
+        "name": "Viện kiểm sát nhân dân tỉnh Đồng Tháp",
+        "app:category": "yes",
+        "addr:full": ""
+      },
+      "lat": 10.45865506,
+      "lon": 105.63451832000001
+    },
+    {
+      "type": "way",
+      "id": 170190898,
+      "center": {
+        "lat": 10.45367586,
+        "lon": 105.63756606000001
+      },
+      "tags": {
+        "amenity": "marketplace",
+        "name": "Chợ cá Cao Lãnh",
+        "app:category": "marketplace",
+        "addr:full": ""
+      },
+      "lat": 10.45367586,
+      "lon": 105.63756606000001
+    },
+    {
+      "type": "way",
+      "id": 170190960,
+      "center": {
+        "lat": 10.45410476,
+        "lon": 105.63627642000002
+      },
+      "tags": {
+        "amenity": "marketplace",
+        "name": "Chợ đêm Cao Lãnh",
+        "app:category": "marketplace",
+        "addr:full": ""
+      },
+      "lat": 10.45410476,
+      "lon": 105.63627642000002
+    },
+    {
+      "type": "way",
+      "id": 170190990,
+      "center": {
+        "lat": 10.45396604,
+        "lon": 105.6351735
+      },
+      "tags": {
+        "amenity": "school",
+        "name": "Trường tiểu học Lê Quý Đôn",
+        "app:category": "school",
+        "addr:full": ""
+      },
+      "lat": 10.45396604,
+      "lon": 105.6351735
+    },
+    {
+      "type": "way",
+      "id": 170192815,
+      "center": {
+        "lat": 10.4589414,
+        "lon": 105.63884500000002
+      },
+      "tags": {
+        "landuse": "brownfield",
+        "name": "Trường Trung học phổ thông Thành phố Cao Lãnh",
+        "app:category": "khac",
+        "addr:full": ""
+      },
+      "lat": 10.4589414,
+      "lon": 105.63884500000002
+    },
+    {
+      "type": "way",
+      "id": 170192953,
+      "center": {
+        "lat": 10.45828294,
+        "lon": 105.63803112000001
+      },
+      "tags": {
+        "building": "yes",
+        "name": "Kho bạc Nhà nước Đồng Tháp",
+        "app:category": "yes",
+        "addr:full": ""
+      },
+      "lat": 10.45828294,
+      "lon": 105.63803112000001
+    },
+    {
+      "type": "way",
+      "id": 170192978,
+      "center": {
+        "lat": 10.4580837,
+        "lon": 105.6377363
+      },
+      "tags": {
+        "building": "yes",
+        "name": "Cục thuế tỉnh Đồng Tháp",
+        "app:category": "yes",
+        "addr:full": ""
+      },
+      "lat": 10.4580837,
+      "lon": 105.6377363
+    },
+    {
+      "type": "way",
+      "id": 170192995,
+      "center": {
+        "lat": 10.45788454,
+        "lon": 105.63741798000001
+      },
+      "tags": {
+        "building": "yes",
+        "name": "Cục hải quan tỉnh Đồng Tháp",
+        "app:category": "yes",
+        "addr:full": ""
+      },
+      "lat": 10.45788454,
+      "lon": 105.63741798000001
+    },
+    {
+      "type": "way",
+      "id": 170194633,
+      "center": {
+        "lat": 10.45420574,
+        "lon": 105.6372993
+      },
+      "tags": {
+        "amenity": "marketplace",
+        "name": "Chợ nông sản Cao Lãnh",
+        "app:category": "marketplace",
+        "addr:full": ""
+      },
+      "lat": 10.45420574,
+      "lon": 105.6372993
+    },
+    {
+      "type": "way",
+      "id": 372806315,
+      "center": {
+        "lat": 10.45431415,
+        "lon": 105.63596031666668
+      },
+      "tags": {
+        "amenity": "bank",
+        "building": "yes",
+        "name": "Agribank Đồng Tháp",
+        "app:category": "bank",
+        "addr:full": ""
+      },
+      "lat": 10.45431415,
+      "lon": 105.63596031666668
+    },
+    {
+      "type": "way",
+      "id": 373173678,
+      "center": {
+        "lat": 10.456680611111112,
+        "lon": 105.63627834444445
+      },
+      "tags": {
+        "building": "yes",
+        "name": "Bưu điện tỉnh",
+        "app:category": "yes",
+        "addr:full": ""
+      },
+      "lat": 10.456680611111112,
+      "lon": 105.63627834444445
+    },
+    {
+      "type": "way",
+      "id": 373173679,
+      "center": {
+        "lat": 10.4581223,
+        "lon": 105.63548398
+      },
+      "tags": {
+        "building": "yes",
+        "name": "Nhà khách tỉnh",
+        "app:category": "yes",
+        "addr:full": ""
+      },
+      "lat": 10.4581223,
+      "lon": 105.63548398
+    },
+    {
+      "type": "way",
+      "id": 373173680,
+      "center": {
+        "lat": 10.457678999999999,
+        "lon": 105.636751
+      },
+      "tags": {
+        "building": "yes",
+        "name": "Liên đoàn LĐ tỉnh",
+        "app:category": "yes",
+        "addr:full": ""
+      },
+      "lat": 10.457678999999999,
+      "lon": 105.636751
+    },
+    {
+      "type": "way",
+      "id": 373173681,
+      "center": {
+        "lat": 10.459557611111112,
+        "lon": 105.63604187777777
+      },
+      "tags": {
+        "amenity": "police",
+        "name": "Công an tỉnh Đồng Tháp",
+        "app:category": "police",
+        "addr:full": ""
+      },
+      "lat": 10.459557611111112,
+      "lon": 105.63604187777777
+    },
+    {
+      "type": "way",
+      "id": 374222716,
+      "center": {
+        "lat": 10.452161083333333,
+        "lon": 105.63142473333333
+      },
+      "tags": {
+        "building": "residential",
+        "name": "Thư viện tỉnh",
+        "app:category": "residential",
+        "addr:full": ""
+      },
+      "lat": 10.452161083333333,
+      "lon": 105.63142473333333
+    },
+    {
+      "type": "way",
+      "id": 374223819,
+      "center": {
+        "lat": 10.45990422,
+        "lon": 105.63062924
+      },
+      "tags": {
+        "leisure": "park",
+        "name": "CV Thiếu Nhi",
+        "app:category": "park",
+        "addr:full": ""
+      },
+      "lat": 10.45990422,
+      "lon": 105.63062924
+    },
+    {
+      "type": "way",
+      "id": 374223820,
+      "center": {
+        "lat": 10.45612434,
+        "lon": 105.63279378
+      },
+      "tags": {
+        "amenity": "townhall",
+        "building": "yes",
+        "name": "UBND Thành phố Cao Lãnh",
+        "townhall:type": "city",
+        "app:category": "townhall",
+        "addr:full": ""
+      },
+      "lat": 10.45612434,
+      "lon": 105.63279378
+    },
+    {
+      "type": "way",
+      "id": 374223821,
+      "center": {
+        "lat": 10.457918119999999,
+        "lon": 105.63165868000002
+      },
+      "tags": {
+        "building": "yes",
+        "name": "Sở Tài Chính",
+        "office": "government",
+        "app:category": "yes",
+        "addr:full": ""
+      },
+      "lat": 10.457918119999999,
+      "lon": 105.63165868000002
+    },
+    {
+      "type": "way",
+      "id": 374223822,
+      "center": {
+        "lat": 10.45708778,
+        "lon": 105.6331723
+      },
+      "tags": {
+        "addr:city": "Cao Lãnh",
+        "addr:housenumber": "4",
+        "addr:province": "Đồng Tháp",
+        "addr:street": "30 Tháng 4",
+        "addr:subdistrict": "Phường 1",
+        "landuse": "commercial",
+        "name": "Imexpharm Đồng Tháp",
+        "app:category": "khac",
+        "addr:full": "4 30 Tháng 4"
+      },
+      "lat": 10.45708778,
+      "lon": 105.6331723
+    },
+    {
+      "type": "way",
+      "id": 374223824,
+      "center": {
+        "lat": 10.45518912,
+        "lon": 105.63336176
+      },
+      "tags": {
+        "building": "yes",
+        "name": "Siêu Thị Phan Khang",
+        "shop": "supermarket",
+        "app:category": "supermarket",
+        "addr:full": ""
+      },
+      "lat": 10.45518912,
+      "lon": 105.63336176
+    },
+    {
+      "type": "way",
+      "id": 374223826,
+      "center": {
+        "lat": 10.4572434,
+        "lon": 105.63697624000001
+      },
+      "tags": {
+        "amenity": "bank",
+        "building": "yes",
+        "name": "Viettinbank",
+        "app:category": "bank",
+        "addr:full": ""
+      },
+      "lat": 10.4572434,
+      "lon": 105.63697624000001
+    },
+    {
+      "type": "way",
+      "id": 374224052,
+      "center": {
+        "lat": 10.45727902857143,
+        "lon": 105.63849744285714
+      },
+      "tags": {
+        "building": "yes",
+        "name": "Sông Trà",
+        "tourism": "hotel",
+        "app:category": "tro",
+        "addr:full": ""
+      },
+      "lat": 10.45727902857143,
+      "lon": 105.63849744285714
+    },
+    {
+      "type": "way",
+      "id": 374224053,
+      "center": {
+        "lat": 10.45885916,
+        "lon": 105.64098208
+      },
+      "tags": {
+        "building": "yes",
+        "craft": "electrician",
+        "name": "ĐIện Lực",
+        "app:category": "yes",
+        "addr:full": ""
+      },
+      "lat": 10.45885916,
+      "lon": 105.64098208
+    },
+    {
+      "type": "way",
+      "id": 676487132,
+      "center": {
+        "lat": 10.466305606249998,
+        "lon": 105.63158150000002
+      },
+      "tags": {
+        "name": "Phường 1",
+        "place": "TP Cao Lãnh",
+        "app:category": "TP Cao Lãnh",
+        "addr:full": ""
+      },
+      "lat": 10.466305606249998,
+      "lon": 105.63158150000002
+    },
+    {
+      "type": "way",
+      "id": 676489756,
+      "center": {
+        "lat": 10.455420086792454,
+        "lon": 105.63860399433963
+      },
+      "tags": {
+        "name": "Phường 2",
+        "place": "TP Cao Lãnh",
+        "app:category": "TP Cao Lãnh",
+        "addr:full": ""
+      },
+      "lat": 10.455420086792454,
+      "lon": 105.63860399433963
+    },
+    {
+      "type": "way",
+      "id": 676496938,
+      "center": {
+        "lat": 10.450276449999999,
+        "lon": 105.62945911666668
+      },
+      "tags": {
+        "name": "Phường 4",
+        "place": "TP Cao Lãnh",
+        "app:category": "TP Cao Lãnh",
+        "addr:full": ""
+      },
+      "lat": 10.450276449999999,
+      "lon": 105.62945911666668
+    },
+    {
+      "type": "way",
+      "id": 1244769154,
+      "center": {
+        "lat": 10.447456172727273,
+        "lon": 105.63167025454545
+      },
+      "tags": {
+        "leisure": "park",
+        "name": "Khu di tích Nguyễn Sinh Sắc",
+        "app:category": "park",
+        "addr:full": ""
+      },
+      "lat": 10.447456172727273,
+      "lon": 105.63167025454545
+    },
+    {
+      "type": "way",
+      "id": 1457834461,
+      "center": {
+        "lat": 10.45735421,
+        "lon": 105.64245242
+      },
+      "tags": {
+        "addr:housenumber": "311",
+        "addr:street": "Lê Lợi",
+        "building": "yes",
+        "name": "Bảo Ngọc Hotel",
+        "tourism": "hotel",
+        "app:category": "tro",
+        "addr:full": "311 Lê Lợi"
+      },
+      "lat": 10.45735421,
+      "lon": 105.64245242
+    },
+    {
+      "type": "way",
+      "id": 1457834465,
+      "center": {
+        "lat": 10.458264857142856,
+        "lon": 105.64417509999998
+      },
+      "tags": {
+        "amenity": "restaurant",
+        "building": "yes",
+        "name": "Bê Thui",
+        "app:category": "restaurant",
+        "addr:full": ""
+      },
+      "lat": 10.458264857142856,
+      "lon": 105.64417509999998
+    },
+    {
+      "type": "way",
+      "id": 1457950293,
+      "center": {
+        "lat": 10.45576646,
+        "lon": 105.64248927999999
+      },
+      "tags": {
+        "addr:housenumber": "52",
+        "addr:street": "Bà Triệu",
+        "building": "yes",
+        "club": "sport",
+        "name": "M.T. Gym",
+        "app:category": "yes",
+        "addr:full": "52 Bà Triệu"
+      },
+      "lat": 10.45576646,
+      "lon": 105.64248927999999
+    },
+    {
+      "type": "way",
+      "id": 1457950295,
+      "center": {
+        "lat": 10.454703383333333,
+        "lon": 105.6430634
+      },
+      "tags": {
+        "amenity": "cafe",
+        "building": "yes",
+        "name": "Milano",
+        "app:category": "cafe",
+        "addr:full": ""
+      },
+      "lat": 10.454703383333333,
+      "lon": 105.6430634
+    },
+    {
+      "type": "way",
+      "id": 1457950301,
+      "center": {
+        "lat": 10.453860366666666,
+        "lon": 105.64344993333334
+      },
+      "tags": {
+        "addr:city": "TP Cao Lãnh",
+        "addr:housenumber": "409",
+        "addr:street": "Ngô Thì Nhậm",
+        "amenity": "cafe",
+        "building": "yes",
+        "name": "Taste Coffee",
+        "app:category": "cafe",
+        "addr:full": "409 Ngô Thì Nhậm"
+      },
+      "lat": 10.453860366666666,
+      "lon": 105.64344993333334
+    },
+    {
+      "type": "way",
+      "id": 1565618860,
+      "center": {
+        "lat": 10.458463120000001,
+        "lon": 105.64929298000001
+      },
+      "tags": {
+        "access": "yes",
+        "leisure": "pitch",
+        "lit": "yes",
+        "name": "Sân bóng đá Mỹ Phú",
+        "sport": "soccer",
+        "surface": "artificial_turf",
+        "app:category": "pitch",
+        "addr:full": ""
+      },
+      "lat": 10.458463120000001,
+      "lon": 105.64929298000001
+    },
+    {
+      "type": "node",
+      "id": 14152711865,
+      "lat": 10.4481458,
+      "lon": 105.6608602,
+      "tags": {
+        "name": "Mỹ Thiện",
+        "place": "neighbourhood",
+        "app:category": "neighbourhood",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 14152711881,
+      "lat": 10.4377059,
+      "lon": 105.6743259,
+      "tags": {
+        "name": "Tịnh Long",
+        "place": "neighbourhood",
+        "app:category": "neighbourhood",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 14152711885,
+      "lat": 10.4534212,
+      "lon": 105.6726174,
+      "tags": {
+        "name": "An Định",
+        "place": "neighbourhood",
+        "app:category": "neighbourhood",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "way",
+      "id": 149006306,
+      "center": {
+        "lat": 10.482585024773966,
+        "lon": 105.67122061012662
+      },
+      "tags": {
+        "name": "Rạch Cần Lố",
+        "natural": "water",
+        "water": "river",
+        "app:category": "khac",
+        "addr:full": ""
+      },
+      "lat": 10.482585024773966,
+      "lon": 105.67122061012662
+    },
+    {
+      "type": "way",
+      "id": 497502553,
+      "center": {
+        "lat": 10.48547875222222,
+        "lon": 105.6701242105556
+      },
+      "tags": {
+        "name": "Rạch Cần Lố",
+        "waterway": "river",
+        "app:category": "khac",
+        "addr:full": ""
+      },
+      "lat": 10.48547875222222,
+      "lon": 105.6701242105556
+    },
+    {
+      "type": "node",
+      "id": 3766967836,
+      "lat": 10.4639158,
+      "lon": 105.5858104,
+      "tags": {
+        "name": "UBND xã Tân Thuận Tây",
+        "office": "government",
+        "app:category": "khac",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 4178172509,
+      "lat": 10.476425,
+      "lon": 105.5995234,
+      "tags": {
+        "name": "VP CN Đồng Tháp (TĐ Lộc Trời)",
+        "shop": "copyshop",
+        "app:category": "copyshop",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 4316610094,
+      "lat": 10.4595145,
+      "lon": 105.6091121,
+      "tags": {
+        "addr:housenumber": "267",
+        "addr:street": "Hòa Tây",
+        "email": "cskh.nguyentoan@gmail.com",
+        "internet_access": "wlan",
+        "name": "Thiết Bị Công Nghệ & Camera Quan Sát Nguyễn Toàn",
+        "opening_hours": "24/7",
+        "phone": "0907010784",
+        "shop": "computer",
+        "website": "http://nguyentoanstore.com",
+        "app:category": "computer",
+        "addr:full": "267 Hòa Tây",
+        "contact:phone": "0907010784"
+      }
+    },
+    {
+      "type": "node",
+      "id": 5619122121,
+      "lat": 10.4807706,
+      "lon": 105.5899819,
+      "tags": {
+        "addr:street": "30",
+        "amenity": "place_of_worship",
+        "name": "Chùa Cao Minh",
+        "name:en": "Cao Minh pagoda",
+        "name:zh": "高明寺",
+        "app:category": "place_of_worship",
+        "addr:full": "30"
+      }
+    },
+    {
+      "type": "node",
+      "id": 5628391024,
+      "lat": 10.4795261,
+      "lon": 105.5922466,
+      "tags": {
+        "addr:street": "30",
+        "amenity": "place_of_worship",
+        "name": "Chùa Cao Minh",
+        "name:en": "chua cao minh",
+        "app:category": "place_of_worship",
+        "addr:full": "30"
+      }
+    },
+    {
+      "type": "node",
+      "id": 5628669721,
+      "lat": 10.4754373,
+      "lon": 105.6088533,
+      "tags": {
+        "addr:street": "30",
+        "amenity": "place_of_worship",
+        "name": "Chùa Khánh An",
+        "name:en": "chua khanh an",
+        "app:category": "place_of_worship",
+        "addr:full": "30"
+      }
+    },
+    {
+      "type": "node",
+      "id": 7265322586,
+      "lat": 10.4708362,
+      "lon": 105.6078753,
+      "tags": {
+        "addr:street": "lê văn cưr",
+        "name": "Duyên Casa Hoà An Homestay",
+        "operator": "Tran Dinh Tho",
+        "phone": "0909183911",
+        "tourism": "hotel",
+        "app:category": "tro",
+        "addr:full": "lê văn cưr",
+        "contact:phone": "0909183911"
+      }
+    },
+    {
+      "type": "node",
+      "id": 7265369885,
+      "lat": 10.4605413,
+      "lon": 105.6087799,
+      "tags": {
+        "name": "chợ xéo bẻo",
+        "shop": "supermarket",
+        "app:category": "supermarket",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 13247507363,
+      "lat": 10.4766404,
+      "lon": 105.5989014,
+      "tags": {
+        "addr:district": "Thành phố Cao Lãnh",
+        "addr:province": "Tỉnh Đồng Tháp",
+        "addr:street": "nhà trọ thuận anh, số 974, ql30,",
+        "addr:subdistrict": "Xã Mỹ Tân",
+        "name": "nhà trọ thuận anh, số 974, ql30,",
+        "app:category": "khac",
+        "addr:full": "nhà trọ thuận anh, số 974, ql30,"
+      }
+    },
+    {
+      "type": "node",
+      "id": 13247534628,
+      "lat": 10.4766388,
+      "lon": 105.5989063,
+      "tags": {
+        "addr:district": "Thành phố Cao Lãnh",
+        "addr:province": "Tỉnh Đồng Tháp",
+        "addr:street": "nhà trọ thuận anh, số 974, quốc lộ 30,",
+        "addr:subdistrict": "Xã Mỹ Tân",
+        "name": "nhà trọ thuận anh, số 974, quốc lộ 30,",
+        "app:category": "khac",
+        "addr:full": "nhà trọ thuận anh, số 974, quốc lộ 30,"
+      }
+    },
+    {
+      "type": "node",
+      "id": 14152691255,
+      "lat": 10.4615109,
+      "lon": 105.6083696,
+      "tags": {
+        "name": "Hòa Hưng",
+        "place": "neighbourhood",
+        "app:category": "neighbourhood",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 14152691257,
+      "lat": 10.471593,
+      "lon": 105.6021196,
+      "tags": {
+        "name": "Hòa Long",
+        "place": "neighbourhood",
+        "app:category": "neighbourhood",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 14152711871,
+      "lat": 10.4683352,
+      "lon": 105.5841654,
+      "tags": {
+        "name": "Tân Dân",
+        "place": "neighbourhood",
+        "app:category": "neighbourhood",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 14152711873,
+      "lat": 10.4787198,
+      "lon": 105.582626,
+      "tags": {
+        "name": "Tân Hùng",
+        "place": "neighbourhood",
+        "app:category": "neighbourhood",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "way",
+      "id": 170402465,
+      "center": {
+        "lat": 10.47522066,
+        "lon": 105.600749
+      },
+      "tags": {
+        "amenity": "marketplace",
+        "name": "Chợ Sáu Quốc",
+        "app:category": "marketplace",
+        "addr:full": ""
+      },
+      "lat": 10.47522066,
+      "lon": 105.600749
+    },
+    {
+      "type": "way",
+      "id": 170403679,
+      "center": {
+        "lat": 10.476328400000002,
+        "lon": 105.59272490000001
+      },
+      "tags": {
+        "amenity": "school",
+        "name": "Trường tiểu học Lê Thánh Tông",
+        "app:category": "school",
+        "addr:full": ""
+      },
+      "lat": 10.476328400000002,
+      "lon": 105.59272490000001
+    },
+    {
+      "type": "way",
+      "id": 170403688,
+      "center": {
+        "lat": 10.47670076,
+        "lon": 105.59294298
+      },
+      "tags": {
+        "amenity": "place_of_worship",
+        "name": "Đình Ông",
+        "religion": "sikh",
+        "app:category": "place_of_worship",
+        "addr:full": ""
+      },
+      "lat": 10.47670076,
+      "lon": 105.59294298
+    },
+    {
+      "type": "way",
+      "id": 170403833,
+      "center": {
+        "lat": 10.474359866666665,
+        "lon": 105.5858664
+      },
+      "tags": {
+        "amenity": "place_of_worship",
+        "name": "Chùa Tân Long",
+        "app:category": "place_of_worship",
+        "addr:full": ""
+      },
+      "lat": 10.474359866666665,
+      "lon": 105.5858664
+    },
+    {
+      "type": "way",
+      "id": 440596878,
+      "center": {
+        "lat": 10.459638466666666,
+        "lon": 105.57235996666667
+      },
+      "tags": {
+        "name": "Đò Kinh Ngang",
+        "route": "ferry",
+        "app:category": "khac",
+        "addr:full": ""
+      },
+      "lat": 10.459638466666666,
+      "lon": 105.57235996666667
+    },
+    {
+      "type": "way",
+      "id": 1105976539,
+      "center": {
+        "lat": 10.491311340000003,
+        "lon": 105.56504866
+      },
+      "tags": {
+        "admin_level": "4",
+        "boundary": "administrative",
+        "name": "Ranh giới Đồng Tháp - An Giang",
+        "name:en": "Boundary Đồng Tháp - An Giang",
+        "name:vi": "Ranh giới Đồng Tháp - An Giang",
+        "app:category": "khac",
+        "addr:full": ""
+      },
+      "lat": 10.491311340000003,
+      "lon": 105.56504866
+    },
+    {
+      "type": "way",
+      "id": 1147078470,
+      "center": {
+        "lat": 10.486782119696969,
+        "lon": 105.60478158030305
+      },
+      "tags": {
+        "name": "Sông Cái Sao",
+        "waterway": "river",
+        "app:category": "khac",
+        "addr:full": ""
+      },
+      "lat": 10.486782119696969,
+      "lon": 105.60478158030305
+    },
+    {
+      "type": "way",
+      "id": 1160002156,
+      "center": {
+        "lat": 10.464742728571428,
+        "lon": 105.58707259999998
+      },
+      "tags": {
+        "addr:city": "Xã Tân Thuận Tây",
+        "addr:district": "TP. Cao Lãnh",
+        "addr:province": "Đồng Tháp",
+        "addr:subdistrict": "Tân Thuận Tây",
+        "amenity": "clinic",
+        "building": "yes",
+        "healthcare": "clinic",
+        "name": "Trạm y tế xã Tân Thuận Tây",
+        "app:category": "clinic",
+        "addr:full": ""
+      },
+      "lat": 10.464742728571428,
+      "lon": 105.58707259999998
+    },
+    {
+      "type": "way",
+      "id": 1160002157,
+      "center": {
+        "lat": 10.46353358,
+        "lon": 105.58737792000002
+      },
+      "tags": {
+        "amenity": "school",
+        "name": "Trường Trung học cơ sở Phan Bội Châu",
+        "app:category": "school",
+        "addr:full": ""
+      },
+      "lat": 10.46353358,
+      "lon": 105.58737792000002
+    },
+    {
+      "type": "way",
+      "id": 1160002158,
+      "center": {
+        "lat": 10.465052239999999,
+        "lon": 105.58780483999999
+      },
+      "tags": {
+        "addr:city": "Xã Tân Thuận Tây",
+        "addr:district": "TP. Cao Lãnh",
+        "addr:province": "Đồng Tháp",
+        "addr:subdistrict": "Tân Thuận Tây",
+        "amenity": "marketplace",
+        "building": "yes",
+        "name": "Chợ Tân Thuận Tây",
+        "app:category": "marketplace",
+        "addr:full": ""
+      },
+      "lat": 10.465052239999999,
+      "lon": 105.58780483999999
+    },
+    {
+      "type": "way",
+      "id": 1547600469,
+      "center": {
+        "lat": 10.475339683333333,
+        "lon": 105.57130266666667
+      },
+      "tags": {
+        "admin_level": "4",
+        "boundary": "administrative",
+        "name": "Ranh giới Đồng Tháp - An Giang",
+        "name:en": "Boundary Đồng Tháp - An Giang",
+        "name:vi": "Ranh giới Đồng Tháp - An Giang",
+        "app:category": "khac",
+        "addr:full": ""
+      },
+      "lat": 10.475339683333333,
+      "lon": 105.57130266666667
+    },
+    {
+      "type": "node",
+      "id": 3763530578,
+      "lat": 10.4606587,
+      "lon": 105.6310407,
+      "tags": {
+        "name": "Chi cục Phát triển Nông thôn",
+        "app:category": "khac",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 3763530579,
+      "lat": 10.4603628,
+      "lon": 105.6310805,
+      "tags": {
+        "amenity": "bank",
+        "name": "BIDV Đồng Tháp",
+        "app:category": "bank",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 3763545145,
+      "lat": 10.4650314,
+      "lon": 105.6363805,
+      "tags": {
+        "amenity": "cafe",
+        "name": "Cafe Mái Lá",
+        "app:category": "cafe",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 3763545150,
+      "lat": 10.4586294,
+      "lon": 105.6392952,
+      "tags": {
+        "name": "Trường Trung học phổ thông Cao Lãnh",
+        "app:category": "khac",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 3763545357,
+      "lat": 10.4638404,
+      "lon": 105.6326508,
+      "tags": {
+        "amenity": "cafe",
+        "name": "Cafe Nắng Hồng",
+        "app:category": "cafe",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 3763545358,
+      "lat": 10.4620627,
+      "lon": 105.6300593,
+      "tags": {
+        "amenity": "hospital",
+        "name": "Bác sĩ Thanh Tú - Tim Mạch",
+        "app:category": "hospital",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 3763545359,
+      "lat": 10.4615405,
+      "lon": 105.6283273,
+      "tags": {
+        "name": "TT DVVL Đồng Tháp",
+        "app:category": "khac",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 3763545360,
+      "lat": 10.4620005,
+      "lon": 105.6282641,
+      "tags": {
+        "name": "UBND Phường Hòa Thuận",
+        "app:category": "khac",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 3763545361,
+      "lat": 10.4619383,
+      "lon": 105.6279102,
+      "tags": {
+        "amenity": "hospital",
+        "name": "Trạm Y tế Hòa Thuận",
+        "app:category": "hospital",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 3763545362,
+      "lat": 10.461093,
+      "lon": 105.6258748,
+      "tags": {
+        "amenity": "cafe",
+        "name": "Cafe Lãng Du",
+        "app:category": "cafe",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 3763545363,
+      "lat": 10.4613665,
+      "lon": 105.6262288,
+      "tags": {
+        "amenity": "cafe",
+        "name": "Cafe Phố Cổ",
+        "app:category": "cafe",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 3763545368,
+      "lat": 10.463155,
+      "lon": 105.6325318,
+      "tags": {
+        "amenity": "restaurant",
+        "name": "Suky",
+        "app:category": "restaurant",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 3763545369,
+      "lat": 10.463602,
+      "lon": 105.6321887,
+      "tags": {
+        "name": "FPT Đồng Tháp",
+        "app:category": "khac",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 3766738150,
+      "lat": 10.4645311,
+      "lon": 105.6367217,
+      "tags": {
+        "amenity": "cafe",
+        "name": "Phương Anh",
+        "app:category": "cafe",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 3766738151,
+      "lat": 10.464843,
+      "lon": 105.6365103,
+      "tags": {
+        "amenity": "cafe",
+        "name": "494",
+        "app:category": "cafe",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 3766738152,
+      "lat": 10.468529,
+      "lon": 105.6391773,
+      "tags": {
+        "amenity": "place_of_worship",
+        "name": "Chùa",
+        "app:category": "place_of_worship",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 3766738153,
+      "lat": 10.4632039,
+      "lon": 105.6316317,
+      "tags": {
+        "amenity": "restaurant",
+        "name": "Quán ăn Chú Béo",
+        "app:category": "restaurant",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 3766820548,
+      "lat": 10.458784,
+      "lon": 105.6354026,
+      "tags": {
+        "amenity": "cafe",
+        "name": "Bốn Mùa",
+        "app:category": "cafe",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 3766820553,
+      "lat": 10.4590022,
+      "lon": 105.6352363,
+      "tags": {
+        "amenity": "restaurant",
+        "name": "Á Châu",
+        "app:category": "restaurant",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 3766821470,
+      "lat": 10.4649467,
+      "lon": 105.641041,
+      "tags": {
+        "amenity": "restaurant",
+        "name": "Như ý",
+        "app:category": "restaurant",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 3766821479,
+      "lat": 10.4631894,
+      "lon": 105.644387,
+      "tags": {
+        "amenity": "restaurant",
+        "name": "Thủy triều quán",
+        "app:category": "restaurant",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 3766821480,
+      "lat": 10.4639953,
+      "lon": 105.6445041,
+      "tags": {
+        "amenity": "restaurant",
+        "name": "Công Thuận",
+        "app:category": "restaurant",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 3775978174,
+      "lat": 10.4642397,
+      "lon": 105.6371685,
+      "tags": {
+        "name": "Chợ đêm Cao Lãnh",
+        "shop": "supermarket",
+        "app:category": "supermarket",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 3775978182,
+      "lat": 10.4624644,
+      "lon": 105.6294109,
+      "tags": {
+        "amenity": "restaurant",
+        "name": "Hải Vân",
+        "app:category": "restaurant",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 3775978184,
+      "lat": 10.4621554,
+      "lon": 105.6299347,
+      "tags": {
+        "amenity": "cafe",
+        "name": "Chiều Nắng",
+        "app:category": "cafe",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 3775978185,
+      "lat": 10.4623675,
+      "lon": 105.6295095,
+      "tags": {
+        "name": "Xuân Biển",
+        "tourism": "hotel",
+        "app:category": "tro",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 3775982993,
+      "lat": 10.4605574,
+      "lon": 105.6313886,
+      "tags": {
+        "building": "house",
+        "name": "Máy VP Miền Tây",
+        "app:category": "house",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 3775990557,
+      "lat": 10.4598563,
+      "lon": 105.6346599,
+      "tags": {
+        "name": "Yamaha Minh Trí II",
+        "shop": "motorcycle",
+        "app:category": "motorcycle",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 3776007997,
+      "lat": 10.466748,
+      "lon": 105.631539,
+      "tags": {
+        "name": "UBND Phường 1",
+        "office": "government",
+        "app:category": "khac",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 4212157590,
+      "lat": 10.4646224,
+      "lon": 105.628497,
+      "tags": {
+        "addr:housenumber": "92",
+        "addr:street": "30 Tháng 4",
+        "internet_access": "wlan",
+        "name": "Mắt kính Minh Hùng Optical",
+        "phone": "0906099919",
+        "shop": "optician",
+        "app:category": "optician",
+        "addr:full": "92 30 Tháng 4",
+        "contact:phone": "0906099919"
+      }
+    },
+    {
+      "type": "node",
+      "id": 4382744492,
+      "lat": 10.461886,
+      "lon": 105.6233796,
+      "tags": {
+        "addr:street": "Hòa Đông",
+        "amenity": "cafe",
+        "name": "Căn Tin Dãy B",
+        "name:vi": "Căn Tin Dãy B",
+        "app:category": "cafe",
+        "addr:full": "Hòa Đông"
+      }
+    },
+    {
+      "type": "node",
+      "id": 4403596891,
+      "lat": 10.4590438,
+      "lon": 105.6284254,
+      "tags": {
+        "addr:housenumber": "206",
+        "addr:street": "Thiên Hộ Dương",
+        "amenity": "cafe",
+        "cuisine": "coffee_shop",
+        "internet_access": "wlan",
+        "name": "Cà phê Chi Lan",
+        "name:vi": "Cà phê Chi Lan",
+        "opening_hours": "24/7",
+        "app:category": "cafe",
+        "addr:full": "206 Thiên Hộ Dương"
+      }
+    },
+    {
+      "type": "node",
+      "id": 5608880687,
+      "lat": 10.459487,
+      "lon": 105.640492,
+      "tags": {
+        "alt_name": "PNJ Co.opmart Cao Lãnh",
+        "brand": "PNJ",
+        "name": "PNJ",
+        "shop": "jewelry",
+        "website": "https://www.pnj.com.vn/",
+        "app:category": "jewelry",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 5608881037,
+      "lat": 10.458809,
+      "lon": 105.640049,
+      "tags": {
+        "alt_name": "PNJ Cao Lãnh",
+        "brand": "PNJ",
+        "name": "PNJ",
+        "shop": "jewelry",
+        "website": "https://www.pnj.com.vn/",
+        "app:category": "jewelry",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 6349094786,
+      "lat": 10.4634598,
+      "lon": 105.6401987,
+      "tags": {
+        "addr:street": "Võ Trường Toản",
+        "amenity": "cafe",
+        "name": "Cafe Đăng",
+        "app:category": "cafe",
+        "addr:full": "Võ Trường Toản"
+      }
+    },
+    {
+      "type": "node",
+      "id": 10895998905,
+      "lat": 10.4700174,
+      "lon": 105.6220899,
+      "tags": {
+        "name": "Nhà Anh Danh",
+        "tourism": "artwork",
+        "app:category": "artwork",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 11076317570,
+      "lat": 10.466743,
+      "lon": 105.6331764,
+      "tags": {
+        "addr:city": "Thành phố Cao Lãnh",
+        "addr:housenumber": "12",
+        "addr:province": "Đồng Tháp",
+        "addr:street": "Lê Thị Riêng",
+        "addr:subdistrict": "Phường 5",
+        "amenity": "school",
+        "name": "Trường tiểu học Lê Văn Tám",
+        "app:category": "school",
+        "addr:full": "12 Lê Thị Riêng"
+      }
+    },
+    {
+      "type": "node",
+      "id": 11076377304,
+      "lat": 10.4598987,
+      "lon": 105.6490316,
+      "tags": {
+        "addr:city": "Thành phố Cao Lãnh",
+        "addr:province": "Đồng Tháp",
+        "addr:subdistrict": "Mỹ Phú",
+        "amenity": "school",
+        "name": "Trường Tiểu Học Mỹ Phú",
+        "app:category": "school",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 11076377967,
+      "lat": 10.4718479,
+      "lon": 105.6358954,
+      "tags": {
+        "addr:city": "Thành phố Cao Lãnh",
+        "addr:province": "Đồng Tháp",
+        "addr:street": "Lê Duẩn",
+        "addr:subdistrict": "Mỹ Trà",
+        "amenity": "marketplace",
+        "name": "Chợ Rạch Chanh",
+        "app:category": "marketplace",
+        "addr:full": "Lê Duẩn"
+      }
+    },
+    {
+      "type": "node",
+      "id": 11076377968,
+      "lat": 10.47282,
+      "lon": 105.6345729,
+      "tags": {
+        "addr:city": "Thành phố Cao Lãnh",
+        "addr:province": "Đồng Tháp",
+        "addr:subdistrict": "Mỹ Trà",
+        "amenity": "school",
+        "name": "Trung Tâm Học Tập Cộng Đồng Xã Mỹ Trà",
+        "app:category": "school",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 11076379007,
+      "lat": 10.4622951,
+      "lon": 105.6486724,
+      "tags": {
+        "addr:city": "Thành phố Cao Lãnh",
+        "addr:province": "Đồng Tháp",
+        "addr:subdistrict": "Phú Mỹ",
+        "name": "Trụ sở Khối Cảnh sát tỉnh Đồng Tháp",
+        "office": "government",
+        "app:category": "khac",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 11076380540,
+      "lat": 10.4732706,
+      "lon": 105.6346501,
+      "tags": {
+        "addr:city": "Thành phố Cao Lãnh",
+        "addr:province": "Đồng Tháp",
+        "addr:subdistrict": "Mỹ Trà",
+        "amenity": "townhall",
+        "name": "UBND xã Mỹ Trà",
+        "app:category": "townhall",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 11076380541,
+      "lat": 10.4732772,
+      "lon": 105.6339838,
+      "tags": {
+        "addr:city": "Thành phố Cao Lãnh",
+        "addr:province": "Đồng Tháp",
+        "addr:street": "Lê Duẩn",
+        "addr:subdistrict": "Mỹ Trà",
+        "amenity": "school",
+        "name": "Trường Tiểu Học Lý Tự Trọng",
+        "app:category": "school",
+        "addr:full": "Lê Duẩn"
+      }
+    },
+    {
+      "type": "node",
+      "id": 11076386439,
+      "lat": 10.4707509,
+      "lon": 105.623784,
+      "tags": {
+        "addr:city": "TP Cao Lãnh",
+        "addr:housenumber": "362",
+        "addr:province": "Đồng Tháp",
+        "addr:street": "Ba Mươi Tháng Tư",
+        "addr:subdistrict": "Phường 5",
+        "amenity": "kindergarten",
+        "name": "Trường Mầm Non Ngôi Sao",
+        "app:category": "kindergarten",
+        "addr:full": "362 Ba Mươi Tháng Tư"
+      }
+    },
+    {
+      "type": "node",
+      "id": 11335102649,
+      "lat": 10.4707305,
+      "lon": 105.64785,
+      "tags": {
+        "man_made": "monitoring_station",
+        "monitoring:weather": "yes",
+        "name": "Trạm Khí tượng Cao Lãnh",
+        "app:category": "khac",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 11780026864,
+      "lat": 10.4586947,
+      "lon": 105.635259,
+      "tags": {
+        "addr:district": "Thành phố Cao Lãnh",
+        "addr:province": "Tỉnh Đồng Tháp",
+        "addr:street": "32 lý thuòng kiệt,",
+        "addr:subdistrict": "Phường 1",
+        "name": "32 lý thuòng kiệt,",
+        "app:category": "khac",
+        "addr:full": "32 lý thuòng kiệt,"
+      }
+    },
+    {
+      "type": "node",
+      "id": 12822617321,
+      "lat": 10.4756197,
+      "lon": 105.6127532,
+      "tags": {
+        "addr:district": "Thành phố Cao Lãnh",
+        "addr:province": "Tỉnh Đồng Tháp",
+        "addr:street": "Bệnh Viện Tâm Trí Đồng Tháp Đường Ông Thợ,",
+        "addr:subdistrict": "Xã Mỹ Tân",
+        "name": "Bệnh Viện Tâm Trí Đồng Tháp Đường Ông Thợ",
+        "app:category": "khac",
+        "addr:full": "Bệnh Viện Tâm Trí Đồng Tháp Đường Ông Thợ,"
+      }
+    },
+    {
+      "type": "node",
+      "id": 12887890252,
+      "lat": 10.4593654,
+      "lon": 105.63838,
+      "tags": {
+        "addr:district": "Thành phố Cao Lãnh",
+        "addr:province": "Tỉnh Đồng Tháp",
+        "addr:street": "Trung Tâm Giáo Dục Thường Xuyên Thành Phố Cao Lãnh Đường Trương Định,",
+        "addr:subdistrict": "Phường 1",
+        "name": "Trung Tâm Giáo Dục Thường Xuyên Thành Phố Cao Lãnh Đường Trương Định",
+        "app:category": "truong_hoc",
+        "addr:full": "Trung Tâm Giáo Dục Thường Xuyên Thành Phố Cao Lãnh Đường Trương Định,"
+      }
+    },
+    {
+      "type": "node",
+      "id": 12887939848,
+      "lat": 10.4589914,
+      "lon": 105.6313604,
+      "tags": {
+        "addr:district": "Thành phố Cao Lãnh",
+        "addr:province": "Tỉnh Đồng Tháp",
+        "addr:street": "Công Viên Thiếu Nhi Thành Phố Cao Lãnh Đường 30 Tháng 4,",
+        "addr:subdistrict": "Phường 1",
+        "name": "Công Viên Thiếu Nhi Thành Phố Cao Lãnh Đường 30 Tháng 4",
+        "app:category": "vui_choi",
+        "addr:full": "Công Viên Thiếu Nhi Thành Phố Cao Lãnh Đường 30 Tháng 4,"
+      }
+    },
+    {
+      "type": "node",
+      "id": 12887942640,
+      "lat": 10.4590534,
+      "lon": 105.6318984,
+      "tags": {
+        "addr:district": "Thành phố Cao Lãnh",
+        "addr:province": "Tỉnh Đồng Tháp",
+        "addr:street": "Công Viên Thiếu Nhi Thành Phố Cao Lãnh Đường Đặng Văn Bình,",
+        "addr:subdistrict": "Phường 1",
+        "name": "Công Viên Thiếu Nhi Thành Phố Cao Lãnh Đường Đặng Văn Bình",
+        "app:category": "vui_choi",
+        "addr:full": "Công Viên Thiếu Nhi Thành Phố Cao Lãnh Đường Đặng Văn Bình,"
+      }
+    },
+    {
+      "type": "node",
+      "id": 13235828072,
+      "lat": 10.4615815,
+      "lon": 105.6214349,
+      "tags": {
+        "addr:district": "Thành phố Cao Lãnh",
+        "addr:province": "Tỉnh Đồng Tháp",
+        "addr:street": "ký túc xá cao Đẳng cộng Đồng Đồng tháp,",
+        "addr:subdistrict": "Phường Hòa Thuận",
+        "name": "ký túc xá cao Đẳng cộng Đồng Đồng tháp, phường hòa thuận, thành phố cao lãnh, Đồng tháp,",
+        "app:category": "tro",
+        "addr:full": "ký túc xá cao Đẳng cộng Đồng Đồng tháp,"
+      }
+    },
+    {
+      "type": "node",
+      "id": 13264713042,
+      "lat": 10.463415,
+      "lon": 105.6295576,
+      "tags": {
+        "addr:district": "Thành phố Cao Lãnh",
+        "addr:province": "Tỉnh Đồng Tháp",
+        "addr:street": "vcb, số 66, đường 30/4,",
+        "addr:subdistrict": "Phường 1",
+        "name": "vcb, số 66, đường 30/4,",
+        "app:category": "khac",
+        "addr:full": "vcb, số 66, đường 30/4,"
+      }
+    },
+    {
+      "type": "node",
+      "id": 13318768033,
+      "lat": 10.4811165,
+      "lon": 105.6117564,
+      "tags": {
+        "addr:district": "Thành phố Cao Lãnh",
+        "addr:province": "Tỉnh Đồng Tháp",
+        "addr:street": "số 548 đường mai văn khải ấp 2 xã mỹ tân thành phố cao lãnh tỉnh đồng tháp,",
+        "addr:subdistrict": "Xã Mỹ Tân",
+        "name": "số 548 đường mai văn khải ấp 2 xã mỹ tân thành phố cao lãnh tỉnh đồng tháp,",
+        "app:category": "khac",
+        "addr:full": "số 548 đường mai văn khải ấp 2 xã mỹ tân thành phố cao lãnh tỉnh đồng tháp,"
+      }
+    },
+    {
+      "type": "node",
+      "id": 13951470748,
+      "lat": 10.4802425,
+      "lon": 105.6188679,
+      "tags": {
+        "name": "Mỹ Ngãi",
+        "place": "suburb",
+        "app:category": "suburb",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 13951470749,
+      "lat": 10.4614684,
+      "lon": 105.6446546,
+      "tags": {
+        "name": "Mỹ Trà",
+        "place": "suburb",
+        "app:category": "suburb",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 14152691259,
+      "lat": 10.4686079,
+      "lon": 105.6258478,
+      "tags": {
+        "name": "Hưng Long",
+        "place": "neighbourhood",
+        "app:category": "neighbourhood",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 14152691260,
+      "lat": 10.460849,
+      "lon": 105.631929,
+      "tags": {
+        "name": "Hưng Phú",
+        "place": "neighbourhood",
+        "app:category": "neighbourhood",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 14152711867,
+      "lat": 10.4677678,
+      "lon": 105.6332632,
+      "tags": {
+        "name": "Phong Thạnh",
+        "place": "neighbourhood",
+        "app:category": "neighbourhood",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 14152711869,
+      "lat": 10.4622269,
+      "lon": 105.6373046,
+      "tags": {
+        "name": "Văn Miếu",
+        "place": "neighbourhood",
+        "app:category": "neighbourhood",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 14152711878,
+      "lat": 10.4684493,
+      "lon": 105.6163441,
+      "tags": {
+        "name": "Thuận An",
+        "place": "neighbourhood",
+        "app:category": "neighbourhood",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 14152711879,
+      "lat": 10.462404,
+      "lon": 105.6239685,
+      "tags": {
+        "name": "Thuận Phát",
+        "place": "neighbourhood",
+        "app:category": "neighbourhood",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 14152711890,
+      "lat": 10.4662524,
+      "lon": 105.642758,
+      "tags": {
+        "name": "Mỹ Tây",
+        "place": "neighbourhood",
+        "app:category": "neighbourhood",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 14152711891,
+      "lat": 10.4720085,
+      "lon": 105.641552,
+      "tags": {
+        "name": "Mỹ Thuận",
+        "place": "neighbourhood",
+        "app:category": "neighbourhood",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 14152711892,
+      "lat": 10.4760598,
+      "lon": 105.6347441,
+      "tags": {
+        "name": "Mỹ Trà",
+        "place": "neighbourhood",
+        "app:category": "neighbourhood",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 14152711893,
+      "lat": 10.4706866,
+      "lon": 105.6467912,
+      "tags": {
+        "name": "Mỹ Trung",
+        "place": "neighbourhood",
+        "app:category": "neighbourhood",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 14249313301,
+      "lat": 10.4606258,
+      "lon": 105.6316718,
+      "tags": {
+        "addr:housenumber": "19",
+        "addr:street": "Đặng Văn Bình",
+        "amenity": "cafe",
+        "cuisine": "american;vietnamese",
+        "internet_access": "wlan",
+        "name": "Black Sheep Cafe",
+        "opening_hours": "Mo-Su 07:00-22:00",
+        "website": "http://blacksheepvietnam.com",
+        "app:category": "cafe",
+        "addr:full": "19 Đặng Văn Bình"
+      }
+    },
+    {
+      "type": "node",
+      "id": 14256264924,
+      "lat": 10.4607532,
+      "lon": 105.6334997,
+      "tags": {
+        "addr:city": "TP Cao Lãnh",
+        "addr:district": "Thành phố Cao Lãnh",
+        "addr:housenumber": "12",
+        "addr:province": "Tỉnh Đồng Tháp",
+        "addr:street": "30/4",
+        "addr:subdistrict": "Phường 1",
+        "amenity": "townhall",
+        "name": "UBND tỉnh Đồng Tháp",
+        "operator": "Ủy ban nhân dân tỉnh Đồng Tháp",
+        "townhall:type": "city",
+        "app:category": "townhall",
+        "addr:full": "12 30/4"
+      }
+    },
+    {
+      "type": "node",
+      "id": 14256264925,
+      "lat": 10.4611871,
+      "lon": 105.6331662,
+      "tags": {
+        "access": "yes",
+        "leisure": "pitch",
+        "lit": "yes",
+        "name": "Cụm Sân Tennis",
+        "sport": "tennis",
+        "surface": "artificial_turf",
+        "app:category": "pitch",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 14256264926,
+      "lat": 10.4625565,
+      "lon": 105.6326856,
+      "tags": {
+        "addr:city": "TP Cao Lãnh",
+        "addr:district": "thành phố Cao Lãnh",
+        "addr:housenumber": "33",
+        "addr:province": "Đồng Tháp",
+        "addr:street": "Ba Mươi Tháng Tư",
+        "amenity": "townhall",
+        "name": "Sở Tài chính tỉnh Đồng Tháp",
+        "townhall:type": "city",
+        "app:category": "townhall",
+        "addr:full": "33 Ba Mươi Tháng Tư"
+      }
+    },
+    {
+      "type": "node",
+      "id": 14256264927,
+      "lat": 10.4626373,
+      "lon": 105.6335599,
+      "tags": {
+        "landuse": "residential",
+        "name": "Toà Chung Cư",
+        "residential": "apartments",
+        "app:category": "khac",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 14256264928,
+      "lat": 10.4661594,
+      "lon": 105.6322752,
+      "tags": {
+        "government": "yes",
+        "name": "Trụ sở khối cơ quan đoàn thể Phường 1",
+        "office": "government",
+        "app:category": "khac",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 14256264950,
+      "lat": 10.4615615,
+      "lon": 105.6467246,
+      "tags": {
+        "leisure": "pitch",
+        "name": "Sân Cao lãnh",
+        "sport": "tennis",
+        "app:category": "pitch",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "way",
+      "id": 169404747,
+      "center": {
+        "lat": 10.461846959375002,
+        "lon": 105.63587024374999
+      },
+      "tags": {
+        "name": "Hồ Khổng Tử",
+        "natural": "water",
+        "app:category": "khac",
+        "addr:full": ""
+      },
+      "lat": 10.461846959375002,
+      "lon": 105.63587024374999
+    },
+    {
+      "type": "way",
+      "id": 169405009,
+      "center": {
+        "lat": 10.4619995875,
+        "lon": 105.64534495000001
+      },
+      "tags": {
+        "landuse": "cemetery",
+        "name": "Nghĩa trang liệt sĩ tỉnh Đồng Tháp",
+        "app:category": "khac",
+        "addr:full": ""
+      },
+      "lat": 10.4619995875,
+      "lon": 105.64534495000001
+    },
+    {
+      "type": "way",
+      "id": 169423043,
+      "center": {
+        "lat": 10.462020919999999,
+        "lon": 105.63545532
+      },
+      "tags": {
+        "leisure": "park",
+        "name": "Công viên Văn Miếu",
+        "app:category": "park",
+        "addr:full": ""
+      },
+      "lat": 10.462020919999999,
+      "lon": 105.63545532
+    },
+    {
+      "type": "way",
+      "id": 169423460,
+      "center": {
+        "lat": 10.46360994,
+        "lon": 105.63788663999999
+      },
+      "tags": {
+        "landuse": "residential",
+        "name": "Nhà văn hóa lao động",
+        "app:category": "khac",
+        "addr:full": ""
+      },
+      "lat": 10.46360994,
+      "lon": 105.63788663999999
+    },
+    {
+      "type": "way",
+      "id": 169958168,
+      "center": {
+        "lat": 10.472111084615383,
+        "lon": 105.6283547846154
+      },
+      "tags": {
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "Bệnh viện Đa khoa Đồng Tháp",
+        "app:category": "hospital",
+        "addr:full": ""
+      },
+      "lat": 10.472111084615383,
+      "lon": 105.6283547846154
+    },
+    {
+      "type": "way",
+      "id": 169958985,
+      "center": {
+        "lat": 10.469198557142857,
+        "lon": 105.64270174285714
+      },
+      "tags": {
+        "leisure": "sports_centre",
+        "name": "Hồ bơi Khu Liên Hợp",
+        "sport": "swimming",
+        "app:category": "sports_centre",
+        "addr:full": ""
+      },
+      "lat": 10.469198557142857,
+      "lon": 105.64270174285714
+    },
+    {
+      "type": "way",
+      "id": 169959572,
+      "center": {
+        "lat": 10.460952083333332,
+        "lon": 105.64637775
+      },
+      "tags": {
+        "amenity": "bus_station",
+        "bus": "yes",
+        "name": "Bến xe tải Cao Lãnh",
+        "public_transport": "station",
+        "app:category": "ben_xe",
+        "addr:full": ""
+      },
+      "lat": 10.460952083333332,
+      "lon": 105.64637775
+    },
+    {
+      "type": "way",
+      "id": 170057070,
+      "center": {
+        "lat": 10.46546736,
+        "lon": 105.63121868
+      },
+      "tags": {
+        "landuse": "residential",
+        "name": "Đài phát thanh truyền hình Đồng Tháp",
+        "app:category": "khac",
+        "addr:full": ""
+      },
+      "lat": 10.46546736,
+      "lon": 105.63121868
+    },
+    {
+      "type": "way",
+      "id": 170066863,
+      "center": {
+        "lat": 10.467038474999999,
+        "lon": 105.63561986250001
+      },
+      "tags": {
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "Bệnh viện Quân dân y Đồng Tháp",
+        "app:category": "hospital",
+        "addr:full": ""
+      },
+      "lat": 10.467038474999999,
+      "lon": 105.63561986250001
+    },
+    {
+      "type": "way",
+      "id": 170066944,
+      "center": {
+        "lat": 10.467564471428572,
+        "lon": 105.63662367142858
+      },
+      "tags": {
+        "amenity": "hospital",
+        "name": "Bệnh viện Phục hồi chức năng Đồng Tháp",
+        "app:category": "hospital",
+        "addr:full": ""
+      },
+      "lat": 10.467564471428572,
+      "lon": 105.63662367142858
+    },
+    {
+      "type": "way",
+      "id": 170067465,
+      "center": {
+        "lat": 10.470562642857143,
+        "lon": 105.63827902857143
+      },
+      "tags": {
+        "landuse": "residential",
+        "name": "Khách sạn - Nhà hàng Khu du lịch Mỹ Trà",
+        "app:category": "khac",
+        "addr:full": ""
+      },
+      "lat": 10.470562642857143,
+      "lon": 105.63827902857143
+    },
+    {
+      "type": "way",
+      "id": 170069626,
+      "center": {
+        "lat": 10.45986584,
+        "lon": 105.63386553999999
+      },
+      "tags": {
+        "building": "yes",
+        "name": "Sở kế hoạch và đầu tư Đồng Tháp",
+        "app:category": "yes",
+        "addr:full": ""
+      },
+      "lat": 10.45986584,
+      "lon": 105.63386553999999
+    },
+    {
+      "type": "way",
+      "id": 170070444,
+      "center": {
+        "lat": 10.459489199999998,
+        "lon": 105.63316173999999
+      },
+      "tags": {
+        "building": "yes",
+        "name": "Sở y tế Đồng Tháp",
+        "app:category": "yes",
+        "addr:full": ""
+      },
+      "lat": 10.459489199999998,
+      "lon": 105.63316173999999
+    },
+    {
+      "type": "way",
+      "id": 170071118,
+      "center": {
+        "lat": 10.459106940000002,
+        "lon": 105.63261212
+      },
+      "tags": {
+        "building": "yes",
+        "name": "Sở khoa học và công nghệ Đồng Tháp",
+        "app:category": "yes",
+        "addr:full": ""
+      },
+      "lat": 10.459106940000002,
+      "lon": 105.63261212
+    },
+    {
+      "type": "way",
+      "id": 170071371,
+      "center": {
+        "lat": 10.4589529,
+        "lon": 105.63233318
+      },
+      "tags": {
+        "building": "yes",
+        "name": "Thanh tra tỉnh Đồng Tháp",
+        "app:category": "yes",
+        "addr:full": ""
+      },
+      "lat": 10.4589529,
+      "lon": 105.63233318
+    },
+    {
+      "type": "way",
+      "id": 170072099,
+      "center": {
+        "lat": 10.459858022222221,
+        "lon": 105.63211115555556
+      },
+      "tags": {
+        "landuse": "residential",
+        "name": "UBND tỉnh Đồng Tháp",
+        "app:category": "khac",
+        "addr:full": ""
+      },
+      "lat": 10.459858022222221,
+      "lon": 105.63211115555556
+    },
+    {
+      "type": "way",
+      "id": 170073669,
+      "center": {
+        "lat": 10.4625852,
+        "lon": 105.62986814000001
+      },
+      "tags": {
+        "building": "yes",
+        "name": "Sở xây dựng Đồng Tháp",
+        "app:category": "yes",
+        "addr:full": ""
+      },
+      "lat": 10.4625852,
+      "lon": 105.62986814000001
+    },
+    {
+      "type": "way",
+      "id": 170076559,
+      "center": {
+        "lat": 10.46081288,
+        "lon": 105.62416212000001
+      },
+      "tags": {
+        "amenity": "college",
+        "name": "Trường Cao đẳng Cộng đồng Đồng Tháp",
+        "app:category": "college",
+        "addr:full": ""
+      },
+      "lat": 10.46081288,
+      "lon": 105.62416212000001
+    },
+    {
+      "type": "way",
+      "id": 170196311,
+      "center": {
+        "lat": 10.46434885,
+        "lon": 105.63152676666668
+      },
+      "tags": {
+        "landuse": "residential",
+        "name": "Tỉnh ủy Đồng Tháp",
+        "app:category": "khac",
+        "addr:full": ""
+      },
+      "lat": 10.46434885,
+      "lon": 105.63152676666668
+    },
+    {
+      "type": "way",
+      "id": 170402218,
+      "center": {
+        "lat": 10.459765314285715,
+        "lon": 105.64526865714286
+      },
+      "tags": {
+        "building": "yes",
+        "name": "Công ty cổ phần xuất nhập khẩu y tế Domesco",
+        "app:category": "yes",
+        "addr:full": ""
+      },
+      "lat": 10.459765314285715,
+      "lon": 105.64526865714286
+    },
+    {
+      "type": "way",
+      "id": 170402287,
+      "center": {
+        "lat": 10.47576584,
+        "lon": 105.61227421999999
+      },
+      "tags": {
+        "addr:street": "30",
+        "amenity": "hospital",
+        "name": "Bệnh viện Domedic",
+        "name:en": "Bệnh viện tam tri",
+        "name:vi": "Bệnh viện tâm trí",
+        "app:category": "hospital",
+        "addr:full": "30"
+      },
+      "lat": 10.47576584,
+      "lon": 105.61227421999999
+    },
+    {
+      "type": "way",
+      "id": 372804824,
+      "center": {
+        "lat": 10.461006185714286,
+        "lon": 105.63081508571427
+      },
+      "tags": {
+        "building": "yes",
+        "name": "Sở Lao động-TBXH Đồng Tháp",
+        "app:category": "yes",
+        "addr:full": ""
+      },
+      "lat": 10.461006185714286,
+      "lon": 105.63081508571427
+    },
+    {
+      "type": "way",
+      "id": 372806312,
+      "center": {
+        "lat": 10.45943765,
+        "lon": 105.64048753333333
+      },
+      "tags": {
+        "building": "yes",
+        "name": "Coopmart Cao Lãnh",
+        "shop": "supermarket",
+        "app:category": "supermarket",
+        "addr:full": ""
+      },
+      "lat": 10.45943765,
+      "lon": 105.64048753333333
+    },
+    {
+      "type": "way",
+      "id": 372806313,
+      "center": {
+        "lat": 10.460527285714287,
+        "lon": 105.63633675714287
+      },
+      "tags": {
+        "building": "hotel",
+        "name": "Khách sạn Hương Sen",
+        "tourism": "hotel",
+        "app:category": "tro",
+        "addr:full": ""
+      },
+      "lat": 10.460527285714287,
+      "lon": 105.63633675714287
+    },
+    {
+      "type": "way",
+      "id": 372807329,
+      "center": {
+        "lat": 10.4634681,
+        "lon": 105.63210832
+      },
+      "tags": {
+        "building": "commercial",
+        "name": "FPT Đồng Tháp",
+        "app:category": "commercial",
+        "addr:full": ""
+      },
+      "lat": 10.4634681,
+      "lon": 105.63210832
+    },
+    {
+      "type": "way",
+      "id": 373167323,
+      "center": {
+        "lat": 10.460705399999998,
+        "lon": 105.6308761
+      },
+      "tags": {
+        "building": "yes",
+        "name": "Chi cục Phát triển Nông thôn",
+        "app:category": "yes",
+        "addr:full": ""
+      },
+      "lat": 10.460705399999998,
+      "lon": 105.6308761
+    },
+    {
+      "type": "way",
+      "id": 373167324,
+      "center": {
+        "lat": 10.46054258,
+        "lon": 105.63102646
+      },
+      "tags": {
+        "building": "yes",
+        "name": "BIDV Đồng Tháp",
+        "app:category": "yes",
+        "addr:full": ""
+      },
+      "lat": 10.46054258,
+      "lon": 105.63102646
+    },
+    {
+      "type": "way",
+      "id": 373167325,
+      "center": {
+        "lat": 10.4604404,
+        "lon": 105.63193507999999
+      },
+      "tags": {
+        "building": "yes",
+        "name": "Sở Nội Vụ",
+        "app:category": "yes",
+        "addr:full": ""
+      },
+      "lat": 10.4604404,
+      "lon": 105.63193507999999
+    },
+    {
+      "type": "way",
+      "id": 373167327,
+      "center": {
+        "lat": 10.464338175,
+        "lon": 105.63475777499998
+      },
+      "tags": {
+        "leisure": "park",
+        "name": "Quảng Trường Văn Miếu",
+        "app:category": "park",
+        "addr:full": ""
+      },
+      "lat": 10.464338175,
+      "lon": 105.63475777499998
+    },
+    {
+      "type": "way",
+      "id": 373167926,
+      "center": {
+        "lat": 10.468226999999999,
+        "lon": 105.64114101428571
+      },
+      "tags": {
+        "building": "yes",
+        "name": "Nhà thi đấu",
+        "app:category": "yes",
+        "addr:full": ""
+      },
+      "lat": 10.468226999999999,
+      "lon": 105.64114101428571
+    },
+    {
+      "type": "way",
+      "id": 373173677,
+      "center": {
+        "lat": 10.4628882,
+        "lon": 105.63052754
+      },
+      "tags": {
+        "building": "yes",
+        "name": "Cty Xây lắp Đồng Tháp",
+        "app:category": "yes",
+        "addr:full": ""
+      },
+      "lat": 10.4628882,
+      "lon": 105.63052754
+    },
+    {
+      "type": "way",
+      "id": 373173683,
+      "center": {
+        "lat": 10.46077607142857,
+        "lon": 105.64273077142857
+      },
+      "tags": {
+        "building": "yes",
+        "name": "UBND P Mỹ Phú",
+        "office": "government",
+        "app:category": "yes",
+        "addr:full": ""
+      },
+      "lat": 10.46077607142857,
+      "lon": 105.64273077142857
+    },
+    {
+      "type": "way",
+      "id": 373173684,
+      "center": {
+        "lat": 10.46127434,
+        "lon": 105.64363556
+      },
+      "tags": {
+        "building": "yes",
+        "name": "Điện máy Xanh Cao Lãnh",
+        "app:category": "yes",
+        "addr:full": ""
+      },
+      "lat": 10.46127434,
+      "lon": 105.64363556
+    },
+    {
+      "type": "way",
+      "id": 374222718,
+      "center": {
+        "lat": 10.46236948,
+        "lon": 105.63375306
+      },
+      "tags": {
+        "building": "house",
+        "name": "Sở Công Thương",
+        "app:category": "house",
+        "addr:full": ""
+      },
+      "lat": 10.46236948,
+      "lon": 105.63375306
+    },
+    {
+      "type": "way",
+      "id": 374222719,
+      "center": {
+        "lat": 10.46268598,
+        "lon": 105.63431522
+      },
+      "tags": {
+        "amenity": "bank",
+        "building": "yes",
+        "name": "ACB Cao Lãnh",
+        "app:category": "bank",
+        "addr:full": ""
+      },
+      "lat": 10.46268598,
+      "lon": 105.63431522
+    },
+    {
+      "type": "way",
+      "id": 374223096,
+      "center": {
+        "lat": 10.464745157142858,
+        "lon": 105.63069514285714
+      },
+      "tags": {
+        "landuse": "residential",
+        "name": "CLB Hưu trí",
+        "app:category": "khac",
+        "addr:full": ""
+      },
+      "lat": 10.464745157142858,
+      "lon": 105.63069514285714
+    },
+    {
+      "type": "way",
+      "id": 374223097,
+      "center": {
+        "lat": 10.4653819,
+        "lon": 105.6305915
+      },
+      "tags": {
+        "amenity": "police",
+        "name": "Cơ động",
+        "app:category": "police",
+        "addr:full": ""
+      },
+      "lat": 10.4653819,
+      "lon": 105.6305915
+    },
+    {
+      "type": "way",
+      "id": 374223098,
+      "center": {
+        "lat": 10.465347085714285,
+        "lon": 105.62873375714285
+      },
+      "tags": {
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "Bệnh viện Đa khoa Tâm Trí Cao Lãnh",
+        "old_name": "Bệnh viện Thái Hòa",
+        "app:category": "hospital",
+        "addr:full": ""
+      },
+      "lat": 10.465347085714285,
+      "lon": 105.62873375714285
+    },
+    {
+      "type": "way",
+      "id": 374223099,
+      "center": {
+        "lat": 10.464365366666666,
+        "lon": 105.62952387777779
+      },
+      "tags": {
+        "amenity": "hospital",
+        "name": "Bệnh viện Y học cổ truyền Đồng Tháp",
+        "app:category": "hospital",
+        "addr:full": ""
+      },
+      "lat": 10.464365366666666,
+      "lon": 105.62952387777779
+    },
+    {
+      "type": "way",
+      "id": 374223100,
+      "center": {
+        "lat": 10.469559460000001,
+        "lon": 105.62440546
+      },
+      "tags": {
+        "building": "yes",
+        "name": "Chợ Mỹ Ngãi",
+        "shop": "supermarket",
+        "app:category": "supermarket",
+        "addr:full": ""
+      },
+      "lat": 10.469559460000001,
+      "lon": 105.62440546
+    },
+    {
+      "type": "way",
+      "id": 374223827,
+      "center": {
+        "lat": 10.46338308,
+        "lon": 105.62946279999998
+      },
+      "tags": {
+        "amenity": "bank",
+        "brand": "Vietcombank",
+        "brand:wikidata": "Q6122995",
+        "building": "yes",
+        "name": "Vietcombank",
+        "app:category": "bank",
+        "addr:full": ""
+      },
+      "lat": 10.46338308,
+      "lon": 105.62946279999998
+    },
+    {
+      "type": "way",
+      "id": 374224259,
+      "center": {
+        "lat": 10.4606952,
+        "lon": 105.64393962
+      },
+      "tags": {
+        "building": "yes",
+        "name": "Hòa Bình",
+        "tourism": "hotel",
+        "app:category": "tro",
+        "addr:full": ""
+      },
+      "lat": 10.4606952,
+      "lon": 105.64393962
+    },
+    {
+      "type": "way",
+      "id": 614822009,
+      "center": {
+        "lat": 10.464596143749997,
+        "lon": 105.64251663125002
+      },
+      "tags": {
+        "leisure": "stadium",
+        "name": "Sân vận động Cao Lãnh",
+        "wikidata": "Q5034301",
+        "wikipedia": "en:Cao Lãnh Stadium",
+        "app:category": "stadium",
+        "addr:full": ""
+      },
+      "lat": 10.464596143749997,
+      "lon": 105.64251663125002
+    },
+    {
+      "type": "way",
+      "id": 1109021317,
+      "center": {
+        "lat": 10.4697614675,
+        "lon": 105.6308888325
+      },
+      "tags": {
+        "name": "Sông Đình Trung",
+        "waterway": "river",
+        "app:category": "khac",
+        "addr:full": ""
+      },
+      "lat": 10.4697614675,
+      "lon": 105.6308888325
+    },
+    {
+      "type": "way",
+      "id": 1121941021,
+      "center": {
+        "lat": 10.479692485714285,
+        "lon": 105.6457713714286
+      },
+      "tags": {
+        "building": "school",
+        "name": "Trường Trung học cơ sở Nguyễn Tú",
+        "app:category": "school",
+        "addr:full": ""
+      },
+      "lat": 10.479692485714285,
+      "lon": 105.6457713714286
+    },
+    {
+      "type": "way",
+      "id": 1121941024,
+      "center": {
+        "lat": 10.48038994,
+        "lon": 105.61904688
+      },
+      "tags": {
+        "building": "yes",
+        "name": "UBND xã Mỹ Tân",
+        "office": "government",
+        "app:category": "yes",
+        "addr:full": ""
+      },
+      "lat": 10.48038994,
+      "lon": 105.61904688
+    },
+    {
+      "type": "way",
+      "id": 1146891852,
+      "center": {
+        "lat": 10.476493034482758,
+        "lon": 105.64337260689655
+      },
+      "tags": {
+        "name": "Sông Quảng Khánh",
+        "waterway": "river",
+        "app:category": "khac",
+        "addr:full": ""
+      },
+      "lat": 10.476493034482758,
+      "lon": 105.64337260689655
+    },
+    {
+      "type": "way",
+      "id": 1146891853,
+      "center": {
+        "lat": 10.482822563461541,
+        "lon": 105.64127748653847
+      },
+      "tags": {
+        "name": "Sông Mương Khai",
+        "waterway": "river",
+        "app:category": "khac",
+        "addr:full": ""
+      },
+      "lat": 10.482822563461541,
+      "lon": 105.64127748653847
+    },
+    {
+      "type": "way",
+      "id": 1147078455,
+      "center": {
+        "lat": 10.48139146923077,
+        "lon": 105.63156601384615
+      },
+      "tags": {
+        "name": "Sông Rạch Chanh",
+        "waterway": "river",
+        "app:category": "khac",
+        "addr:full": ""
+      },
+      "lat": 10.48139146923077,
+      "lon": 105.63156601384615
+    },
+    {
+      "type": "way",
+      "id": 1149340658,
+      "center": {
+        "lat": 10.472767066666668,
+        "lon": 105.6490088
+      },
+      "tags": {
+        "amenity": "school",
+        "name": "Trường Trung học phổ thông chuyên Nguyễn Quang Diêu",
+        "app:category": "school",
+        "addr:full": ""
+      },
+      "lat": 10.472767066666668,
+      "lon": 105.6490088
+    },
+    {
+      "type": "way",
+      "id": 1226364534,
+      "center": {
+        "lat": 10.47089746,
+        "lon": 105.64758618
+      },
+      "tags": {
+        "building": "yes",
+        "name": "Trạm Khí tượng Cao Lãnh",
+        "office": "government",
+        "app:category": "yes",
+        "addr:full": ""
+      },
+      "lat": 10.47089746,
+      "lon": 105.64758618
+    },
+    {
+      "type": "way",
+      "id": 1431872005,
+      "center": {
+        "lat": 10.46995776,
+        "lon": 105.64746698000002
+      },
+      "tags": {
+        "addr:city": "Phường Mỹ Trà",
+        "addr:housenumber": "396",
+        "addr:province": "Đồng Tháp",
+        "addr:street": "Lê Đại Hành",
+        "building": "hospital",
+        "name": "Bệnh viện Da liễu Đồng Tháp",
+        "website": "http://bvdalieudongthap.gov.vn/",
+        "app:category": "hospital",
+        "addr:full": "396 Lê Đại Hành"
+      },
+      "lat": 10.46995776,
+      "lon": 105.64746698000002
+    },
+    {
+      "type": "way",
+      "id": 1459482405,
+      "center": {
+        "lat": 10.463255442105263,
+        "lon": 105.62243959999999
+      },
+      "tags": {
+        "amenity": "school",
+        "isced:level": "3",
+        "name": "Trường Trung học phổ thông Cao Lãnh",
+        "app:category": "school",
+        "addr:full": ""
+      },
+      "lat": 10.463255442105263,
+      "lon": 105.62243959999999
+    },
+    {
+      "type": "way",
+      "id": 1459482408,
+      "center": {
+        "lat": 10.4647555,
+        "lon": 105.6208044652174
+      },
+      "tags": {
+        "addr:housenumber": "80",
+        "addr:street": "Nguyễn Văn Tre",
+        "amenity": "school",
+        "isced:level": "3",
+        "name": "Trường Trung học phổ thông Đỗ Công Tường",
+        "app:category": "school",
+        "addr:full": "80 Nguyễn Văn Tre"
+      },
+      "lat": 10.4647555,
+      "lon": 105.6208044652174
+    },
+    {
+      "type": "way",
+      "id": 1565618861,
+      "center": {
+        "lat": 10.464234959999999,
+        "lon": 105.64603878
+      },
+      "tags": {
+        "leisure": "swimming_pool",
+        "name": "Hồ Bơi",
+        "app:category": "swimming_pool",
+        "addr:full": ""
+      },
+      "lat": 10.464234959999999,
+      "lon": 105.64603878
+    },
+    {
+      "type": "node",
+      "id": 14152711886,
+      "lat": 10.4644058,
+      "lon": 105.6522865,
+      "tags": {
+        "name": "An Lạc",
+        "place": "neighbourhood",
+        "app:category": "neighbourhood",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 14152711887,
+      "lat": 10.467162,
+      "lon": 105.6630962,
+      "tags": {
+        "name": "An Nghiệp",
+        "place": "neighbourhood",
+        "app:category": "neighbourhood",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 14152711894,
+      "lat": 10.4834526,
+      "lon": 105.6769218,
+      "tags": {
+        "name": "Nguyễn Cử",
+        "place": "neighbourhood",
+        "app:category": "neighbourhood",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "node",
+      "id": 14152711896,
+      "lat": 10.4805124,
+      "lon": 105.6890528,
+      "tags": {
+        "name": "Nhị Mỹ",
+        "place": "neighbourhood",
+        "app:category": "neighbourhood",
+        "addr:full": ""
+      }
+    },
+    {
+      "type": "way",
+      "id": 1147078468,
+      "center": {
+        "lat": 10.486945046153847,
+        "lon": 105.62535001538461
+      },
+      "tags": {
+        "name": "Kênh Kháng Chiến",
+        "waterway": "stream",
+        "app:category": "khac",
+        "addr:full": ""
+      },
+      "lat": 10.486945046153847,
+      "lon": 105.62535001538461
+    }
+  ]
+}

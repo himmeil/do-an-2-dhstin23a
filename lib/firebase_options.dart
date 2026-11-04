@@ -101,8 +101,8 @@ class DefaultFirebaseOptions {
     };
     if (value.isEmpty) {
       throw StateError(
-        'Thiếu $name trong dulieucanhan.env. Hãy điền cấu hình Firebase '
-        'của dự án riêng trước khi chạy ứng dụng.',
+        'Thiếu $name trong ca_nhan/dulieucanhan.env. Hãy điền cấu hình '
+        'Firebase của dự án riêng trước khi chạy ứng dụng.',
       );
     }
     return value;

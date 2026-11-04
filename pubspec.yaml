@@ -68,6 +68,7 @@ flutter:
   uses-material-design: true
 
   assets:
+    - assets/data/osm_places.json
     # Shared app artwork: startup splash and the empty-state background.
     - assets/splash/
     - assets/illustrations/

@@ -21,6 +21,7 @@ import '../../mini_game/screens/cao_lanh_quiz_screen.dart';
 import '../../nap_du_lieu/screens/import_screen.dart';
 import '../bo_loc/services/place_category_filter.dart';
 import '../bo_loc/widgets/nearby_filter_chips.dart';
+import '../services/admin_error_log_service.dart';
 import '../services/geocoding_service.dart';
 import '../services/nearby_places_service.dart';
 import '../utils/geo.dart';
@@ -33,6 +34,7 @@ enum _NearbyAction {
   publishDrafts,
   updateMapFromOverpass,
   selectMapDataSource,
+  viewErrorCodes,
   signIn,
   signOut,
   displaySettings,
@@ -46,6 +48,7 @@ class NearbyScreen extends StatefulWidget {
     required this.locationService,
     required this.geocoder,
     this.nearbyPlacesService,
+    this.adminErrorLogService,
     this.commentService,
     this.draftService,
     this.favoriteService,
@@ -63,6 +66,7 @@ class NearbyScreen extends StatefulWidget {
   final LocationService locationService;
   final GeocodingService geocoder;
   final NearbyPlacesService? nearbyPlacesService;
+  final AdminErrorLogService? adminErrorLogService;
   final PlaceCommentService? commentService;
   final String userEmail;
   final bool isAdmin;
@@ -86,6 +90,8 @@ class _NearbyScreenState extends State<NearbyScreen> {
   Timer? _nearbySearchDebounce;
   String? _favoriteError;
   String? _nearbySearchError;
+  final Set<AdminErrorCode> _reportedAdminErrorCodes = {};
+  bool _adminErrorLogWriteFailed = false;
   List<Place> _nearbyPlaces = const [];
   bool _searchingNearby = false;
   int _nearbySearchRequest = 0;
@@ -150,9 +156,11 @@ class _NearbyScreenState extends State<NearbyScreen> {
             ..addAll(ids);
           _favoriteError = null;
         });
+        _reportedAdminErrorCodes.remove(AdminErrorCode.favoritesStreamFailed);
       },
       onError: (Object error, StackTrace stackTrace) {
         if (!mounted) return;
+        _recordAdminError(AdminErrorCode.favoritesStreamFailed);
         setState(() => _favoriteError = error.toString());
       },
     );
@@ -177,6 +185,11 @@ class _NearbyScreenState extends State<NearbyScreen> {
     setState(() => _locating = true);
     final result = await widget.locationService.current();
     if (!mounted || request != _locationRequest) return;
+    if (result.failure == null) {
+      _reportedAdminErrorCodes.remove(AdminErrorCode.locationLookupFailed);
+    } else {
+      _recordAdminError(AdminErrorCode.locationLookupFailed);
+    }
     if (result.position != null &&
         !caoLanhMapBounds.contains(result.position!)) {
       setState(() => _locating = false);
@@ -256,8 +269,14 @@ class _NearbyScreenState extends State<NearbyScreen> {
           _searchingNearby = false;
           _nearbySearchError = null;
         });
+        _reportedAdminErrorCodes.remove(AdminErrorCode.nearbySearchFailed);
       } catch (error) {
         if (!mounted || request != _nearbySearchRequest) return;
+        _recordAdminError(
+          error is NearbyPlacesFailure
+              ? error.code
+              : AdminErrorCode.nearbySearchFailed,
+        );
         setState(() {
           _searchingNearby = false;
           _nearbySearchError = error.toString();
@@ -267,9 +286,9 @@ class _NearbyScreenState extends State<NearbyScreen> {
   }
 
   String _nearbySearchErrorMessage(String error) {
-    if (AppEnvironment.isFirebaseHosted) {
-      return 'Tra cứu địa điểm OpenStreetMap chưa được triển khai trên máy '
-          'chủ này. Đăng địa điểm lên Firestore vẫn hoạt động.';
+    if (error.contains(AdminErrorCode.nearbySnapshotReadFailed.value)) {
+      return 'Không đọc được dữ liệu bản đồ OpenStreetMap đã đóng gói. '
+          'Hãy báo quản trị viên kiểm tra bản cập nhật.';
     }
     if (error.contains('localhost:8787')) {
       return 'Backend địa điểm chưa chạy. Hãy chạy run_web.bat hoặc '
@@ -282,6 +301,137 @@ class _NearbyScreenState extends State<NearbyScreen> {
       return 'Tra cứu OpenStreetMap mất quá nhiều thời gian. Bản đồ vẫn hoạt động; hãy thử lại sau.';
     }
     return 'Không kết nối được dữ liệu địa điểm OpenStreetMap (có thể do CORS hoặc máy chủ). Bản đồ vẫn hoạt động; hãy thử lại.';
+  }
+
+  void _recordAdminError(AdminErrorCode code) {
+    final service = widget.adminErrorLogService;
+    if (!widget.isAdmin ||
+        service == null ||
+        !_reportedAdminErrorCodes.add(code)) {
+      return;
+    }
+    unawaited(_saveAdminError(service, code));
+  }
+
+  Future<void> _saveAdminError(
+    AdminErrorLogService service,
+    AdminErrorCode code,
+  ) async {
+    try {
+      await service.record(code);
+      if (mounted && _adminErrorLogWriteFailed) {
+        setState(() => _adminErrorLogWriteFailed = false);
+      }
+    } catch (error) {
+      _reportedAdminErrorCodes.remove(code);
+      if (!mounted) return;
+      debugPrint(
+        'Could not save admin error code ${code.value} '
+        '(${error.runtimeType}).',
+      );
+      setState(() => _adminErrorLogWriteFailed = true);
+    }
+  }
+
+  Future<void> _showAdminErrorCodes() async {
+    final stream = widget.adminErrorLogService?.watchRecent();
+    final snapshotMetadata =
+        AppEnvironment.isFirebaseHosted &&
+            widget.nearbyPlacesService is OverpassNearbyPlacesService
+        ? (widget.nearbyPlacesService! as OverpassNearbyPlacesService)
+              .staticSnapshotMetadata()
+        : null;
+    await showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Mã lỗi quản trị'),
+        content: SizedBox(
+          width: 520,
+          height: 420,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (snapshotMetadata != null)
+                FutureBuilder<MapSnapshotMetadata>(
+                  future: snapshotMetadata,
+                  builder: (context, snapshot) {
+                    if (snapshot.hasError) {
+                      return const Text(
+                        'Không đọc được phiên bản snapshot OSM.',
+                      );
+                    }
+                    final metadata = snapshot.data;
+                    if (metadata == null) {
+                      return const LinearProgressIndicator();
+                    }
+                    final updatedAt = metadata.updatedAt;
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: Text(
+                        'Snapshot OSM: ${metadata.count} địa điểm'
+                        '${updatedAt == null ? ' • chưa rõ ngày cập nhật' : ' • ${_formatMapDate(updatedAt)}'}',
+                      ),
+                    );
+                  },
+                ),
+              Expanded(
+                child: stream == null
+                    ? const Text('Chưa cấu hình dịch vụ ghi nhận mã lỗi.')
+                    : StreamBuilder<List<AdminErrorEntry>>(
+                        stream: stream,
+                        builder: (context, snapshot) {
+                          if (snapshot.hasError) {
+                            return const Center(
+                              child: Text(
+                                'Không đọc được mã lỗi. Kiểm tra kết nối và Firestore Rules.',
+                                textAlign: TextAlign.center,
+                              ),
+                            );
+                          }
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return const Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          }
+                          final entries = snapshot.data ?? const [];
+                          if (entries.isEmpty) {
+                            return const Center(
+                              child: Text('Chưa ghi nhận mã lỗi.'),
+                            );
+                          }
+                          return ListView.builder(
+                            itemCount: entries.length,
+                            itemBuilder: (context, index) {
+                              final entry = entries[index];
+                              final lastSeen = entry.lastSeenAt;
+                              return Card(
+                                child: ListTile(
+                                  leading: const Icon(Icons.error_outline),
+                                  title: Text(entry.code.value),
+                                  subtitle: Text(
+                                    '${entry.code.description}'
+                                    '${lastSeen == null ? '' : '\nGần nhất: ${_formatMapDate(lastSeen)}'}',
+                                  ),
+                                  isThreeLine: true,
+                                ),
+                              );
+                            },
+                          );
+                        },
+                      ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Đóng'),
+          ),
+        ],
+      ),
+    );
   }
 
   void _chooseMapOrigin(LatLng point) {
@@ -493,6 +643,7 @@ class _NearbyScreenState extends State<NearbyScreen> {
       builder: (_) => PlaceDetailScreen(
         hit: hit,
         commentService: widget.commentService,
+        onAdminError: _recordAdminError,
         isSignedIn: !widget.isGuest,
         accountName: widget.userEmail,
         isOpenStreetMapPlace: _nearbyPlaces.any(
@@ -559,6 +710,7 @@ class _NearbyScreenState extends State<NearbyScreen> {
     try {
       pending = await drafts.watchAll().first;
     } catch (error) {
+      _recordAdminError(AdminErrorCode.draftReadFailed);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Không đọc được bản nháp: $error')),
@@ -621,11 +773,13 @@ class _NearbyScreenState extends State<NearbyScreen> {
     setState(() => _publishing = true);
     try {
       final count = await widget.service.importAll(pending);
+      _reportedAdminErrorCodes.remove(AdminErrorCode.draftPublishFailed);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Đã đăng $count địa điểm lên Firestore.')),
       );
     } catch (error) {
+      _recordAdminError(AdminErrorCode.draftPublishFailed);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Chưa đăng được bản nháp: $error')),
@@ -642,6 +796,7 @@ class _NearbyScreenState extends State<NearbyScreen> {
     try {
       await favorites.setFavorite(place.id, favorite: !wasFavorite);
     } catch (error) {
+      _recordAdminError(AdminErrorCode.favoriteWriteFailed);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Không lưu được địa điểm yêu thích: $error')),
@@ -655,6 +810,7 @@ class _NearbyScreenState extends State<NearbyScreen> {
       _NearbyAction.publishDrafts => _publishDrafts(),
       _NearbyAction.updateMapFromOverpass => _updateMapFromOverpass(),
       _NearbyAction.selectMapDataSource => _selectMapDataSource(),
+      _NearbyAction.viewErrorCodes => _showAdminErrorCodes(),
       _NearbyAction.signIn => _openSignIn(),
       _NearbyAction.signOut => _signOut(),
       _NearbyAction.displaySettings => _openDisplaySettings(),
@@ -674,6 +830,7 @@ class _NearbyScreenState extends State<NearbyScreen> {
             preferences.getBool(_animationsPreferenceKey) ?? true;
       });
     } catch (error) {
+      _recordAdminError(AdminErrorCode.displayPreferencesReadFailed);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Không tải được cài đặt hiển thị: $error')),
@@ -707,6 +864,7 @@ class _NearbyScreenState extends State<NearbyScreen> {
       if (mounted) setState(() => _graphicsQuality = quality);
       return true;
     } catch (error) {
+      _recordAdminError(AdminErrorCode.displayPreferencesWriteFailed);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Không lưu được cài đặt đồ họa: $error')),
@@ -727,6 +885,7 @@ class _NearbyScreenState extends State<NearbyScreen> {
       if (mounted) setState(() => _animationsEnabled = enabled);
       return true;
     } catch (error) {
+      _recordAdminError(AdminErrorCode.displayPreferencesWriteFailed);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Không lưu được cài đặt hiệu ứng: $error')),
@@ -744,6 +903,7 @@ class _NearbyScreenState extends State<NearbyScreen> {
     try {
       await widget.onSignOut?.call();
     } catch (error) {
+      _recordAdminError(AdminErrorCode.signOutFailed);
       if (!mounted) return;
       ScaffoldMessenger.of(
         context,
@@ -761,12 +921,14 @@ class _NearbyScreenState extends State<NearbyScreen> {
       final count =
           await (widget.nearbyPlacesService! as OverpassNearbyPlacesService)
               .updateMapFromOverpass();
+      _reportedAdminErrorCodes.remove(AdminErrorCode.mapRefreshFailed);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Đã cập nhật $count địa điểm từ Overpass.')),
       );
       _scheduleNearbySearch();
     } catch (error) {
+      _recordAdminError(AdminErrorCode.mapRefreshFailed);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Cập nhật bản đồ thất bại: $error')),
@@ -785,6 +947,7 @@ class _NearbyScreenState extends State<NearbyScreen> {
     final service = widget.nearbyPlacesService! as OverpassNearbyPlacesService;
     try {
       final sources = await service.listMapDataSources();
+      _reportedAdminErrorCodes.remove(AdminErrorCode.mapSourceReadFailed);
       if (!mounted) return;
       if (sources.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -855,12 +1018,18 @@ class _NearbyScreenState extends State<NearbyScreen> {
 
       setState(() => _selectingMapData = true);
       final count = await service.selectMapDataSource(selected.source);
+      _reportedAdminErrorCodes.remove(AdminErrorCode.mapSourceApplyFailed);
       if (!mounted) return;
       _scheduleNearbySearch();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Đã dùng ${selected.file}: $count địa điểm.')),
       );
     } catch (error) {
+      _recordAdminError(
+        _selectingMapData
+            ? AdminErrorCode.mapSourceApplyFailed
+            : AdminErrorCode.mapSourceReadFailed,
+      );
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Không chọn được dữ liệu bản đồ: $error')),
@@ -936,6 +1105,14 @@ class _NearbyScreenState extends State<NearbyScreen> {
               tooltip: 'Công cụ quản trị',
               onSelected: _handleAction,
               itemBuilder: (context) => [
+                const PopupMenuItem(
+                  value: _NearbyAction.viewErrorCodes,
+                  child: ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    leading: Icon(Icons.error_outline),
+                    title: Text('Mã lỗi hệ thống'),
+                  ),
+                ),
                 const PopupMenuItem(
                   value: _NearbyAction.createDraft,
                   child: ListTile(
@@ -1042,11 +1219,13 @@ class _NearbyScreenState extends State<NearbyScreen> {
         stream: _stream,
         builder: (context, snapshot) {
           if (snapshot.hasError) {
+            _recordAdminError(AdminErrorCode.placesStreamFailed);
             return ErrorView(
               message: 'Chưa tải được danh sách địa điểm.',
               onRetry: _retryStream,
             );
           }
+          _reportedAdminErrorCodes.remove(AdminErrorCode.placesStreamFailed);
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const LoadingView();
           }
@@ -1067,6 +1246,14 @@ class _NearbyScreenState extends State<NearbyScreen> {
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.error,
                     ),
+                  ),
+                ),
+              if (_adminErrorLogWriteFailed && widget.isAdmin)
+                const ListTile(
+                  leading: Icon(Icons.cloud_off_outlined),
+                  title: Text(
+                    'Không lưu được mã lỗi vào Firestore. '
+                    'Kiểm tra kết nối và Firestore Rules.',
                   ),
                 ),
               if (showSearchControls) ...[

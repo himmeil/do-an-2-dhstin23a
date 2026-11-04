@@ -1,5 +1,6 @@
 import 'package:diadiem_quanh_day/core/config/display_preferences.dart';
 import 'package:diadiem_quanh_day/core/config/app_links.dart';
+import 'package:diadiem_quanh_day/features/dia_diem/ban_do/cao_lanh_ward_boundary.dart';
 import 'package:diadiem_quanh_day/features/dia_diem/ban_do/widgets/location_map.dart';
 import 'package:diadiem_quanh_day/features/dia_diem/ban_do/widgets/map_zoom_controls.dart';
 import 'package:diadiem_quanh_day/features/dia_diem/ban_do/widgets/nearby_map.dart';
@@ -10,12 +11,79 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  testWidgets('điều khiển Zoom bị vô hiệu hóa trước khi map sẵn sàng', (
+    tester,
+  ) async {
+    final controller = MapController();
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: Stack(
+            children: [MapZoomControls(controller: controller, enabled: false)],
+          ),
+        ),
+      ),
+    );
+
+    final zoomIn = tester.widget<IconButton>(
+      find
+          .descendant(
+            of: find.byType(MapZoomControls),
+            matching: find.byType(IconButton),
+          )
+          .first,
+    );
+    expect(zoomIn.onPressed, isNull);
+    await tester.tap(find.byTooltip('Phóng to bản đồ'));
+    expect(tester.takeException(), isNull);
+    controller.dispose();
+  });
+
+  testWidgets('Zoom hoạt động trong vùng camera bị khóa', (tester) async {
+    final controller = MapController();
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: Stack(
+            children: [
+              FlutterMap(
+                mapController: controller,
+                options: MapOptions(
+                  initialCenter: caoLanhWardCenter,
+                  initialZoom: 12,
+                  minZoom: 11,
+                  maxZoom: 18,
+                  cameraConstraint: CameraConstraint.containCenter(
+                    bounds: caoLanhMapBounds,
+                  ),
+                ),
+                children: const [],
+              ),
+              MapZoomControls(controller: controller, enabled: true),
+            ],
+          ),
+        ),
+      ),
+    );
+    await tester.pump();
+
+    await tester.tap(find.byTooltip('Phóng to bản đồ'));
+    await tester.pumpAndSettle();
+    expect(controller.camera.zoom, 13);
+    await tester.tap(find.byTooltip('Thu nhỏ bản đồ'));
+    await tester.pumpAndSettle();
+    expect(controller.camera.zoom, 12);
+    controller.dispose();
+  });
+
   test('đường dẫn chỉ đường chứa tọa độ đích', () {
     final uri = directionsUri(10.46, 105.63);
-    expect(uri, Uri.parse(AppLinks.directionsUrl).replace(queryParameters: {
-      'api': '1',
-      'destination': '10.46,105.63',
-    }));
+    expect(
+      uri,
+      Uri.parse(
+        AppLinks.directionsUrl,
+      ).replace(queryParameters: {'api': '1', 'destination': '10.46,105.63'}),
+    );
     expect(uri.queryParameters['destination'], '10.46,105.63');
   });
 
@@ -78,6 +146,21 @@ void main() {
     );
 
     expect(find.text('Hoàng Sa, Trường Sa là của Việt Nam'), findsNWidgets(2));
+  });
+
+  testWidgets('bản đồ tìm kiếm chỉ khóa tâm, không khóa Zoom', (tester) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Scaffold(
+          body: NearbyMap(hits: [], origin: null, onSelect: _ignoreHit),
+        ),
+      ),
+    );
+
+    final map = tester.widget<FlutterMap>(
+      find.byKey(const ValueKey('nearby-map-main')),
+    );
+    expect(map.options.cameraConstraint, isA<ContainCameraCenter>());
   });
 
   testWidgets('bản đồ tìm kiếm có inset Hoàng Sa, Trường Sa có thể ẩn/hiện', (
@@ -232,18 +315,12 @@ void main() {
     );
 
     TileLayer tileLayer() => tester.widget<TileLayer>(find.byType(TileLayer));
-    expect(
-      tileLayer().urlTemplate,
-      AppLinks.streetTileUrl,
-    );
+    expect(tileLayer().urlTemplate, AppLinks.streetTileUrl);
     expect(find.text('Xem vệ tinh'), findsOneWidget);
 
     await tester.tap(find.byTooltip('Chuyển sang ảnh vệ tinh'));
     await tester.pump();
-    expect(
-      tileLayer().urlTemplate,
-      AppLinks.satelliteTileUrl,
-    );
+    expect(tileLayer().urlTemplate, AppLinks.satelliteTileUrl);
     expect(find.text('Bản đồ thường'), findsOneWidget);
     expect(
       find.textContaining('Esri, Maxar, Earthstar Geographics'),
@@ -252,10 +329,7 @@ void main() {
 
     await tester.tap(find.byTooltip('Chuyển sang bản đồ đường phố'));
     await tester.pump();
-    expect(
-      tileLayer().urlTemplate,
-      AppLinks.streetTileUrl,
-    );
+    expect(tileLayer().urlTemplate, AppLinks.streetTileUrl);
     expect(find.text('Xem vệ tinh'), findsOneWidget);
   });
 }

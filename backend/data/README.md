@@ -3,11 +3,17 @@
 Thư mục chứa schema SQLite và snapshot SQL dùng để khôi phục dữ liệu bản đồ.
 Các JSON/SQLite runtime có thể bị Git ignore; không chỉnh trực tiếp snapshot
 được sinh tự động nếu chưa đồng bộ với dữ liệu nguồn.
+Flutter Web production dùng bản sao đã đóng gói tại
+`assets/data/osm_places.json`. Backend local đồng bộ asset này sau khi admin
+cập nhật hoặc chọn snapshot; commit asset và deploy Hosting để phát hành dữ
+liệu mới. Project dùng Firebase Spark nên không dùng Firebase Functions.
 Schema tạo index tọa độ `(latitude, longitude)` để tăng tốc truy vấn vùng lân
 cận; truy vấn vẫn áp dụng khoảng cách chính xác sau bước lọc chỉ mục.
 SQLite chạy migration một lần để đổi các mã OSM thô (ví dụ `museum`, `pitch`,
 `sports_centre`) sang mã danh mục ứng dụng trước khi API phục vụ dữ liệu.
-Snapshot hiện có 330 mục từ OSM (lấy ngày 02/11/2026). Khi nhập dữ liệu,
+Snapshot hiện có 330 mục từ OSM; thời điểm dữ liệu nguồn là
+`2026-11-02T10:00:08.757Z` (17:00:08 UTC+7, ngày 02/11/2026). Thời điểm ghi
+file mới hơn không đồng nghĩa dữ liệu OSM đã được làm mới. Khi nhập dữ liệu,
 backend bỏ các đoạn đường chỉ có tên (`highway=*`) nhưng giữ trạm xe buýt và
 địa điểm có thẻ POI; mã OSM chưa có quy tắc vẫn giữ trong **Khác**, không tự
 gán thành điểm vui chơi. Dữ liệu OSM được phân phối theo ODbL; cần ghi công

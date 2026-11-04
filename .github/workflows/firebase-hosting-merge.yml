@@ -11,6 +11,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.47.6'
@@ -25,27 +28,16 @@ jobs:
             echo "Missing DULIEUCANHAN_ENV repository secret"
             exit 1
           fi
-          printf '%s' "$APP_CONFIG" > dulieucanhan.env
-          project_id=$(jq -r '.FIREBASE_PROJECT_ID // empty' dulieucanhan.env)
+          mkdir -p ca_nhan
+          printf '%s' "$APP_CONFIG" > ca_nhan/dulieucanhan.env
+          node scripts/validate_dulieucanhan_env.mjs
+          project_id=$(jq -r '.FIREBASE_PROJECT_ID // empty' ca_nhan/dulieucanhan.env)
           if [ -z "$project_id" ]; then
             echo "DULIEUCANHAN_ENV must define FIREBASE_PROJECT_ID"
             exit 1
           fi
-          jq -e '[
-            .NEARBY_API_BASE_URL,
-            .OVERPASS_API_URL,
-            .OVERPASS_FALLBACK_URLS,
-            .OSM_MAP_API_URL,
-            .NOMINATIM_SEARCH_URL,
-            .STREET_TILE_URL,
-            .SATELLITE_TILE_URL,
-            .DIRECTIONS_URL
-          ] | all(.[]; type == "string" and length > 0)' dulieucanhan.env > /dev/null || {
-            echo "DULIEUCANHAN_ENV is missing one or more app service URLs"
-            exit 1
-          }
           echo "project_id=$project_id" >> "$GITHUB_OUTPUT"
-      - run: flutter pub get && flutter test && flutter build web --dart-define-from-file=dulieucanhan.env --dart-define=APP_MODE=firebase
+      - run: flutter pub get && flutter test && flutter build web --dart-define-from-file=ca_nhan/dulieucanhan.env --dart-define=APP_MODE=firebase
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}

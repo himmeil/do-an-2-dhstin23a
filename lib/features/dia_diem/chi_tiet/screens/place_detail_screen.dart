@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../../tim_kiem/services/admin_error_log_service.dart';
 import '../widgets/place_comments_section.dart';
 import '../../ban_do/widgets/location_map.dart';
 import '../../du_lieu/models/place_category.dart';
@@ -18,6 +19,7 @@ class PlaceDetailScreen extends StatelessWidget {
     this.canUseSatellite = true,
     this.onRequireSignIn,
     this.onRequireCommentSignIn,
+    this.onAdminError,
     super.key,
   });
 
@@ -29,6 +31,7 @@ class PlaceDetailScreen extends StatelessWidget {
   final bool canUseSatellite;
   final VoidCallback? onRequireSignIn;
   final VoidCallback? onRequireCommentSignIn;
+  final ValueChanged<AdminErrorCode>? onAdminError;
 
   @override
   Widget build(BuildContext context) {
@@ -94,6 +97,7 @@ class PlaceDetailScreen extends StatelessWidget {
               isSignedIn: isSignedIn,
               accountName: accountName,
               onRequireSignIn: onRequireCommentSignIn,
+              onAdminError: onAdminError,
             ),
           ],
         ],

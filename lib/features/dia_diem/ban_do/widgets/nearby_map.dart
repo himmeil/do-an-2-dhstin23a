@@ -163,7 +163,7 @@ class _NearbyMapState extends State<NearbyMap> {
                 : widget.zoom,
             minZoom: _minZoom,
             maxZoom: _maxZoom,
-            cameraConstraint: CameraConstraint.contain(
+            cameraConstraint: CameraConstraint.containCenter(
               bounds: caoLanhMapBounds,
             ),
             onPositionChanged: (camera, _) {
@@ -185,7 +185,8 @@ class _NearbyMapState extends State<NearbyMap> {
               }
             },
             onMapReady: () {
-              _mapReady = true;
+              if (!mounted || _mapReady) return;
+              setState(() => _mapReady = true);
               widget.onZoomChanged?.call(
                 widget.origin == null && widget.hits.isEmpty ? 11 : widget.zoom,
               );
@@ -294,7 +295,7 @@ class _NearbyMapState extends State<NearbyMap> {
           onRequireSignIn: widget.onRequireSignIn,
           onChanged: (style) => setState(() => _style = style),
         ),
-        MapZoomControls(controller: _mapController),
+        MapZoomControls(controller: _mapController, enabled: _mapReady),
       ],
     );
   }

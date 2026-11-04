@@ -10,6 +10,8 @@ echo       DIA DIEM - BACKEND LOCAL
 echo ========================================
 echo Backend: http://localhost:8787
 echo.
+node ..\scripts\validate_dulieucanhan_env.mjs
+if errorlevel 1 goto :menu
 npm.cmd start
 
 if errorlevel 1 (

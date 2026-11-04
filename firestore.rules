@@ -79,6 +79,34 @@ service cloud.firestore {
       allow delete: if signedIn() && request.auth.uid == userId;
     }
 
+    match /admin_error_codes/{code} {
+      allow read: if isAdmin();
+      allow create, update: if isAdmin()
+        && code in [
+          'OSM_SNAPSHOT_READ_FAILED',
+          'NEARBY_SEARCH_FAILED',
+          'PLACES_READ_FAILED',
+          'COMMENTS_READ_FAILED',
+          'COMMENT_WRITE_FAILED',
+          'FAVORITES_READ_FAILED',
+          'LOCATION_LOOKUP_FAILED',
+          'FAVORITE_WRITE_FAILED',
+          'DRAFT_READ_FAILED',
+          'DRAFT_PUBLISH_FAILED',
+          'DISPLAY_SETTINGS_READ_FAILED',
+          'DISPLAY_SETTINGS_WRITE_FAILED',
+          'SIGN_OUT_FAILED',
+          'MAP_REFRESH_FAILED',
+          'MAP_SOURCE_READ_FAILED',
+          'MAP_SOURCE_APPLY_FAILED'
+        ]
+        && request.resource.data.keys().hasAll(['code', 'lastSeenAt'])
+        && request.resource.data.keys().hasOnly(['code', 'lastSeenAt'])
+        && request.resource.data.code == code
+        && request.resource.data.lastSeenAt == request.time;
+      allow delete: if false;
+    }
+
     match /{document=**} {
       allow read, write: if false;
     }

@@ -80,8 +80,9 @@ dụng, các việc còn chờ và hướng làm tiếp theo. Cập nhật ngày
 - Project chưa có Function `nearbyApi`; tìm kiếm OSM qua API cloud chưa hoạt
   động. Endpoint tải offline đã bị gỡ khỏi backend; Hosting cũng không có
   endpoint này.
-- Cấu hình riêng không còn được theo dõi trong Git; file `dulieucanhan.env`
-  được bỏ qua và người fork cần cung cấp Firebase config của họ.
+- Cấu hình riêng không còn được theo dõi trong Git; file
+  `ca_nhan/dulieucanhan.env` nằm trong thư mục bị bỏ qua và người fork cần
+  cung cấp Firebase config của họ.
 - Đã tách `features/gps`, `features/nap_du_lieu` và `features/tim_kiem` khỏi
   `features/dia_diem`; miền địa điểm giữ model, repository contracts, adapters,
   bản đồ và chi tiết.

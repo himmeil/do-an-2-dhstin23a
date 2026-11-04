@@ -4,12 +4,14 @@ import 'package:flutter_map/flutter_map.dart';
 class MapZoomControls extends StatelessWidget {
   const MapZoomControls({
     required this.controller,
+    required this.enabled,
     this.minZoom = 11,
     this.maxZoom = 18,
     super.key,
   });
 
   final MapController controller;
+  final bool enabled;
   final double minZoom;
   final double maxZoom;
 
@@ -34,7 +36,7 @@ class MapZoomControls extends StatelessWidget {
             Tooltip(
               message: 'Phóng to bản đồ',
               child: IconButton(
-                onPressed: () => _changeZoom(1),
+                onPressed: enabled ? () => _changeZoom(1) : null,
                 icon: const Icon(Icons.add),
               ),
             ),
@@ -42,7 +44,7 @@ class MapZoomControls extends StatelessWidget {
             Tooltip(
               message: 'Thu nhỏ bản đồ',
               child: IconButton(
-                onPressed: () => _changeZoom(-1),
+                onPressed: enabled ? () => _changeZoom(-1) : null,
                 icon: const Icon(Icons.remove),
               ),
             ),

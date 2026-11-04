@@ -1,7 +1,9 @@
 # Nearby places API
 
-API phục vụ Flutter Web local và production. Nó nhận vị trí từ Flutter, gọi nguồn dữ liệu
-OpenStreetMap server-side để tránh lỗi CORS, rồi trả về các phần tử có tên.
+API phục vụ Flutter Web local. Firebase Hosting dùng snapshot OSM được đóng
+gói trong Flutter asset, không gọi API này hay Firebase Functions. Proxy local
+nhận vị trí từ Flutter, đọc dữ liệu SQLite để tránh lỗi CORS, rồi trả về các
+phần tử có tên.
 Proxy truy vấn các đối tượng có tên trong khu vực Cao Lãnh và thử nhiều máy
 chủ Overpass nếu một máy chủ bị quá tải. Nếu tất cả Overpass không kết nối
 được, proxy tự chuyển sang cơ sở dữ liệu SQLite tại `data/places.sqlite`, là cơ sở dữ liệu dự phòng của khu
@@ -40,7 +42,7 @@ http://localhost:8787/health
 Sau đó chạy Flutter Web:
 
 ```powershell
-flutter run -d web-server --web-port 5000
+flutter run -d web-server --web-port 5000 --dart-define-from-file=ca_nhan/dulieucanhan.env
 ```
 
 Backend tại `http://localhost:8787` phải đang chạy để tìm địa điểm gần đây;
@@ -53,7 +55,7 @@ Mở `http://localhost:5000` bằng Edge/Chrome. Với demo ổn định, có th
 trước rồi chạy static server:
 
 ```powershell
-flutter build web
+flutter build web --dart-define-from-file=ca_nhan/dulieucanhan.env
 python -m http.server 5000 --directory build\web --bind 127.0.0.1
 ```
 
@@ -75,10 +77,12 @@ Nếu cổng `5000` đã được sử dụng, chạy `tat_app.bat` ở thư m�
 lại. Cách đơn giản nhất là chạy `bat_app.bat`.
 
 Flutter Web mặc định gọi `http://localhost:8787/api/nearby`. Có thể đổi địa chỉ
-proxy khi build bằng:
+proxy trong `ca_nhan/dulieucanhan.env` bằng cách sửa `NEARBY_API_BASE_URL`.
+Mỗi lần build, truyền file đó để Flutter nạp cả proxy, URL dịch vụ và cấu
+hình Firebase:
 
 ```powershell
-flutter run -d edge --dart-define=NEARBY_API_BASE_URL=http://localhost:8787
+flutter run -d edge --dart-define-from-file=ca_nhan/dulieucanhan.env
 ```
 
 Android không dùng proxy local; Android tiếp tục gọi nguồn bản đồ trực tiếp.
@@ -87,13 +91,14 @@ Android không dùng proxy local; Android tiếp tục gọi nguồn bản đồ
 
 Ứng dụng build cho Firebase không gọi `localhost` và không tải snapshot bản đồ
 offline. Firebase Hosting rewrite `/api/**` chỉ có tác dụng khi Function
-`nearbyApi` được triển khai. Hiện project demo chưa triển khai Function để giữ
-gói Firebase miễn phí, vì vậy tra cứu OSM qua proxy chưa hoạt động trên Hosting.
-Các API quản trị và SQLite vẫn chỉ có trên backend local.
+`nearbyApi` được triển khai. Project dùng Firebase Spark nên không deploy
+Functions; tra cứu OSM trên Hosting đọc snapshot `assets/data/osm_places.json`
+đã đóng gói khi build. Các API quản trị và SQLite vẫn chỉ có trên backend local.
 
-Khi merge lên `main`, GitHub Actions deploy Functions rồi mới deploy Hosting.
-Cần bật billing Blaze cho Firebase project và cấp quyền deploy Functions cho
-service account `FIREBASE_SERVICE_ACCOUNT_DO_AN_2_B1F35`.
+GitHub Actions deploy Hosting khi push lên `main`; workflow hiện không deploy
+Functions. Khi admin cập nhật/chọn snapshot ở backend local, backend đồng bộ
+asset Flutter. Commit asset đó rồi push lên `main` để Hosting nhận dữ liệu mới;
+không tự gọi Overpass trong CI.
 
 ## Nhật ký chỉnh sửa
 
@@ -149,8 +154,11 @@ mới sẽ tạo bản mới, lưu bản hiện tại thành backup và chuyển
 sang bản mới.
 
 Các file snapshot này nằm trong `backend/data` và được tạo sau lần cập nhật
-bản đồ thành công từ Overpass hoặc OpenStreetMap API; chúng không được commit
-vì là dữ liệu runtime.
+bản đồ thành công từ Overpass hoặc OpenStreetMap API; các file JSON runtime có
+thể bị Git ignore. Riêng `assets/data/osm_places.json` là bản triển khai được
+commit để Hosting Spark có dữ liệu mà không cần Functions. Backend đồng bộ
+asset này mỗi khi cập nhật/chọn snapshot local; commit thay đổi asset để phát
+hành dữ liệu mới.
 Mỗi lần cập nhật thành công, backend cũng tạo
 `data/dia_diem_cao_lanh.sql` chứa schema dữ liệu và các lệnh `INSERT` để có
 thể khôi phục/chuyển toàn bộ địa điểm sang SQLite khác. File SQL cũ được lưu
@@ -200,7 +208,7 @@ Mở PowerShell thứ ba để chạy app web:
 
 ```powershell
 cd C:\Users\Admin\Desktop\Do_AN_2\app-tim-dia-diem-xung-quanh
-flutter run -d edge --web-port 5000
+flutter run -d edge --web-port 5000 --dart-define-from-file=ca_nhan/dulieucanhan.env
 ```
 
 Hoặc chạy `bat_app.bat` ở thư mục gốc để tự mở backend và Flutter Web.

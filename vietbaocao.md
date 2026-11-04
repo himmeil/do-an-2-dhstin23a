@@ -30,10 +30,10 @@ GPS hoặc cấp quyền vị trí.
 
 - Tạo Firebase project riêng và đăng ký ứng dụng cho các nền tảng cần dùng.
 - Thêm `firebase_core`, đọc cấu hình Firebase build-time từ
-  `dulieucanhan.env` và khởi tạo Firebase trước khi chạy giao diện trong
+  `ca_nhan/dulieucanhan.env` và khởi tạo Firebase trước khi chạy giao diện trong
   `lib/main.dart`.
-- File môi trường cá nhân không theo dõi trong Git; người fork phải tự điền
-  cấu hình Firebase theo `dulieucanhan.env.example`.
+- File môi trường cá nhân trong `ca_nhan/` không theo dõi trong Git; người fork
+  phải tự điền cấu hình Firebase theo `dulieucanhan.env.example`.
 - Đã tích hợp Firebase Authentication (email/mật khẩu) và Cloud Firestore cho
   tài khoản và danh sách địa điểm; Storage chưa được tích hợp.
 - Quy tắc tại `firestore.rules` cho phép đọc địa điểm công khai, chỉ admin ghi

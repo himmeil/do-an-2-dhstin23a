@@ -2,21 +2,27 @@ import http from 'node:http';
 import {DatabaseSync} from 'node:sqlite';
 import {getAuth} from 'firebase-admin/auth';
 import {initializeApp} from 'firebase-admin/app';
-import {readFileSync, renameSync, writeFileSync, existsSync, unlinkSync} from 'node:fs';
+import {readFileSync, renameSync, writeFileSync, existsSync, unlinkSync, mkdirSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 
 const port = Number(process.env.PORT || 8787);
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const privateConfigPath = path.join(projectRoot, 'dulieucanhan.env');
+const privateConfigPath = path.join(
+  projectRoot,
+  'ca_nhan',
+  'dulieucanhan.env',
+);
 const privateConfig = existsSync(privateConfigPath)
   ? JSON.parse(readFileSync(privateConfigPath, 'utf8'))
   : {};
 const configuredUrl = (key) => {
   const value = process.env[key] || privateConfig[key];
   if (typeof value !== 'string' || value.trim() === '') {
-    throw new Error(`Missing ${key} in dulieucanhan.env or process environment.`);
+    throw new Error(
+      `Missing ${key} in ca_nhan/dulieucanhan.env or process environment.`,
+    );
   }
   return value.trim();
 };
@@ -34,6 +40,7 @@ const commentsSchemaPath = path.join(
 const dataDirectory = path.dirname(schemaPath);
 const currentMapPath = path.join(dataDirectory, 'dia_diem_cao_lanh.json');
 const currentSqlPath = path.join(dataDirectory, 'dia_diem_cao_lanh.sql');
+const flutterMapAssetPath = path.join(projectRoot, 'assets', 'data', 'osm_places.json');
 const backupMapPath = path.join(dataDirectory, 'backup_dia_diem_cao_lanh.json');
 const activeMapPath = path.join(dataDirectory, 'active_map_source.json');
 const backupSqlPath = path.join(dataDirectory, 'backup_dia_diem_cao_lanh.sql');
@@ -544,11 +551,12 @@ function writeMapSnapshot(
   updatedAt = new Date().toISOString(),
 ) {
   const placeElements = elements.filter((element) => isPlace(element.tags || {}));
-  const snapshot = `${JSON.stringify({
+  const mapSnapshot = {
     source,
     updatedAt,
     elements: placeElements,
-  }, null, 2)}\n`;
+  };
+  const snapshot = `${JSON.stringify(mapSnapshot, null, 2)}\n`;
   const sql = [
     '-- Generated from OpenStreetMap data. Do not edit manually.',
     'BEGIN TRANSACTION;',
@@ -591,6 +599,21 @@ function writeMapSnapshot(
   }
   writeFileSync(currentMapPath, snapshot, 'utf8');
   writeFileSync(currentSqlPath, sql, 'utf8');
+  writeFlutterMapSnapshot(mapSnapshot);
+}
+
+function writeFlutterMapSnapshot(snapshot) {
+  if (isCloudRuntime) return;
+  mkdirSync(path.dirname(flutterMapAssetPath), {recursive: true});
+  writeFileSync(
+    flutterMapAssetPath,
+    `${JSON.stringify({
+      source: snapshot.source,
+      updatedAt: snapshot.updatedAt || null,
+      elements: snapshot.elements.filter((element) => isPlace(element.tags || {})),
+    }, null, 2)}\n`,
+    'utf8',
+  );
 }
 
 function mapSourcePath(source) {
@@ -647,6 +670,7 @@ function selectMapSource(source) {
   }
   const elements = snapshot.elements.filter((element) => isPlace(element.tags || {}));
   saveMapElements(elements, 'admin-selected');
+  writeFlutterMapSnapshot({...snapshot, elements});
   writeFileSync(activeMapPath, `${JSON.stringify({source}, null, 2)}\n`, 'utf8');
   return {source, file: path.basename(file), count: elements.length};
 }
@@ -657,10 +681,9 @@ function loadMapSnapshot() {
   if (!info) return;
   const file = mapSourcePath(source);
   const snapshot = JSON.parse(readFileSync(file, 'utf8'));
-  saveMapElements(
-    snapshot.elements.filter((element) => isPlace(element.tags || {})),
-    source === 'backup' ? 'admin-selected' : snapshot.source || 'overpass',
-  );
+  const elements = snapshot.elements.filter((element) => isPlace(element.tags || {}));
+  saveMapElements(elements, source === 'backup' ? 'admin-selected' : snapshot.source || 'overpass');
+  writeFlutterMapSnapshot({...snapshot, elements});
 }
 
 async function updateMapFromOverpass() {

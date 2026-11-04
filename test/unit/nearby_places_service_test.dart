@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:diadiem_quanh_day/features/tim_kiem/services/nearby_places_service.dart';
+import 'package:diadiem_quanh_day/features/tim_kiem/services/admin_error_log_service.dart';
 import 'package:diadiem_quanh_day/core/config/app_links.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
@@ -89,6 +90,89 @@ void main() {
     expect(places, isEmpty);
     expect(body, contains('"radiusMeters":5000'));
   });
+
+  test(
+    'Firebase dùng snapshot đóng gói và vẫn lọc chính xác theo bán kính',
+    () async {
+      SharedPreferences.setMockInitialValues({});
+      final service = OverpassNearbyPlacesService(
+        client: MockClient(
+          (_) async => fail('Không được gọi API trên Firebase'),
+        ),
+        webBaseUrl: AppLinks.nearbyApiBaseUrl,
+        useProxy: true,
+        useStaticSnapshot: true,
+        loadStaticSnapshot: () async => jsonEncode({
+          'updatedAt': '2026-11-02T10:00:08.757Z',
+          'elements': [
+            {
+              'type': 'node',
+              'id': 1,
+              'lat': 10.456,
+              'lon': 105.632,
+              'tags': {'name': 'Trong bán kính', 'amenity': 'cafe'},
+            },
+            {
+              'type': 'node',
+              'id': 2,
+              'lat': 10.48,
+              'lon': 105.68,
+              'tags': {'name': 'Ngoài bán kính', 'amenity': 'cafe'},
+            },
+          ],
+        }),
+      );
+
+      final places = await service.search(
+        center: const LatLng(10.456, 105.632),
+        radiusMeters: 1000,
+      );
+
+      expect(places.map((place) => place.name), ['Trong bán kính']);
+    },
+  );
+
+  test('snapshot Firebase sai định dạng trả về mã lỗi rõ ràng', () async {
+    final service = OverpassNearbyPlacesService(
+      webBaseUrl: AppLinks.nearbyApiBaseUrl,
+      useStaticSnapshot: true,
+      loadStaticSnapshot: () async => '{"elements":{}}',
+    );
+
+    await expectLater(
+      service.search(center: const LatLng(10.456, 105.632), radiusMeters: 1000),
+      throwsA(
+        isA<NearbyPlacesFailure>().having(
+          (failure) => failure.code,
+          'code',
+          AdminErrorCode.nearbySnapshotReadFailed,
+        ),
+      ),
+    );
+  });
+
+  test(
+    'asset OSM production chứa snapshot có số lượng và thời điểm rõ ràng',
+    () async {
+      final service = OverpassNearbyPlacesService(
+        client: MockClient(
+          (_) async => fail('Không được gọi API trên Firebase'),
+        ),
+        webBaseUrl: AppLinks.nearbyApiBaseUrl,
+        useStaticSnapshot: true,
+      );
+
+      final metadata = await service.staticSnapshotMetadata();
+      final places = await service.search(
+        center: const LatLng(10.46, 105.63),
+        radiusMeters: 5000,
+      );
+
+      expect(metadata.count, 330);
+      expect(metadata.updatedAt, DateTime.parse('2026-11-02T10:00:08.757Z'));
+      expect(places, isNotEmpty);
+    },
+  );
 
   test('đọc danh sách snapshot map mà admin có thể chọn', () async {
     final service = OverpassNearbyPlacesService(
