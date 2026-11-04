@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 
 import 'core/constants/app_constants.dart';
@@ -7,11 +8,12 @@ import 'core/theme/app_theme.dart';
 import 'core/widgets/splash/startup_splash.dart';
 import 'features/tai_khoan/screens/sign_in_screen.dart';
 import 'features/tai_khoan/services/auth_service.dart';
-import 'features/dia_diem/gps/services/location_service.dart';
-import 'features/dia_diem/tim_kiem/screens/nearby_screen.dart';
-import 'features/dia_diem/tim_kiem/services/geocoding_service.dart';
-import 'features/dia_diem/tim_kiem/services/nearby_places_service.dart';
-import 'features/dia_diem/du_lieu/services/place_service.dart';
+import 'features/dia_diem/services/firestore_place_service.dart';
+import 'features/dia_diem/services/local_place_service.dart';
+import 'features/gps/services/location_service.dart';
+import 'features/tim_kiem/screens/nearby_screen.dart';
+import 'features/tim_kiem/services/geocoding_service.dart';
+import 'features/tim_kiem/services/nearby_places_service.dart';
 import 'firebase_options.dart';
 
 Future<void> main() async {
@@ -52,10 +54,7 @@ class _AuthGateState extends State<_AuthGate> {
   String? _signInPrompt;
 
   Future<void> _prepareMap() async {
-    await Future.wait([
-      _nearbyPlacesService.downloadOfflinePlaces(),
-      _nearbyPlacesService.preloadMapTiles(),
-    ]);
+    if (kIsWeb) await _nearbyPlacesService.downloadOfflinePlaces();
   }
 
   void _continueAsGuest() {

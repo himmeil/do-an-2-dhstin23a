@@ -3,8 +3,8 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../ban_do/widgets/location_map.dart';
 import '../../du_lieu/models/place_category.dart';
-import '../../tim_kiem/utils/geo.dart';
-import '../../tim_kiem/widgets/place_tile.dart';
+import '../../../tim_kiem/utils/geo.dart';
+import '../../../tim_kiem/widgets/place_tile.dart';
 
 class PlaceDetailScreen extends StatelessWidget {
   const PlaceDetailScreen({

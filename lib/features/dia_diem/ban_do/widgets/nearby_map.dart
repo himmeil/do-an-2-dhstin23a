@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
+import '../../../../core/config/display_preferences.dart';
 import '../cao_lanh_ward_boundary.dart';
 import '../map_tile_source.dart';
 import '../../du_lieu/models/place_category.dart';
@@ -9,7 +12,7 @@ import 'map_source_attribution.dart';
 import 'map_style_button.dart';
 import 'map_zoom_controls.dart';
 import 'vietnam_islands_map_inset.dart';
-import '../../tim_kiem/widgets/place_tile.dart';
+import '../../../tim_kiem/widgets/place_tile.dart';
 
 /// Bản đồ OpenStreetMap hiện các địa điểm tìm được và vị trí của người dùng.
 class NearbyMap extends StatefulWidget {
@@ -23,6 +26,8 @@ class NearbyMap extends StatefulWidget {
     this.canUseSatellite = true,
     this.onRequireSignIn,
     this.zoom = 15,
+    this.graphicsQuality = MapGraphicsQuality.medium,
+    this.animationsEnabled = true,
     this.radiusKm,
     this.showTerritorialInfo = true,
     super.key,
@@ -37,6 +42,8 @@ class NearbyMap extends StatefulWidget {
   final bool canUseSatellite;
   final VoidCallback? onRequireSignIn;
   final double zoom;
+  final MapGraphicsQuality graphicsQuality;
+  final bool animationsEnabled;
   final double? radiusKm;
   final bool showTerritorialInfo;
 
@@ -52,11 +59,18 @@ class _NearbyMapState extends State<NearbyMap> {
   MapStyle _style = MapStyle.street;
   late double _currentZoom;
   final _mapController = MapController();
+  late final _tileProvider = createCaoLanhTileProvider();
+  Timer? _markerRefreshDebounce;
+  List<PlaceHit> _visibleHits = const [];
+  List<PlaceHit>? _visibleHitsSource;
+  bool _mapReady = false;
 
   @override
   void initState() {
     super.initState();
-    _currentZoom = widget.zoom;
+    _currentZoom = widget.origin == null && widget.hits.isEmpty
+        ? _minZoom
+        : widget.zoom;
   }
 
   @override
@@ -79,6 +93,52 @@ class _NearbyMapState extends State<NearbyMap> {
         _mapController.move(origin, _currentZoom);
       });
     }
+    if (!identical(widget.hits, oldWidget.hits)) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted || !_mapReady || _currentZoom < _markerZoomThreshold) {
+          return;
+        }
+        _scheduleVisibleMarkerUpdate(_mapController.camera.visibleBounds);
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _markerRefreshDebounce?.cancel();
+    _mapController.dispose();
+    super.dispose();
+  }
+
+  void _scheduleVisibleMarkerUpdate(LatLngBounds visibleBounds) {
+    _markerRefreshDebounce?.cancel();
+    _markerRefreshDebounce = Timer(const Duration(milliseconds: 100), () {
+      if (!mounted || _currentZoom < _markerZoomThreshold) return;
+      final visibleHits = widget.hits
+          .where(
+            (hit) =>
+                hit.place.id != widget.selectedPlaceId &&
+                visibleBounds.contains(hit.place.latLng),
+          )
+          .take(_maxVisibleMarkers)
+          .toList(growable: false);
+      if (_sameHits(_visibleHits, visibleHits) &&
+          identical(_visibleHitsSource, widget.hits)) {
+        return;
+      }
+      setState(() {
+        _visibleHits = visibleHits;
+        _visibleHitsSource = widget.hits;
+      });
+    });
+  }
+
+  bool _sameHits(List<PlaceHit> first, List<PlaceHit> second) {
+    if (first.length != second.length) return false;
+    for (var index = 0; index < first.length; index++) {
+      if (first[index].place.id != second[index].place.id) return false;
+    }
+    return true;
   }
 
   LatLng get _center {
@@ -111,20 +171,44 @@ class _NearbyMapState extends State<NearbyMap> {
               final wasShowingMarkers = _currentZoom >= _markerZoomThreshold;
               final isShowingMarkers = camera.zoom >= _markerZoomThreshold;
               if (wasShowingMarkers != isShowingMarkers) {
-                setState(() => _currentZoom = camera.zoom);
+                setState(() {
+                  _currentZoom = camera.zoom;
+                  if (!isShowingMarkers) _visibleHits = const [];
+                });
               } else {
                 _currentZoom = camera.zoom;
               }
+              if (isShowingMarkers) {
+                _scheduleVisibleMarkerUpdate(camera.visibleBounds);
+              } else {
+                _markerRefreshDebounce?.cancel();
+              }
             },
-            onMapReady: () => widget.onZoomChanged?.call(
-              widget.origin == null && widget.hits.isEmpty ? 11 : widget.zoom,
-            ),
+            onMapReady: () {
+              _mapReady = true;
+              widget.onZoomChanged?.call(
+                widget.origin == null && widget.hits.isEmpty ? 11 : widget.zoom,
+              );
+              if (_currentZoom >= _markerZoomThreshold) {
+                _scheduleVisibleMarkerUpdate(
+                  _mapController.camera.visibleBounds,
+                );
+              }
+            },
             onLongPress: (_, point) => widget.onChooseOrigin?.call(point),
           ),
           children: [
             TileLayer(
               urlTemplate: _style.tileUrl,
               subdomains: const ['a', 'b', 'c'],
+              tileProvider: _tileProvider,
+              keepBuffer: widget.graphicsQuality.tileKeepBuffer,
+              panBuffer: widget.graphicsQuality.tilePanBuffer,
+              tileDisplay: widget.animationsEnabled
+                  ? TileDisplay.fadeIn(
+                      duration: widget.graphicsQuality.tileFadeDuration,
+                    )
+                  : const TileDisplay.instantaneous(),
               userAgentPackageName: 'vn.diadiem.quanhday',
             ),
             PolygonLayer(
@@ -163,24 +247,26 @@ class _NearbyMapState extends State<NearbyMap> {
                       size: 28,
                     ),
                   ),
-                if (_currentZoom >= _markerZoomThreshold)
-                  for (final hit in widget.hits.take(_maxVisibleMarkers))
-                    Marker(
-                      point: hit.place.latLng,
-                      width: 26,
-                      height: 26,
-                      child: GestureDetector(
-                        onTap: () => widget.onSelect(hit),
-                        child: Tooltip(
-                          message: hit.place.name,
-                          child: Icon(
-                            categoryOf(hit.place.category).icon,
-                            size: 22,
-                            color: colors.primary,
+                if (_currentZoom >= _markerZoomThreshold &&
+                    identical(_visibleHitsSource, widget.hits))
+                  for (final hit in _visibleHits)
+                    if (hit.place.id != widget.selectedPlaceId)
+                      Marker(
+                        point: hit.place.latLng,
+                        width: 26,
+                        height: 26,
+                        child: GestureDetector(
+                          onTap: () => widget.onSelect(hit),
+                          child: Tooltip(
+                            message: hit.place.name,
+                            child: Icon(
+                              categoryOf(hit.place.category).icon,
+                              size: 22,
+                              color: colors.primary,
+                            ),
                           ),
                         ),
                       ),
-                    ),
                 for (final hit in widget.hits)
                   if (hit.place.id == widget.selectedPlaceId)
                     Marker(

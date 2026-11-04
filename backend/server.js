@@ -27,6 +27,98 @@ const seededPlaceCount = database.prepare('SELECT COUNT(*) AS count FROM places'
 if (seededPlaceCount === 0 && existsSync(currentSqlPath)) {
   database.exec(readFileSync(currentSqlPath, 'utf8'));
 }
+
+function migrateLegacyPlaceCategories() {
+  const migrationVersion = 1;
+  database.exec(`
+    CREATE TABLE IF NOT EXISTS app_migrations (
+      version INTEGER PRIMARY KEY,
+      applied_at TEXT NOT NULL
+    )
+  `);
+  if (database.prepare('SELECT 1 FROM app_migrations WHERE version = ?')
+    .get(migrationVersion)) {
+    return;
+  }
+
+  database.exec('BEGIN');
+  try {
+    database.exec(`
+      UPDATE places
+      SET category = CASE lower(trim(category))
+        WHEN 'park' THEN 'vui_choi'
+        WHEN 'playground' THEN 'vui_choi'
+        WHEN 'amusement_arcade' THEN 'vui_choi'
+        WHEN 'water_park' THEN 'vui_choi'
+        WHEN 'sports_centre' THEN 'vui_choi'
+        WHEN 'stadium' THEN 'vui_choi'
+        WHEN 'pitch' THEN 'vui_choi'
+        WHEN 'fitness_centre' THEN 'vui_choi'
+        WHEN 'swimming_pool' THEN 'vui_choi'
+        WHEN 'cinema' THEN 'vui_choi'
+        WHEN 'bar' THEN 'vui_choi'
+        WHEN 'pub' THEN 'vui_choi'
+        WHEN 'museum' THEN 'vui_choi'
+        WHEN 'theme_park' THEN 'vui_choi'
+        WHEN 'zoo' THEN 'vui_choi'
+        WHEN 'attraction' THEN 'vui_choi'
+        WHEN 'cafe' THEN 'cafe'
+        WHEN 'restaurant' THEN 'quan_an'
+        WHEN 'fast_food' THEN 'quan_an'
+        WHEN 'school' THEN 'truong_hoc'
+        WHEN 'college' THEN 'truong_hoc'
+        WHEN 'university' THEN 'truong_hoc'
+        WHEN 'kindergarten' THEN 'truong_hoc'
+        WHEN 'guest_house' THEN 'tro'
+        WHEN 'hostel' THEN 'tro'
+        WHEN 'hotel' THEN 'tro'
+        WHEN 'motel' THEN 'tro'
+        WHEN 'apartment' THEN 'tro'
+        WHEN 'chalet' THEN 'tro'
+        WHEN 'alpine_hut' THEN 'tro'
+        WHEN 'dormitory' THEN 'tro'
+        WHEN 'bus_station' THEN 'ben_xe'
+        WHEN 'bus_stop' THEN 'ben_xe'
+        WHEN 'bus station' THEN 'ben_xe'
+        WHEN 'supermarket' THEN 'mua_sam'
+        WHEN 'convenience' THEN 'mua_sam'
+        WHEN 'marketplace' THEN 'mua_sam'
+        WHEN 'clothes' THEN 'mua_sam'
+        WHEN 'mobile_phone' THEN 'mua_sam'
+        WHEN 'variety_store' THEN 'mua_sam'
+        WHEN 'jewelry' THEN 'mua_sam'
+        WHEN 'optician' THEN 'mua_sam'
+        WHEN 'furniture' THEN 'mua_sam'
+        WHEN 'computer' THEN 'mua_sam'
+        WHEN 'copyshop' THEN 'mua_sam'
+        ELSE category
+      END
+      WHERE lower(trim(category)) IN (
+        'park', 'playground', 'amusement_arcade', 'water_park',
+        'sports_centre', 'stadium', 'pitch', 'fitness_centre',
+        'swimming_pool', 'cinema', 'bar', 'pub', 'museum', 'theme_park',
+        'zoo', 'attraction', 'cafe', 'restaurant', 'fast_food', 'school',
+        'college', 'university', 'kindergarten', 'guest_house', 'hostel',
+        'hotel', 'motel', 'apartment', 'chalet', 'alpine_hut', 'dormitory',
+        'bus_station', 'bus_stop', 'bus station', 'supermarket',
+        'convenience', 'marketplace', 'clothes', 'mobile_phone',
+        'variety_store', 'jewelry', 'optician', 'furniture', 'computer',
+        'copyshop'
+      )
+    `);
+    database.prepare(`
+      INSERT INTO app_migrations (version, applied_at)
+      VALUES (?, datetime('now'))
+    `).run(migrationVersion);
+    database.exec('COMMIT');
+  } catch (error) {
+    database.exec('ROLLBACK');
+    throw error;
+  }
+}
+
+migrateLegacyPlaceCategories();
+
 const overpassQueryTimeoutSeconds = Number(process.env.OVERPASS_QUERY_TIMEOUT_SECONDS || 25);
 const upstreamTimeoutMs = Number(
   process.env.OVERPASS_TIMEOUT_MS || (overpassQueryTimeoutSeconds + 5) * 1000,
@@ -65,7 +157,7 @@ async function requestJson(request) {
 function queryFor({latitude, longitude, radiusMeters}) {
   return `[out:json][timeout:${overpassQueryTimeoutSeconds}];(`
     + `nwr(around:${radiusMeters},${latitude},${longitude})["name"]["amenity"~"^(cafe|restaurant|fast_food|bar|pub|cinema|school|college|university|dormitory|bus_station)$"];`
-    + `nwr(around:${radiusMeters},${latitude},${longitude})["name"]["leisure"~"^(park|playground|amusement_arcade|water_park|sports_centre|stadium)$"];`
+    + `nwr(around:${radiusMeters},${latitude},${longitude})["name"]["leisure"~"^(park|playground|amusement_arcade|water_park|sports_centre|stadium|pitch|fitness_centre|swimming_pool)$"];`
     + `nwr(around:${radiusMeters},${latitude},${longitude})["name"]["shop"];`
     + `nwr(around:${radiusMeters},${latitude},${longitude})["name"]["tourism"~"^(theme_park|zoo|museum|attraction|guest_house|hostel|hotel|motel|apartment|chalet|alpine_hut)$"];`
     + `nwr(around:${radiusMeters},${latitude},${longitude})["name"]["building"="dormitory"];`
@@ -75,50 +167,139 @@ function queryFor({latitude, longitude, radiusMeters}) {
     + `);out center tags;`;
 }
 
-function categoryForTags(tags) {
-  const appCategory = String(tags['app:category'] || '').toLowerCase();
-  const name = String(tags.name || tags['name:vi'] || '')
-    .toLowerCase()
+const appCategoryAliases = new Map([
+  ['quan an', 'quan_an'],
+  ['an uong', 'quan_an'],
+  ['nha hang', 'quan_an'],
+  ['food', 'quan_an'],
+  ['restaurant', 'quan_an'],
+  ['fast food', 'quan_an'],
+  ['ca phe', 'cafe'],
+  ['coffee', 'cafe'],
+  ['tra sua', 'cafe'],
+  ['truong hoc', 'truong_hoc'],
+  ['school', 'truong_hoc'],
+  ['college', 'truong_hoc'],
+  ['university', 'truong_hoc'],
+  ['kindergarten', 'truong_hoc'],
+  ['tro', 'tro'],
+  ['nha tro', 'tro'],
+  ['phong tro', 'tro'],
+  ['ky tuc xa', 'tro'],
+  ['nha khach', 'tro'],
+  ['nha nghi', 'tro'],
+  ['khach san', 'tro'],
+  ['luu tru', 'tro'],
+  ['guest house', 'tro'],
+  ['guesthouse', 'tro'],
+  ['serviced apartment', 'tro'],
+  ['homestay', 'tro'],
+  ['hostel', 'tro'],
+  ['dormitory', 'tro'],
+  ['hotel', 'tro'],
+  ['motel', 'tro'],
+  ['apartment', 'tro'],
+  ['chalet', 'tro'],
+  ['alpine hut', 'tro'],
+  ['ben xe', 'ben_xe'],
+  ['bus station', 'ben_xe'],
+  ['bus terminal', 'ben_xe'],
+  ['bus stop', 'ben_xe'],
+  ['transit stop', 'ben_xe'],
+  ['diem dung', 'ben_xe'],
+  ['diem dung xe buyt', 'ben_xe'],
+  ['tram dung', 'ben_xe'],
+  ['tram xe buyt', 'ben_xe'],
+  ['vui choi', 'vui_choi'],
+  ['giai tri', 'vui_choi'],
+  ['cong vien', 'vui_choi'],
+  ['rap phim', 'vui_choi'],
+  ['park', 'vui_choi'],
+  ['playground', 'vui_choi'],
+  ['amusement arcade', 'vui_choi'],
+  ['water park', 'vui_choi'],
+  ['sports centre', 'vui_choi'],
+  ['stadium', 'vui_choi'],
+  ['pitch', 'vui_choi'],
+  ['fitness centre', 'vui_choi'],
+  ['swimming pool', 'vui_choi'],
+  ['cinema', 'vui_choi'],
+  ['bar', 'vui_choi'],
+  ['pub', 'vui_choi'],
+  ['museum', 'vui_choi'],
+  ['theme park', 'vui_choi'],
+  ['zoo', 'vui_choi'],
+  ['attraction', 'vui_choi'],
+  ['mua sam', 'mua_sam'],
+  ['cua hang', 'mua_sam'],
+  ['shop', 'mua_sam'],
+  ['sieu thi', 'mua_sam'],
+  ['cho', 'mua_sam'],
+  ['supermarket', 'mua_sam'],
+  ['convenience', 'mua_sam'],
+  ['marketplace', 'mua_sam'],
+  ['clothes', 'mua_sam'],
+  ['mobile phone', 'mua_sam'],
+  ['variety store', 'mua_sam'],
+  ['jewelry', 'mua_sam'],
+  ['optician', 'mua_sam'],
+  ['furniture', 'mua_sam'],
+  ['computer', 'mua_sam'],
+  ['copyshop', 'mua_sam'],
+]);
+
+function normalizeCategoryKey(value) {
+  return String(value || '')
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
-    .replaceAll('đ', 'd');
-  if (/nha\s*(khach|tro|nghi)|ky\s*tuc\s*xa|khach\s*san|hostel|guest\s*house/.test(name)) {
-    return 'tro';
-  }
-  if (/ben\s*xe|tram\s*xe\s*buyt|diem\s*dung\s*xe\s*buyt/.test(name)) {
-    return 'ben_xe';
-  }
-  if (/giao\s*duc|truong\s*hoc|hoc\s*tap/.test(name)) return 'truong_hoc';
-  if (/cong\s*vien|\bpark\b/.test(name)) return 'vui_choi';
-  if (['guest_house', 'hostel', 'hotel', 'motel', 'apartment', 'chalet', 'alpine_hut']
-    .includes(appCategory)) return 'tro';
-  if (['bus_station', 'bus_stop', 'bus station'].includes(appCategory)) {
-    return 'ben_xe';
-  }
-  const knownCategories = new Set([
-    'quan_an', 'cafe', 'truong_hoc', 'tro', 'ben_xe', 'vui_choi', 'mua_sam', 'khac',
-  ]);
-  if (knownCategories.has(appCategory)) return appCategory;
+    .toLowerCase()
+    .replaceAll('đ', 'd')
+    .replace(/[_-]+/g, ' ')
+    .trim()
+    .replace(/\s+/g, ' ');
+}
 
-  if (['guest_house', 'hostel', 'hotel', 'motel', 'apartment', 'chalet', 'alpine_hut']
-    .includes(tags.tourism)
-    || tags.amenity === 'dormitory'
-    || tags.building === 'dormitory') return 'tro';
+function categoryForTags(tags) {
+  const appCategory = normalizeCategoryKey(tags['app:category']);
+  const mappedAppCategory = appCategoryAliases.get(appCategory)
+    || (['quan_an', 'cafe', 'truong_hoc', 'tro', 'ben_xe', 'vui_choi', 'mua_sam', 'khac']
+      .includes(appCategory)
+      ? appCategory
+      : null);
+  const lodging = ['guest_house', 'hostel', 'hotel', 'motel', 'apartment', 'chalet', 'alpine_hut'];
+  const leisure = [
+    'park', 'playground', 'amusement_arcade', 'water_park', 'sports_centre',
+    'stadium', 'pitch', 'fitness_centre', 'swimming_pool',
+  ];
+  const attractions = ['theme_park', 'zoo', 'museum', 'attraction'];
   if (tags.amenity === 'bus_station'
     || tags.highway === 'bus_stop'
     || (['platform', 'stop_position', 'station'].includes(tags.public_transport)
       && tags.bus === 'yes')) return 'ben_xe';
-  if (['school', 'college', 'university'].includes(tags.amenity)) return 'truong_hoc';
+  if (lodging.includes(tags.tourism)
+    || ['hotel', 'hostel', 'guest_house'].includes(tags.amenity)
+    || tags.amenity === 'dormitory'
+    || tags.building === 'dormitory') return 'tro';
+  if (['school', 'college', 'university', 'kindergarten'].includes(tags.amenity)) {
+    return 'truong_hoc';
+  }
   if (tags.amenity === 'cafe') return 'cafe';
   if (['restaurant', 'fast_food'].includes(tags.amenity)) return 'quan_an';
-  if (tags.amenity === 'cinema'
-    || ['park', 'playground', 'amusement_arcade', 'water_park', 'sports_centre', 'stadium']
-      .includes(tags.leisure)
-    || ['theme_park', 'zoo', 'museum', 'attraction'].includes(tags.tourism)) {
-    return 'vui_choi';
-  }
+  if (['bar', 'pub', 'cinema'].includes(tags.amenity)
+    || leisure.includes(tags.leisure)
+    || attractions.includes(tags.tourism)) return 'vui_choi';
   if (tags.shop) return 'mua_sam';
-  return 'khac';
+
+  if (mappedAppCategory && mappedAppCategory !== 'khac') return mappedAppCategory;
+
+  const name = normalizeCategoryKey(tags.name || tags['name:vi']);
+  if (/nha\s*(khach|tro|nghi)|ky\s*tuc\s*xa|khach\s*san|hostel|guest\s*house/.test(name)) {
+    return 'tro';
+  }
+  if (/ben\s*xe|tram\s*xe\s*buyt|diem\s*dung\s*xe\s*buyt/.test(name)) return 'ben_xe';
+  if (/giao\s*duc|truong\s*hoc|hoc\s*tap/.test(name)) return 'truong_hoc';
+  if (/cong\s*vien|\bpark\b/.test(name)) return 'vui_choi';
+  return mappedAppCategory || 'khac';
 }
 
 function updateCenters() {
@@ -229,7 +410,7 @@ function saveMapElements(elements, source = 'overpass') {
       const tags = element.tags || {};
       const latitude = element.lat ?? element.center?.lat;
       const longitude = element.lon ?? element.center?.lon;
-      if (!tags.name || latitude == null || longitude == null) continue;
+      if (!isPlace(tags) || latitude == null || longitude == null) continue;
       statement.run(
         `osm-${element.type}-${element.id}`,
         tags.name,
@@ -254,17 +435,22 @@ function sqlValue(value) {
   return `'${String(value ?? '').replaceAll("'", "''")}'`;
 }
 
-function writeMapSnapshot(elements, source = 'overpass') {
+function writeMapSnapshot(
+  elements,
+  source = 'overpass',
+  updatedAt = new Date().toISOString(),
+) {
+  const placeElements = elements.filter((element) => isPlace(element.tags || {}));
   const snapshot = `${JSON.stringify({
     source,
-    updatedAt: new Date().toISOString(),
-    elements,
+    updatedAt,
+    elements: placeElements,
   }, null, 2)}\n`;
   const sql = [
     '-- Generated from OpenStreetMap data. Do not edit manually.',
     'BEGIN TRANSACTION;',
     "DELETE FROM places WHERE source IN ('overpass', 'osm-api', 'admin-selected');",
-    ...elements.flatMap((element) => {
+    ...placeElements.flatMap((element) => {
       const tags = element.tags || {};
       const latitude = element.lat ?? element.center?.lat;
       const longitude = element.lon ?? element.center?.lon;
@@ -285,7 +471,7 @@ function writeMapSnapshot(elements, source = 'overpass') {
             sqlValue(tags.phone || tags['contact:phone'] || ''),
             sqlValue(tags.opening_hours || ''),
             sqlValue(source),
-            sqlValue(new Date().toISOString()),
+            sqlValue(updatedAt),
           ].join(', ') + ');',
       ];
     }),
@@ -356,9 +542,10 @@ function selectMapSource(source) {
   if (!snapshot || !Array.isArray(snapshot.elements)) {
     throw new Error(`${path.basename(file)} không chứa danh sách địa điểm hợp lệ.`);
   }
-  saveMapElements(snapshot.elements, 'admin-selected');
+  const elements = snapshot.elements.filter((element) => isPlace(element.tags || {}));
+  saveMapElements(elements, 'admin-selected');
   writeFileSync(activeMapPath, `${JSON.stringify({source}, null, 2)}\n`, 'utf8');
-  return {source, file: path.basename(file), count: snapshot.elements.length};
+  return {source, file: path.basename(file), count: elements.length};
 }
 
 function loadMapSnapshot() {
@@ -367,7 +554,10 @@ function loadMapSnapshot() {
   if (!info) return;
   const file = mapSourcePath(source);
   const snapshot = JSON.parse(readFileSync(file, 'utf8'));
-  saveMapElements(snapshot.elements, source === 'backup' ? 'admin-selected' : snapshot.source || 'overpass');
+  saveMapElements(
+    snapshot.elements.filter((element) => isPlace(element.tags || {})),
+    source === 'backup' ? 'admin-selected' : snapshot.source || 'overpass',
+  );
 }
 
 async function updateMapFromOverpass() {
@@ -425,7 +615,9 @@ async function updateMapFromOverpass() {
   const workerCount = Math.min(3, centers.length);
   await Promise.all(Array.from({length: workerCount}, () => worker()));
 
-  const elements = [...elementsById.values()];
+  const elements = [...elementsById.values()].filter((element) =>
+    isPlace(element.tags || {}),
+  );
   saveMapElements(elements, 'overpass');
   writeMapSnapshot(elements, 'overpass');
   writeFileSync(activeMapPath, `${JSON.stringify({source: 'current'}, null, 2)}\n`, 'utf8');
@@ -459,7 +651,19 @@ function xmlTags(value) {
 }
 
 function isPlace(tags) {
-  return Boolean(tags.name);
+  if (!String(tags.name || tags['name:vi'] || '').trim()) return false;
+  const highway = String(tags.highway || '').trim();
+  if (!highway || highway === 'bus_stop' || highway === 'platform') return true;
+  return [
+    'amenity',
+    'shop',
+    'leisure',
+    'tourism',
+    'public_transport',
+    'historic',
+    'building',
+    'place',
+  ].some((key) => Boolean(tags[key]));
 }
 
 function parseOsmMapXml(xml) {
@@ -567,9 +771,16 @@ async function updateMapFromSources() {
 
 loadMapSnapshot();
 
-function sendLocalFallback(response, failure) {
-  const elements = localDatabaseElements();
-  console.warn(`Using local map database after Overpass failure: ${failure}`);
+function sendLocalFallback(response, failure, input) {
+  const elements = localDatabaseElements().filter((element) =>
+    distanceMeters(
+      input.latitude,
+      input.longitude,
+      element.lat,
+      element.lon,
+    ) <= input.radiusMeters,
+  );
+  console.warn(`Using local map database after nearby query failure: ${failure}`);
   sendJson(response, 200, {
     elements,
     source: 'local-cao-lanh-database',
@@ -663,13 +874,19 @@ const server = http.createServer(async (request, response) => {
     return;
   }
 
+  let input;
   try {
-    const input = await requestJson(request);
-    if (!validRequest(input)) {
-      sendJson(response, 400, {error: 'Invalid location or radius'});
-      return;
-    }
+    input = await requestJson(request);
+  } catch {
+    sendJson(response, 400, {error: 'Invalid JSON request body'});
+    return;
+  }
+  if (!validRequest(input)) {
+    sendJson(response, 400, {error: 'Invalid location or radius'});
+    return;
+  }
 
+  try {
     sendJson(response, 200, {
       elements: nearbyDatabaseElements(input),
       source: 'dia_diem_cao_lanh-sql',
@@ -677,7 +894,11 @@ const server = http.createServer(async (request, response) => {
   } catch (error) {
     console.error('Nearby proxy request failed:', error);
     try {
-      sendLocalFallback(response, error instanceof Error ? error.message : 'Overpass unavailable');
+      sendLocalFallback(
+        response,
+        error instanceof Error ? error.message : 'Nearby query failed',
+        input,
+      );
     } catch (fallbackError) {
       console.error('Local map database failed:', fallbackError);
       sendJson(response, 502, {error: 'Overpass and local map database unavailable'});
@@ -685,7 +906,7 @@ const server = http.createServer(async (request, response) => {
   }
 });
 
-export {database, server};
+export {categoryForTags, database, isPlace, server, writeMapSnapshot};
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   server.listen(port, process.env.HOST || '127.0.0.1', () => {

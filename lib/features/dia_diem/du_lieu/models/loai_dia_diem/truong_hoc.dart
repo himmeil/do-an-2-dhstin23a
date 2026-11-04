@@ -6,5 +6,5 @@ const truongHocCategory = PlaceCategory(
   'truong_hoc',
   'Trường học',
   Icons.school_outlined,
-  ['truong hoc', 'school', 'college', 'university'],
+  ['truong hoc', 'school', 'college', 'university', 'kindergarten'],
 );

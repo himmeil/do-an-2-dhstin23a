@@ -13,7 +13,10 @@ const benXeCategory = PlaceCategory(
     'bus_station',
     'bus stop',
     'bus_stop',
+    'transit stop',
+    'diem dung',
     'diem dung xe buyt',
+    'tram dung',
     'tram xe buyt',
   ],
 );

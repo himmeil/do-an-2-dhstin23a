@@ -104,11 +104,20 @@ service account `FIREBASE_SERVICE_ACCOUNT_DO_AN_2_B1F35`.
 
 ## Nhật ký chỉnh sửa
 
+- 2026-11-03 15:05 (UTC+7): Từ chối JSON lỗi ở `/api/nearby` bằng HTTP 400 và giữ đúng bán kính khi dùng dữ liệu dự phòng.
+- 2026-11-03 15:29 (UTC+7): Chuẩn hóa mã danh mục OSM cũ khi mở SQLite và bổ sung thẻ địa điểm thể thao vào truy vấn bản đồ.
 - 2026-11-03 12:59 (UTC+7): Triển khai API production bằng Firebase Functions, seed SQLite từ SQL kèm theo và giữ endpoint quản trị chỉ chạy local.
 
 Ứng dụng Flutter có thể tải bản sao dữ liệu SQLite qua menu tài khoản, nên có
 thể xem các địa điểm Cao Lãnh ngay cả khi không chạy proxy. Tile nền bản đồ
-OpenStreetMap vẫn cần kết nối mạng nếu chưa có cơ chế cache tile riêng.
+OpenStreetMap vẫn cần kết nối mạng trên Web nếu trình duyệt chưa cache tile.
+Trên native, `flutter_map` cache tile theo header máy chủ tile trong thư mục
+cache của thiết bị, giới hạn tối đa 128 MiB; cache có thể bị hệ điều hành xóa.
+Không prefetch tile bằng HTTP client riêng vì tile đó không đi qua cache provider
+của bản đồ. API `/api/offline-places` chỉ tải dữ liệu địa điểm trong khu vực
+Cao Lãnh, không tải ảnh raster.
+Các widget bản đồ giải phóng `MapController` khi bị dispose; mỗi tile layer
+cũng sở hữu provider riêng để đóng HTTP client đúng vòng đời.
 
 ## Cơ sở dữ liệu dự phòng
 
@@ -152,12 +161,20 @@ thể khôi phục/chuyển toàn bộ địa điểm sang SQLite khác. File SQ
 thành `backup_dia_diem_cao_lanh.sql`.
 Khi proxy khởi động, proxy nạp `dia_diem_cao_lanh.json` vào SQLite. Endpoint
 `POST /api/nearby` chỉ truy vấn SQLite theo tọa độ và bán kính, không gọi
-Overpass trực tiếp. Vì vậy thanh tìm kiếm không bị treo khi Overpass timeout.
+Overpass trực tiếp. SQLite dùng index `(latitude, longitude)` để thu hẹp tập
+ứng viên theo bounding box; backend tiếp tục lọc chính xác bằng khoảng cách
+Haversine trước khi trả kết quả. Vì vậy thanh tìm kiếm không bị treo khi
+Overpass timeout, và truy vấn không phải quét toàn bảng khi dữ liệu tăng.
+Mã danh mục OSM cũ như `museum`, `pitch`, `sports_centre` được migrate một lần
+sang mã ứng dụng (`vui_choi`); registry danh mục dùng chung của Flutter cũng
+chuẩn hóa dữ liệu offline, Firestore và bộ lọc khi gặp các mã OSM cũ.
 
 Nếu toàn bộ máy chủ Overpass lỗi hoặc timeout, backend tự chuyển sang
 OpenStreetMap API chính thức (`api.openstreetmap.org`), chia toàn bộ bbox Cao
-Lãnh thành các ô nhỏ, lấy tất cả node/way có tên rồi ghép và loại trùng. Cách
-này tải được nhiều dữ liệu hơn mà không vượt giới hạn kích thước một request.
+Lãnh thành các ô nhỏ. Backend chỉ giữ đối tượng có tên không phải đoạn đường
+thuần (`highway=*`); vẫn giữ trạm xe buýt và đối tượng có thẻ POI. Mã OSM chưa
+có quy tắc vẫn vào **Khác**, không tự suy diễn thành vui chơi. Cách này tránh
+đưa hàng loạt tên đường vào danh sách địa điểm mà không loại bỏ POI chưa biết.
 Có thể chỉnh thời gian chờ nguồn này
 bằng `OSM_API_TIMEOUT_MS` (mặc định 60.000 mili giây).
 

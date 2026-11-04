@@ -31,16 +31,27 @@ PlaceCategory categoryOf(String code) {
 
 /// Đổi loại người dùng nhập thành mã lưu trữ; không nhận ra thì trả về `khac`.
 String parseCategoryCode(String raw) {
-  final key = foldVietnamese(raw).trim();
+  final key = _normalizeCategoryKey(raw);
   if (key.isEmpty) return khacCategory.code;
   for (final category in [nhaTroCategory, benXeCategory]) {
-    if (category.aliases.contains(key)) return category.code;
-  }
-  for (final category in placeCategories) {
-    if (key == category.code || key == foldVietnamese(category.label)) {
+    if (category.aliases.any((alias) => _normalizeCategoryKey(alias) == key)) {
       return category.code;
     }
-    if (category.aliases.contains(key)) return category.code;
+  }
+  for (final category in placeCategories) {
+    if (key == _normalizeCategoryKey(category.code) ||
+        key == _normalizeCategoryKey(category.label)) {
+      return category.code;
+    }
+    if (category.aliases.any((alias) => _normalizeCategoryKey(alias) == key)) {
+      return category.code;
+    }
   }
   return khacCategory.code;
 }
+
+String _normalizeCategoryKey(String value) =>
+    foldVietnamese(value)
+        .replaceAll(RegExp(r'[_-]+'), ' ')
+        .trim()
+        .replaceAll(RegExp(r'\s+'), ' ');

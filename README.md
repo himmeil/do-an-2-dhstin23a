@@ -3,6 +3,10 @@
 App Flutter chỉ làm một việc: **tìm địa điểm xung quanh vị trí người dùng chọn**.
 
 - Tiến độ chức năng: [tiendothuchien.md](tiendothuchien.md).
+- Cấu trúc source và quy tắc phụ thuộc: [lib/README.md](lib/README.md) và
+  [lib/features/README.md](lib/features/README.md). Các feature GPS, tìm kiếm,
+  nạp dữ liệu tách riêng; UI dùng repository contracts, adapters được inject
+  từ `main.dart`.
 - Kiến trúc demo: Firebase dùng để chứng minh khả năng triển khai web thực tế
   (Authentication, Firestore và Hosting); khi trình diễn, dịch vụ quản lý và
   proxy truy vấn bản đồ được chạy local để chủ động kiểm soát dữ liệu và tránh
@@ -27,18 +31,21 @@ App Flutter chỉ làm một việc: **tìm địa điểm xung quanh vị trí 
 - GPS không tự bật khi mở app. Người dùng có thể giữ trên bản đồ để chọn một điểm làm tâm tìm kiếm, không cần cấp quyền vị trí; cũng có thể bấm thanh vị trí để nhập địa chỉ (Nominatim/OpenStreetMap) hoặc chọn địa điểm đã nạp. Nút GPS chỉ lấy vị trí khi người dùng chủ động chọn.
 - App truy vấn SQLite local theo bán kính 1/5/10 km. Admin cập nhật dữ liệu từ Overpass; nếu Overpass timeout, backend tự dùng OpenStreetMap API, lưu dữ liệu Cao Lãnh vào SQLite. Lựa chọn “Tất cả” gồm địa điểm đã lưu và dữ liệu bản đồ local.
 - **Web local:** Flutter Web gọi proxy trong thư mục `backend/` tại `localhost:8787`; `run_web.bat` và `bat_app.bat` tự khởi động proxy. **Firebase Hosting:** web app dùng cùng origin, Firebase Hosting rewrite `/api/**` tới Firebase Function `nearbyApi`; không gọi localhost trên production.
-- Khi vào màn hình chính, splash sẽ gọi trước `GET /api/offline-places` của
-  backend local và tải trước 9 tile bản đồ HOT quanh Cao Lãnh, sau đó lưu
-  cache địa điểm để danh sách/bản đồ có dữ liệu sớm hơn. Bước này có timeout
-  4 giây; nếu backend hoặc tile chưa phản hồi, app vẫn tiếp tục dùng Firestore,
-  dữ liệu cache cũ và tải bổ sung khi bản đồ hiển thị.
+- Khi vào màn hình chính trên Web, splash gọi `GET /api/offline-places` để
+  tải trước dữ liệu địa điểm của khu vực Cao Lãnh và lưu cache cục bộ. Tile
+  raster chỉ tải theo vùng bản đồ đang nhìn, tránh gọi trước các tile không
+  cần thiết; trên thiết bị native, cache tile của `flutter_map` bị giới hạn
+  tối đa 128 MiB. Web phụ thuộc HTTP cache của trình duyệt/nhà cung cấp tile.
+  Bước nạp dữ liệu có timeout 4 giây; nếu backend chưa phản hồi, app tiếp tục
+  dùng Firestore và cache cũ.
 - **Chế độ offline:** danh sách địa điểm Cao Lãnh được đóng gói trong
   bộ nhớ cục bộ sau khi người dùng bấm tải trong menu tài khoản. Khi Overpass
   hoặc proxy không phản hồi, Flutter đọc dữ liệu đã tải, lọc theo bán kính và
   vẫn hiển thị danh sách/ghim địa điểm.
   Dữ liệu địa lý dùng OpenStreetMap; nền bản đồ đường phố tải từ OpenStreetMap
-  HOT để tránh các ô xám khi máy chủ tile OSM chính bị giới hạn hoặc lỗi kết nối. Tile vẫn
-  cần mạng nếu chưa được tải trước.
+  HOT để tránh các ô xám khi máy chủ tile OSM chính bị giới hạn hoặc lỗi kết
+  nối. Tile raster vẫn cần mạng nếu chưa được cache; API offline chỉ lưu dữ
+  liệu địa điểm, không tải gói ảnh bản đồ.
 - **Mô hình chạy demo local:** Flutter Web chạy trên trình duyệt, còn server
   local làm lớp trung gian gọi Overpass và trả dữ liệu cửa hàng, quán cà phê,
   rạp phim, công viên và khu vui chơi về cho ứng dụng. Khi triển khai chính

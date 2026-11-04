@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
+import '../map_tile_source.dart';
+
 class VietnamIslandsMapInset extends StatefulWidget {
   const VietnamIslandsMapInset({super.key});
 
@@ -11,6 +13,7 @@ class VietnamIslandsMapInset extends StatefulWidget {
 
 class _VietnamIslandsMapInsetState extends State<VietnamIslandsMapInset> {
   bool _isVisible = true;
+  late final _tileProvider = createCaoLanhTileProvider();
 
   @override
   Widget build(BuildContext context) {
@@ -42,9 +45,12 @@ class _VietnamIslandsMapInsetState extends State<VietnamIslandsMapInset> {
                             ),
                             children: [
                               TileLayer(
-                                urlTemplate:
-                                    'https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',
+                                urlTemplate: 'https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',
                                 subdomains: const ['a', 'b', 'c'],
+                                tileProvider: _tileProvider,
+                                keepBuffer: 0,
+                                panBuffer: 0,
+                                tileDisplay: const TileDisplay.instantaneous(),
                                 userAgentPackageName: 'vn.diadiem.quanhday',
                               ),
                               MarkerLayer(

@@ -1,3 +1,11 @@
+import 'package:flutter_map/flutter_map.dart';
+
+TileProvider createCaoLanhTileProvider() => NetworkTileProvider(
+  cachingProvider: BuiltInMapCachingProvider.getOrCreateInstance(
+    maxCacheSize: 128 * 1024 * 1024,
+  ),
+);
+
 enum MapStyle { street, satellite }
 
 extension MapStyleSource on MapStyle {

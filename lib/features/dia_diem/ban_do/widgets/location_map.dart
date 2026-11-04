@@ -48,6 +48,13 @@ class LocationMap extends StatefulWidget {
 class _LocationMapState extends State<LocationMap> {
   MapStyle _style = MapStyle.street;
   final _mapController = MapController();
+  late final _tileProvider = createCaoLanhTileProvider();
+
+  @override
+  void dispose() {
+    _mapController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -75,6 +82,7 @@ class _LocationMapState extends State<LocationMap> {
                     TileLayer(
                       urlTemplate: _style.tileUrl,
                       subdomains: const ['a', 'b', 'c'],
+                      tileProvider: _tileProvider,
                       userAgentPackageName: 'vn.diadiem.quanhday',
                     ),
                     MarkerLayer(

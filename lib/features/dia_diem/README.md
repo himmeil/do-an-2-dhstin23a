@@ -1,31 +1,32 @@
 # Module địa điểm (`dia_diem`)
 
-Thư mục này được chia theo **chức năng** để dễ tìm và mở rộng. Mỗi chức năng
-chứa các loại file cần cho chính chức năng đó (màn hình, service, widget).
-Xem [tiến độ chức năng](../../../tiendothuchien.md) để biết các phần đã có trong mã nguồn.
+Module này sở hữu mô hình địa điểm, danh mục, contract lưu trữ, adapter dữ
+liệu, bản đồ và màn hình chi tiết. Các feature tìm kiếm, GPS và nạp dữ liệu
+nằm ở cấp `features/` riêng; xem [tổng quan feature](../README.md) và
+[tiến độ chức năng](../../../tiendothuchien.md).
 
 ## Chức năng và vị trí mã
 
 | Thư mục | Chức năng | File chính |
 |---|---|---|
-| `gps/` | Lấy vị trí GPS, quyền vị trí và mở cài đặt | `services/location_service.dart` |
-| `tim_kiem/` | Danh sách quanh đây, lọc/tìm kiếm, tìm địa chỉ, chọn vị trí xuất phát | `screens/nearby_screen.dart`, `services/geocoding_service.dart`, `widgets/location_picker_sheet.dart` |
 | `ban_do/` | Bản đồ danh sách, ranh giới phường Cao Lãnh, chuyển lớp đường phố/vệ tinh, điều khiển Zoom, bản đồ một địa điểm và chỉ đường | `cao_lanh_ward_boundary.dart`, `map_tile_source.dart`, `widgets/map_zoom_controls.dart`, `widgets/nearby_map.dart`, `widgets/location_map.dart` |
-| `nap_du_lieu/` | Nạp CSV/JSON, thêm địa điểm và tạo dữ liệu mẫu | `screens/import_screen.dart`, `services/place_import_parser.dart`, `services/sample_data.dart` |
 | `chi_tiet/` | Màn hình chi tiết một địa điểm | `screens/place_detail_screen.dart` |
-| `du_lieu/` | Mô hình địa điểm, phân loại và lưu trữ trên máy | `models/`, `models/loai_dia_diem/`, `services/place_service.dart` |
+| `du_lieu/models/` | Model địa điểm và danh mục chuẩn hóa | `place.dart`, `place_category.dart`, `place_category_registry.dart`, `loai_dia_diem/` |
+| `du_lieu/repositories/` | Contract mà giao diện/domain dùng cho lưu địa điểm và favorites | `place_repository.dart` |
+| `services/` | Adapter cục bộ/Firestore cho repository contract | `local_place_service.dart`, `firestore_place_service.dart` |
 
 ## Quy ước phát triển
 
-- Thêm code vào thư mục chức năng phù hợp, không tạo thêm thư mục chung theo
-  loại code ở cấp `dia_diem/`.
-- Ví dụ: thêm xử lý GPS thì đặt trong `gps/services/`; thêm màn hình GPS thì
-  đặt trong `gps/screens/`.
-- Các kiểu dữ liệu và lưu trữ được nhiều chức năng dùng chung đặt trong `du_lieu/`.
+- Model và contract không import Firebase, SharedPreferences hay Flutter UI.
+- Adapter phụ thuộc contract và hạ tầng; UI chỉ nhận contract qua constructor.
+- `main.dart` khởi tạo Firebase/local adapter và inject dependencies, không để
+  screen tự khởi tạo hạ tầng.
+- GPS, tìm kiếm, nạp dữ liệu là các feature riêng, không đặt thêm code của
+  chúng vào miền `dia_diem/`.
 - Mỗi loại địa điểm có metadata riêng trong `du_lieu/models/loai_dia_diem/`;
   danh sách và xử lý mã loại dùng chung nằm trong `place_category_registry.dart`.
-- Bộ lọc loại địa điểm và bán kính thuộc module `tim_kiem/bo_loc/`; alias OSM
-  như `bus_stop`, `bus_station`, `hotel` được chuẩn hóa về mã danh mục của app.
+- Bộ lọc loại địa điểm và bán kính thuộc `features/tim_kiem/bo_loc/`; alias
+  OSM như `bus_stop`, `bus_station`, `hotel` được chuẩn hóa về mã danh mục.
 - `Tất cả` là lựa chọn bộ lọc, không phải một loại địa điểm.
 - Chỉ chuyển code sang `core/` nếu nó thực sự dùng chung ngoài module địa điểm.
 - Cập nhật bảng này khi thêm chức năng hoặc đổi vị trí file.
@@ -49,3 +50,4 @@ Xem [tiến độ chức năng](../../../tiendothuchien.md) để biết các ph
 - 2026-11-03 08:12 (UTC+7): Cập nhật tài liệu module về bộ lọc, phân loại OSM, gộp địa điểm và điều khiển bản đồ.
 - 2026-11-03 08:19 (UTC+7): Tách widget và logic lọc loại địa điểm/bán kính sang `tim_kiem/bo_loc/`; bổ sung alias cho mã OSM cũ.
 - 2026-11-03 08:28 (UTC+7): Áp dụng quy ước nhật ký 10 mục và cập nhật trạng thái alias mã danh mục.
+- 2026-11-03 14:40 (UTC+7): Giới hạn miền địa điểm vào model/repository/adapter, bản đồ và chi tiết; feature tìm kiếm, GPS, nạp dữ liệu được tách riêng.

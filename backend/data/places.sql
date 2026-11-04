@@ -11,4 +11,7 @@ CREATE TABLE IF NOT EXISTS places (
   updated_at TEXT NOT NULL
 );
 
+CREATE INDEX IF NOT EXISTS idx_places_coordinates
+  ON places(latitude, longitude);
+
 DELETE FROM places WHERE source = 'local-seed';

@@ -1,7 +1,7 @@
 # Tiến độ thực hiện
 
 Tài liệu này ghi nhận trạng thái hiện hành của các chức năng trong mã nguồn ứng
-dụng, các việc còn chờ và hướng làm tiếp theo. Cập nhật ngày 03/11/2026 12:59
+dụng, các việc còn chờ và hướng làm tiếp theo. Cập nhật ngày 04/11/2026 15:51
 (UTC+7).
 
 ## Trạng thái hiện hành
@@ -10,9 +10,9 @@ dụng, các việc còn chờ và hướng làm tiếp theo. Cập nhật ngày
   `bus_station`, `hotel` được nhận diện tương ứng là `ben_xe` và `tro`.
 - Kiểm thử alias, dịch vụ tìm kiếm và thao tác chọn bộ lọc trên màn hình đều
   đạt; `flutter analyze` không phát hiện vấn đề.
-- Ảnh chụp cho thấy web tĩnh ở cổng `5000` nhưng proxy `8787` không chạy. SQLite
-  có 1.018 địa điểm và có hai bến xe trong bán kính 5 km; lỗi kết nối trước đây
-  bị đổi thành danh sách rỗng do chưa có cache offline.
+- Ảnh chụp trước lần làm sạch dữ liệu cho thấy web tĩnh ở cổng `5000` nhưng
+  proxy `8787` không chạy. SQLite khi đó có 1.018 đối tượng OSM, gồm cả đường
+  giao thông; lỗi kết nối trước đây bị đổi thành danh sách rỗng do chưa có cache.
 - Đã sửa để báo rõ khi backend không chạy và chưa có cache, đồng thời hướng dẫn
   chạy `run_web.bat`/`bat_app.bat`. Nếu dùng static server, phải chạy `npm start`
   trong `backend/` riêng rồi tải lại trang.
@@ -22,6 +22,18 @@ dụng, các việc còn chờ và hướng làm tiếp theo. Cập nhật ngày
   nhóm đã chọn, còn **Tất cả** xóa lựa chọn.
 - Kiểm tra SQL hiện có trong bán kính mặc định: 19 quán cà phê, 11 quán ăn,
   14 nơi lưu trú và 3 mục xe buýt; có dữ liệu nhiều nhóm để hiển thị đồng thời.
+- Kiểm tra snapshot SQL phát hiện mã OSM thô như `museum`, `pitch`,
+  `sports_centre`, `swimming_pool` chưa được quy về danh mục ứng dụng; một số
+  địa điểm vui chơi vì vậy rơi vào **Khác**. Thêm migration SQLite một lần và
+  chuẩn hóa cache client; bổ sung truy vấn OSM cho sân thể thao, hồ bơi, sân tập.
+  Registry danh mục dùng chung nay nhận diện alias có dấu gạch dưới/gạch nối và
+  dấu tiếng Việt như `nha_tro`, `khach_san`, `hotel`, `guest_house`, `bus_stop`
+  khi tạo `Place` từ Firestore/cache hoặc lọc; backend cũng dùng cùng quy tắc.
+- Bổ sung kiểm thử migration theo các bản ghi thực trong SQL và kiểm thử
+  chuyển mã thô thành `vui_choi` ở luồng OSM/offline.
+- Các kiểm tra toàn bộ trước đó: 69 Flutter tests, 7 backend tests,
+  `flutter analyze` và Web release build đều đạt. Kiểm tra mới sau lần rà soát
+  bản đồ được ghi riêng dưới đây.
 - Kiểm thử màn hình hiện xác nhận kết hợp xe buýt/nhà trọ/quán ăn/cà phê, bỏ
   riêng một danh mục không làm mất nhóm còn lại, và **Tất cả** xóa bộ lọc.
 - Đã xử lý nguyên nhân thứ hai khiến điểm xe buýt biến mất: gộp bản ghi trùng
@@ -31,6 +43,9 @@ dụng, các việc còn chờ và hướng làm tiếp theo. Cập nhật ngày
 - Bổ sung kiểm thử hồi quy cho bản ghi cùng tên/cùng vị trí có nhãn thư viện và
   `bus_stop`; bộ lọc xe buýt vẫn tìm được điểm dừng. Kiểm thử màn hình, dịch vụ,
   alias, gộp trùng và `flutter analyze` đều đạt.
+- Sửa tiêu chí gộp theo địa chỉ: chỉ coi địa chỉ nhà có số nhà là khóa trùng;
+  tên đường giống nhau không còn làm mất các chi nhánh xa nhau. Vẫn gộp theo
+  khoảng cách tối đa 50 m và chuẩn hóa tiền tố `Số`; kiểm thử hồi quy đạt.
 - Đã sửa fixture kiểm thử sắp xếp khoảng cách dùng tọa độ ngoài vùng thành điểm
   nằm trong Cao Lãnh, giữ nguyên các ngưỡng khoảng cách cần kiểm tra.
 - Đã sửa nguồn kết nối Web: local tiếp tục gọi `localhost:8787`, còn Firebase
@@ -38,9 +53,119 @@ dụng, các việc còn chờ và hướng làm tiếp theo. Cập nhật ngày
   `nearbyApi`. Function seed SQLite tạm từ SQL đã theo dõi trong Git.
 - Endpoint tìm gần đây/tải offline chạy trên cloud; endpoint thay đổi snapshot
   bản đồ vẫn giới hạn local vì filesystem của Functions không bền vững.
-- Chờ triển khai Functions production và kiểm tra `/health`, `/api/nearby` trên
-  Hosting; deploy Functions cần project bật billing Blaze và service account có
-  quyền triển khai.
+- Đã sửa hợp đồng giữa parser nhập địa điểm và Firestore Rules: Rules cho phép
+  mã `ben_xe` và tên tối đa 200 ký tự, khớp giới hạn parser. Trước đó thiếu mã
+  này hoặc tên dài 151–200 ký tự có thể làm Firestore từ chối batch publish.
+- Bổ sung kiểm thử hồi quy cho loại `ben_xe` và giới hạn tên 200/201 ký tự;
+  kiểm thử parser và bộ lọc danh mục đều đạt.
+- Firestore Rules đã deploy thành công lên `do-an-2-b1f35` ngày 04/11/2026.
+- Flutter Web release đã deploy lên `https://do-an-2-b1f35.web.app` ngày
+  04/11/2026; URL gốc trả HTTP 200.
+- Project chưa có Function `nearbyApi`. Hosting deploy cảnh báo rewrite `/api/**`
+  không có endpoint hợp lệ; đã xác minh `/api/offline-places` trả HTTP 404.
+  Do người dùng giữ gói miễn phí, chưa bật Blaze hoặc deploy Functions; tìm
+  kiếm OSM/tải offline qua API cloud chưa hoạt động. Không công bố deployment
+  này là đầy đủ chức năng API.
+- Đã tách `features/gps`, `features/nap_du_lieu` và `features/tim_kiem` khỏi
+  `features/dia_diem`; miền địa điểm giữ model, repository contracts, adapters,
+  bản đồ và chi tiết.
+- Tách contract `PlaceService`/`FavoriteService` khỏi adapter Firebase và local.
+  Màn tìm kiếm chỉ phụ thuộc contract; `main.dart` là composition root inject
+  implementation.
+- Chia Flutter tests thành `test/unit/` và `test/widget/`; giữ backend deploy
+  source duy nhất tại `backend/` theo `firebase.json`, không tạo Functions package
+  trùng lặp.
+- Xác minh sau refactor: `flutter analyze` không có vấn đề, toàn bộ 69 Flutter
+  tests và 7 backend tests đều đạt; `flutter build web --release` thành công.
+- Cần phương án backend phù hợp giới hạn gói miễn phí hoặc người dùng chấp thuận
+  Blaze trước khi deploy `nearbyApi`; sau đó xác minh `/health`, `/api/nearby`
+  và `/api/offline-places` trên Hosting.
+
+## Rủi ro hiệu năng đã xác nhận từ code
+
+Các điểm dưới đây là giới hạn mở rộng quan sát được trong mã nguồn, không phải
+bằng chứng rằng chúng đã gây ra sự cố production:
+
+- Firestore `watchAll()` stream toàn collection `places`; màn hình nhận toàn bộ
+  tài liệu người dùng được phép đọc theo `orderBy('name')`, không đặt `limit`
+  hay phân trang. Vì vậy dữ liệu Firestore trong mỗi snapshot có thể lọc đầy đủ
+  phía client; snapshot ban đầu vẫn có thể bắt đầu từ cache trước khi đồng bộ
+  máy chủ. Không thêm `limit` đơn lẻ vì sẽ âm thầm bỏ sót kết quả; muốn mở rộng
+  cần thiết kế phân trang/truy vấn địa lý và cập nhật hợp đồng giao diện cùng lúc.
+- Tra cứu OSM là nguồn riêng, truy vấn theo tâm/bán kính và tập tag POI được
+  hỗ trợ; cache offline được tải từ endpoint `/api/offline-places`. Vì vậy
+  "lọc tất cả" có nghĩa là lọc toàn bộ bản ghi đã nhận từ Firestore và OSM, không
+  phải toàn bộ đối tượng OSM trên thế giới hay các tag ngoài truy vấn hiện tại.
+- Cache offline trong SharedPreferences là JSON; mỗi lần fallback đều decode,
+  dựng lại `Place` và sắp xếp theo khoảng cách. Đây là chi phí lặp lại, nhưng
+  chưa có số đo cho thấy quy mô hiện tại làm trễ đáng kể; cân nhắc SQLite trên
+  thiết bị khi dữ liệu tăng và đã đo được ngưỡng.
+- Bản đồ dựng tối đa 300 marker đang nằm trong viewport, chưa clustering.
+  Marker ngoài viewport không được dựng; kết quả đầy đủ vẫn có trong danh sách.
+- Không có trace thời gian khởi động/render hoặc heap profile để kết luận hiện
+  tượng zoom đơ hay rò rỉ bộ nhớ. Cơ sở SQLite local và query plan được kiểm tra,
+  nhưng chưa có backend đang chạy để xác nhận `/health` từ runtime.
+- Kiểm kê file Git đang theo dõi không thấy file nào từ 100 MiB; `places.sqlite`
+  runtime 184.320 byte, snapshot SQL 88.342 byte và JSON 119.691 byte sau lần
+  lọc đường thuần. Chưa xác nhận được file 3xx MB trong repo; nếu người dùng
+  thấy file lớn, cần xác định chính xác đường dẫn trước khi xóa hoặc tối ưu.
+
+## Tối ưu độ trễ bộ lọc và zoom bản đồ
+
+Người dùng báo ngày 04/11/2026 rằng chọn tiêu chí lọc bị trễ và lần zoom đầu
+trên bản đồ khựng, nhưng mượt hơn sau khi chuyển chế độ rồi quay lại. Đã sửa và
+kiểm tra cơ chế dữ liệu:
+
+- Không còn lọc, gộp và sắp xếp toàn bộ địa điểm để tạo gợi ý tìm kiếm khi ô
+  tìm kiếm rỗng; phần này chỉ chạy khi có truy vấn.
+- Khi dữ liệu nguồn thay đổi, chuẩn bị danh sách gộp/khử trùng một lần cho cả
+  hai chế độ category hiện có; chuẩn hóa category/từ khóa, tính khoảng cách và
+  sắp xếp một lần theo vị trí. Chọn category/bán kính/yêu thích chỉ quét index,
+  không lặp lại khử trùng, Haversine và sắp xếp toàn bộ danh sách.
+- Cache kết quả lọc theo danh sách nguồn và trạng thái lọc/tìm kiếm/yêu thích/
+  vị trí. Việc mở/đóng điều khiển hoặc đổi chế độ không tính lại kết quả; đổi
+  tiêu chí vẫn cập nhật kết quả chính xác. Không đặt giới hạn kết quả.
+- Khi zoom đủ gần để hiện marker, chỉ dựng marker nằm trong khung nhìn hiện tại;
+  lọc viewport trước khi áp dụng giới hạn 300, cập nhật sau 100 ms kể từ thay
+  đổi camera cuối để tránh tạo hàng trăm widget trong lúc zoom/pan. Hủy timer
+  khi bản đồ bị dispose.
+- Đồng bộ zoom khởi tạo nội bộ với zoom thực khi bản đồ bắt đầu chưa có dữ liệu.
+- Thêm **Cài đặt hiển thị** trong menu tài khoản/khách: bật/tắt chuyển cảnh và
+  chọn đồ họa bản đồ **Cao/Trung bình/Thấp**. Lưu cục bộ trên thiết bị bằng
+  SharedPreferences; chất lượng điều chỉnh bộ đệm tile, không bỏ dữ liệu/marker.
+  Mặc định **Trung bình** giảm tải trước tile để ưu tiên lần mở đầu; animation
+  bật. Bản đồ inset tĩnh cũng không tải tile đệm ngoài khung nhìn.
+
+Kiểm thử widget lọc, cài đặt và bản đồ đạt; analyzer không phát hiện lỗi. Chưa
+profile trên thiết bị thật, do đó chưa thể định lượng mức giảm frame jank hoặc
+khẳng định mọi khựng do tải/giải mã tile đã được giải quyết.
+
+Việc còn lại là đo trên thiết bị/nền tảng nơi đã gặp lỗi: so sánh thời gian chọn
+lọc và frame jank khi mở/zoom bản đồ lần đầu; nếu vẫn khựng, profile riêng tải/
+giải mã tile và kiểm tra tốc độ mạng/cache tile.
+
+## Rà soát và cập nhật danh sách bản đồ
+
+- Snapshot OSM trước rà soát có 1.018 đối tượng, trong đó 688 là đường có tên
+  (`highway=*`) nhưng không mang thẻ POI. Bộ fallback OSM API trước đó chỉ kiểm
+  tra có tên, khác với truy vấn Overpass và làm các đoạn đường lọt vào danh sách.
+- Đã sửa backend và cache Flutter để giữ địa điểm có tên, giữ trạm xe buýt và
+  POI chưa biết loại, nhưng bỏ đối tượng chỉ là đường. Snapshot SQL/JSON hiện
+  còn 330 mục; SQL được đồng bộ lại, JSON cũ được lưu làm bản backup. Số đếm
+  theo loại: `ben_xe` 13, `tro` 14, `vui_choi` 19, `khac` 201; mã lạ vẫn ở
+  **Khác**, không tự gán.
+- Danh sách transit trong snapshot: 2 `amenity=bus_station`, 11
+  `highway=bus_stop`. OSM API hiện vẫn ghi nhận [Bến xe Cao Lãnh](https://www.openstreetmap.org/way/169422508)
+  và [Bến xe tải Cao Lãnh](https://www.openstreetmap.org/way/169959572).
+- Hai stop [quán nem](https://www.openstreetmap.org/node/4935721121) và
+  [quán nem.nguyen binh](https://www.openstreetmap.org/node/5279142122) cách
+  nhau khoảng 7,3 m. Chưa xóa/gộp: khoảng cách gần có thể là hai phía đường;
+  chưa có nguồn vận tải xác nhận chúng là bản ghi trùng.
+- Google Maps trả trang động không đọc được kết quả địa điểm; tìm nguồn chính
+  thức không cho danh sách có thể kiểm chứng trong phiên này. Vì vậy cập nhật
+  trên chỉ làm sạch loại đối tượng chắc chắn là đường và đồng bộ danh mục, không
+  tuyên bố đã tìm đủ điểm mới hoặc xác nhận toàn bộ 13 bến/trạm. Cần đối chiếu
+  thủ công với nguồn vận tải/Google trước khi thêm hoặc xóa transit.
 
 ## Chức năng đã có
 
@@ -87,6 +212,8 @@ dụng, các việc còn chờ và hướng làm tiếp theo. Cập nhật ngày
   chưa có cache offline; màn hình chỉ cách khởi động backend.
 - [x] Cho phép chọn đồng thời quán ăn, cà phê, nhà trọ, bến xe hoặc tổ hợp bất
   kỳ; các alias `bus_stop`, `bus_station`, `hotel` vẫn dùng bộ lọc mã chuẩn.
+- [x] Đồng bộ Firestore Rules với dữ liệu nhập: cho phép `ben_xe` và tên địa
+  điểm dài tối đa 200 ký tự; bổ sung kiểm thử ranh giới 200/201 ký tự.
 
 ## Kiểm thử hiện có
 
@@ -125,8 +252,10 @@ Các kiểm tra gần nhất (03/11/2026) đã đạt:
 
 - `node --check backend/server.js`
 - `flutter analyze`
-- `flutter test test/nearby_screen_test.dart`
-- `flutter test test/place_category_filter_test.dart test/place_deduplication_test.dart test/nearby_places_service_test.dart`
+- `flutter test test/widget/nearby_screen_test.dart`
+- `flutter test test/unit/place_category_filter_test.dart test/unit/place_deduplication_test.dart test/unit/nearby_places_service_test.dart`
+- `flutter test test/unit/place_import_parser_test.dart test/unit/place_category_filter_test.dart`
+  (10 kiểm thử đạt; gồm kiểm tra `ben_xe` và ranh giới tên 200/201 ký tự).
 - Kiểm thử lỗi proxy không có cache và thông báo khởi động backend trên UI.
 - Xác nhận trong SQLite có hai bến xe trong bán kính 5 km từ tâm mặc định.
 - Nạp SQL vào SQLite thử nghiệm và xác nhận mã danh mục của xe buýt, nhà trọ,
@@ -135,9 +264,8 @@ Các kiểm tra gần nhất (03/11/2026) đã đạt:
 
 ## Hướng làm tiếp theo
 
-1. Tải lại/rebuild Flutter Web để nhận các sửa đổi mới; xác nhận trên dữ liệu
-   thật rằng lọc **Bến xe / điểm dừng** không làm mất quán ăn, cà phê hoặc nhà
-   trọ đã chọn, kể cả khi có bản ghi trùng tên khác danh mục.
+1. Deploy Firestore Rules đã sửa bằng `firebase deploy --only firestore:rules`
+   rồi xác nhận admin publish được địa điểm `ben_xe` và tên 151–200 ký tự.
 2. Nếu trang vẫn báo backend chưa chạy, khởi động bằng `run_web.bat`/`bat_app.bat`
    hoặc chạy `npm start` trong `backend/`, xác nhận `/health` trả `ok: true`.
 3. Nếu dữ liệu khác với SQL, cập nhật map từ Admin, kiểm tra phân loại và đồng
