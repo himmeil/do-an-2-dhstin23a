@@ -48,6 +48,25 @@ service cloud.firestore {
       allow read: if true;
       allow create, update: if isAdmin() && validPlace(request.resource.data);
       allow delete: if isAdmin();
+
+      match /comments/{commentId} {
+        allow read: if true;
+        allow create: if signedIn()
+          && request.resource.data.keys().hasAll([
+            'userId', 'accountName', 'content', 'createdAt'
+          ])
+          && request.resource.data.keys().hasOnly([
+            'userId', 'accountName', 'content', 'createdAt'
+          ])
+          && request.resource.data.userId == request.auth.uid
+          && request.auth.token.email is string
+          && request.resource.data.accountName == request.auth.token.email
+          && request.resource.data.content is string
+          && request.resource.data.content.size() > 0
+          && request.resource.data.content.size() <= 1000
+          && request.resource.data.createdAt == request.time;
+        allow update, delete: if false;
+      }
     }
 
     match /users/{userId}/favorites/{placeId} {

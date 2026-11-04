@@ -67,7 +67,7 @@ npm start
 
 Sau khi `http://localhost:8787/health` trả về `ok: true`, tải lại trang
 `http://localhost:5000`. Nếu backend không chạy và chưa tải dữ liệu offline,
-ứng dụng sẽ hiện hướng dẫn khởi động thay vì báo danh sách rỗng.
+ứng dụng sẽ hiện hướng dẫn khởi động; cache JSON cũ (nếu có) chỉ làm fallback.
 
 Chế độ `web-server` phù hợp khi cần hot reload nhưng có thể mất thời gian chờ
 debug service ở lần chạy đầu.
@@ -101,14 +101,14 @@ service account `FIREBASE_SERVICE_ACCOUNT_DO_AN_2_B1F35`.
 - 2026-11-03 15:29 (UTC+7): Chuẩn hóa mã danh mục OSM cũ khi mở SQLite và bổ sung thẻ địa điểm thể thao vào truy vấn bản đồ.
 - 2026-11-03 12:59 (UTC+7): Triển khai API production bằng Firebase Functions, seed SQLite từ SQL kèm theo và giữ endpoint quản trị chỉ chạy local.
 
-Ứng dụng Flutter có thể tải bản sao dữ liệu SQLite qua menu tài khoản, nên có
-thể xem các địa điểm Cao Lãnh ngay cả khi không chạy proxy. Tile nền bản đồ
-OpenStreetMap vẫn cần kết nối mạng trên Web nếu trình duyệt chưa cache tile.
+Ứng dụng không còn tải bản sao dữ liệu địa điểm để dùng offline; endpoint
+`/api/offline-places` đã bị gỡ. Cache JSON cũ trên thiết bị vẫn có thể được
+đọc làm fallback khi proxy lỗi, nhưng không có chức năng tạo cache mới. Tile
+nền bản đồ OpenStreetMap vẫn cần kết nối mạng trên Web nếu trình duyệt chưa cache tile.
 Trên native, `flutter_map` cache tile theo header máy chủ tile trong thư mục
 cache của thiết bị, giới hạn tối đa 128 MiB; cache có thể bị hệ điều hành xóa.
 Không prefetch tile bằng HTTP client riêng vì tile đó không đi qua cache provider
-của bản đồ. API `/api/offline-places` chỉ tải dữ liệu địa điểm trong khu vực
-Cao Lãnh, không tải ảnh raster.
+của bản đồ.
 Các widget bản đồ giải phóng `MapController` khi bị dispose; mỗi tile layer
 cũng sở hữu provider riêng để đóng HTTP client đúng vòng đời.
 
@@ -124,11 +124,14 @@ Mỗi lần Admin cập nhật Overpass thành công, proxy thay tập bản ghi
 SQLite bằng kết quả mới, tránh trộn dữ liệu cũ với dữ liệu hiện tại.
 Các bản ghi cũ có `source = local-seed` sẽ bị xóa khi proxy khởi động để tránh
 hiển thị lại tọa độ mẫu không chính xác.
-Endpoint `GET /api/offline-places` trả toàn bộ dữ liệu đã lưu để người dùng
-tải xuống dùng offline.
+Schema `data/binhluan.sql` tạo bảng `comments` và chỉ mục theo địa điểm/ngày.
+`GET /api/places/{placeId}/comments` cho phép đọc công khai; POST yêu cầu
+Firebase ID token hợp lệ, lấy `user_id`/tên tài khoản từ token và giới hạn
+nội dung 1–1000 ký tự. Dữ liệu bình luận local nằm trong cùng SQLite database.
 
-Admin có thể gọi `POST /api/admin/update-map` để tải lại toàn bộ dữ liệu Cao
-Lãnh. Backend ưu tiên Overpass, chia khu vực thành các ô bán kính 1 km, tải
+Các API quản trị yêu cầu Firebase ID token và tài khoản phải có document
+`admins/{uid}` trong Firestore. Admin có thể gọi `POST /api/admin/update-map`
+để tải lại toàn bộ dữ liệu Cao Lãnh. Backend ưu tiên Overpass, chia khu vực thành các ô bán kính 1 km, tải
 tối đa 3 ô song song, rồi gộp và loại trùng theo `type/id`. Mỗi ô cũng thử
 các máy chủ Overpass đồng thời và dùng phản hồi thành công đầu tiên. Khi cập nhật thành
 công, `dia_diem_cao_lanh.json` trở thành bản mới
@@ -216,7 +219,6 @@ Kiểm tra backend:
 
 ```powershell
 Invoke-RestMethod http://localhost:8787/health
-Invoke-RestMethod http://localhost:8787/api/offline-places
 ```
 
 Tải lại toàn bộ dữ liệu Cao Lãnh:
@@ -225,6 +227,7 @@ Tải lại toàn bộ dữ liệu Cao Lãnh:
 Invoke-RestMethod `
   -Uri http://localhost:8787/api/admin/update-map `
   -Method Post `
+  -Headers @{Authorization = "Bearer <Firebase ID token>"} `
   -TimeoutSec 300
 ```
 

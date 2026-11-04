@@ -4,6 +4,22 @@ Tài liệu này ghi nhận trạng thái hiện hành của các chức năng t
 dụng, các việc còn chờ và hướng làm tiếp theo. Cập nhật ngày 04/11/2026 15:51
 (UTC+7).
 
+## Quyết định hiện hành
+
+- Tải thủ công dữ liệu bản đồ và route `/api/offline-places` đã được gỡ; splash
+  không tải trước dữ liệu. Cache JSON cũ vẫn chỉ được đọc làm fallback.
+- Bình luận địa điểm được đọc công khai và chỉ người đăng nhập mới có thể gửi.
+  Firebase dùng `places/{placeId}/comments`; Web local dùng SQLite theo
+  `backend/data/binhluan.sql`.
+- Khách được xem bản đồ, chọn tâm bằng thao tác giữ bản đồ, lọc và đọc bình
+  luận; GPS/tra địa chỉ, danh sách, ảnh vệ tinh, yêu thích và gửi bình luận cần
+  đăng nhập.
+- Các API local cập nhật/chọn snapshot OSM xác minh Firebase ID token và quyền
+  qua document `admins/{uid}`. Firestore Rules đã bổ sung quyền bình luận nhưng
+  cần deploy riêng để áp dụng cho Firebase đang chạy.
+- Firebase Function `nearbyApi` chưa deploy; tìm kiếm OSM qua API cloud chưa
+  hoạt động. Không xem các route `/api/**` là khả dụng trên Hosting.
+
 ## Trạng thái hiện hành
 
 - Bộ lọc danh mục đã tách thành module riêng; mã cũ `bus_stop`,
@@ -51,8 +67,8 @@ dụng, các việc còn chờ và hướng làm tiếp theo. Cập nhật ngày
 - Đã sửa nguồn kết nối Web: local tiếp tục gọi `localhost:8787`, còn Firebase
   Hosting dùng origin hiện tại và rewrite `/api/**` tới Firebase Function
   `nearbyApi`. Function seed SQLite tạm từ SQL đã theo dõi trong Git.
-- Endpoint tìm gần đây/tải offline chạy trên cloud; endpoint thay đổi snapshot
-  bản đồ vẫn giới hạn local vì filesystem của Functions không bền vững.
+- Tìm kiếm gần đây được phục vụ bởi backend local; endpoint thay đổi snapshot
+  bản đồ cũng chỉ chạy local vì filesystem của Functions không bền vững.
 - Đã sửa hợp đồng giữa parser nhập địa điểm và Firestore Rules: Rules cho phép
   mã `ben_xe` và tên tối đa 200 ký tự, khớp giới hạn parser. Trước đó thiếu mã
   này hoặc tên dài 151–200 ký tự có thể làm Firestore từ chối batch publish.
@@ -61,10 +77,9 @@ dụng, các việc còn chờ và hướng làm tiếp theo. Cập nhật ngày
 - Firestore Rules đã deploy lên Firebase project cá nhân ngày 04/11/2026.
 - Flutter Web release đã deploy lên site mặc định của project; URL gốc trả
   HTTP 200.
-- Project chưa có Function `nearbyApi`; `/api/offline-places` trả HTTP 404.
-  Không bật Blaze hoặc deploy Functions để giữ gói miễn phí, vì vậy tìm kiếm
-  OSM qua API cloud chưa hoạt động. Bản Firebase mới tắt hẳn bước tải snapshot
-  offline lúc khởi động và ẩn thao tác tải offline.
+- Project chưa có Function `nearbyApi`; tìm kiếm OSM qua API cloud chưa hoạt
+  động. Endpoint tải offline đã bị gỡ khỏi backend; Hosting cũng không có
+  endpoint này.
 - Cấu hình riêng không còn được theo dõi trong Git; file `dulieucanhan.env`
   được bỏ qua và người fork cần cung cấp Firebase config của họ.
 - Đã tách `features/gps`, `features/nap_du_lieu` và `features/tim_kiem` khỏi
@@ -79,8 +94,8 @@ dụng, các việc còn chờ và hướng làm tiếp theo. Cập nhật ngày
 - Xác minh sau refactor: `flutter analyze` không có vấn đề, toàn bộ 69 Flutter
   tests và 7 backend tests đều đạt; `flutter build web --release` thành công.
 - Cần phương án backend phù hợp giới hạn gói miễn phí hoặc người dùng chấp thuận
-  Blaze trước khi deploy `nearbyApi`; sau đó xác minh `/health`, `/api/nearby`
-  và `/api/offline-places` trên Hosting.
+  Blaze trước khi deploy `nearbyApi`; sau đó xác minh `/health` và `/api/nearby`
+  trên Hosting. Endpoint offline không còn thuộc API.
 
 ## Rủi ro hiệu năng đã xác nhận từ code
 
@@ -94,7 +109,7 @@ bằng chứng rằng chúng đã gây ra sự cố production:
   máy chủ. Không thêm `limit` đơn lẻ vì sẽ âm thầm bỏ sót kết quả; muốn mở rộng
   cần thiết kế phân trang/truy vấn địa lý và cập nhật hợp đồng giao diện cùng lúc.
 - Tra cứu OSM là nguồn riêng, truy vấn theo tâm/bán kính và tập tag POI được
-  hỗ trợ; cache offline được tải từ endpoint `/api/offline-places`. Vì vậy
+  hỗ trợ; không tạo cache offline mới. Cache cũ có thể còn trên thiết bị. Vì vậy
   "lọc tất cả" có nghĩa là lọc toàn bộ bản ghi đã nhận từ Firestore và OSM, không
   phải toàn bộ đối tượng OSM trên thế giới hay các tag ngoài truy vấn hiện tại.
 - Cache offline trong SharedPreferences là JSON; mỗi lần fallback đều decode,
@@ -185,7 +200,8 @@ giải mã tile và kiểm tra tốc độ mạng/cache tile.
 - [x] Khởi tạo Firebase Core với cấu hình FlutterFire cho Android, iOS và Web.
 - [x] Cấu hình Firebase Hosting cho Flutter Web và GitHub Actions tự build/deploy khi cập nhật nhánh `main`.
 - [x] Tích hợp Firebase Authentication email/mật khẩu, đọc danh sách địa điểm Firestore, lưu/lọc yêu thích theo tài khoản và phân quyền admin bằng `/admins/{uid}`.
-- [x] Cho phép xem công khai với tư cách khách; yêu cầu đăng nhập để tìm/lọc địa điểm, tra vị trí thủ công và xem ảnh vệ tinh.
+- [x] Cho phép khách xem bản đồ, lọc và đọc bình luận; yêu cầu đăng nhập để gửi
+  bình luận, đổi tâm/GPS, xem danh sách, ảnh vệ tinh và lưu yêu thích.
 - [x] Admin có thể nhập dữ liệu vào bản nháp cục bộ riêng, xem lại và xác nhận publish lên Firestore; dữ liệu local cũ được giữ nguyên, không tự chuyển lên cloud.
 - [x] Khai báo Firestore Rules trong cấu hình Firebase; client không thể tự cấp quyền admin.
 - [x] Ghi nhận kiến trúc demo: Firebase dùng để minh họa khả năng vận hành web
@@ -196,7 +212,7 @@ giải mã tile và kiểm tra tốc độ mạng/cache tile.
 - [x] Tạo proxy/server local trong `backend/` cho dữ liệu OpenStreetMap, ưu tiên
   Overpass và tự fallback sang OpenStreetMap API khi Overpass timeout.
 - [x] Tải toàn bộ dữ liệu có tên trong bbox Cao Lãnh theo nhiều ô, ghép loại
-  trùng, lưu vào SQLite và cho người dùng đã đăng nhập tải bản sao offline.
+  trùng và lưu vào SQLite; chức năng tải bản sao offline đã được gỡ.
 - [x] Tạo các bản sao `dia_diem_cao_lanh.json` và
   `dia_diem_cao_lanh.sql`, đồng thời backup bản cũ sau mỗi lần cập nhật map.
 - [x] Thêm nút **Zoom + / Zoom -** trên bản đồ chính và bản đồ chi tiết;

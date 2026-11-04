@@ -14,6 +14,7 @@ import '../../dia_diem/ban_do/widgets/nearby_map.dart';
 import '../../dia_diem/chi_tiet/screens/place_detail_screen.dart';
 import '../../dia_diem/du_lieu/models/place.dart';
 import '../../dia_diem/du_lieu/models/place_category_registry.dart';
+import '../../dia_diem/du_lieu/repositories/place_comment_repository.dart';
 import '../../dia_diem/du_lieu/repositories/place_repository.dart';
 import '../../gps/services/location_service.dart';
 import '../../mini_game/screens/cao_lanh_quiz_screen.dart';
@@ -34,7 +35,6 @@ enum _NearbyAction {
   selectMapDataSource,
   signIn,
   signOut,
-  downloadOfflinePlaces,
   displaySettings,
 }
 
@@ -46,6 +46,7 @@ class NearbyScreen extends StatefulWidget {
     required this.locationService,
     required this.geocoder,
     this.nearbyPlacesService,
+    this.commentService,
     this.draftService,
     this.favoriteService,
     this.userEmail = '',
@@ -62,6 +63,7 @@ class NearbyScreen extends StatefulWidget {
   final LocationService locationService;
   final GeocodingService geocoder;
   final NearbyPlacesService? nearbyPlacesService;
+  final PlaceCommentService? commentService;
   final String userEmail;
   final bool isAdmin;
   final bool isGuest;
@@ -490,19 +492,18 @@ class _NearbyScreenState extends State<NearbyScreen> {
     MaterialPageRoute(
       builder: (_) => PlaceDetailScreen(
         hit: hit,
+        commentService: widget.commentService,
+        isSignedIn: !widget.isGuest,
+        accountName: widget.userEmail,
         isOpenStreetMapPlace: _nearbyPlaces.any(
           (place) => place.id == hit.place.id,
         ),
         canUseSatellite: !widget.isGuest,
-        onRequireSignIn: _promptSignInFromDetail,
+        onRequireSignIn: () => unawaited(_promptSignIn('Xem ảnh vệ tinh')),
+        onRequireCommentSignIn: () => unawaited(_promptSignIn('Bình luận')),
       ),
     ),
   );
-
-  void _promptSignInFromDetail() {
-    Navigator.of(context).pop();
-    unawaited(_promptSignIn('Xem ảnh vệ tinh'));
-  }
 
   Future<void> _promptSignIn(String feature) async {
     if (!widget.isGuest || widget.onRequireSignIn == null) return;
@@ -510,10 +511,7 @@ class _NearbyScreenState extends State<NearbyScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Đăng nhập để tiếp tục'),
-        content: Text(
-          '$feature chỉ dành cho tài khoản đã đăng nhập. '
-          'Đăng nhập để lưu địa điểm yêu thích và tiếp tục sử dụng tính năng này.',
-        ),
+        content: Text('$feature chỉ dành cho tài khoản đã đăng nhập.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -527,6 +525,10 @@ class _NearbyScreenState extends State<NearbyScreen> {
       ),
     );
     if (shouldSignIn == true && mounted) {
+      if (const {'Bình luận', 'Xem ảnh vệ tinh'}.contains(feature) &&
+          Navigator.of(context).canPop()) {
+        Navigator.of(context).pop();
+      }
       widget.onRequireSignIn!(feature);
     }
   }
@@ -655,7 +657,6 @@ class _NearbyScreenState extends State<NearbyScreen> {
       _NearbyAction.selectMapDataSource => _selectMapDataSource(),
       _NearbyAction.signIn => _openSignIn(),
       _NearbyAction.signOut => _signOut(),
-      _NearbyAction.downloadOfflinePlaces => _downloadOfflinePlaces(),
       _NearbyAction.displaySettings => _openDisplaySettings(),
     };
     unawaited(operation);
@@ -747,29 +748,6 @@ class _NearbyScreenState extends State<NearbyScreen> {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text('Không đăng xuất được: $error')));
-    }
-  }
-
-  Future<void> _downloadOfflinePlaces() async {
-    if (widget.isGuest ||
-        widget.nearbyPlacesService is! OverpassNearbyPlacesService) {
-      _openSignIn();
-      return;
-    }
-
-    try {
-      final count =
-          await (widget.nearbyPlacesService! as OverpassNearbyPlacesService)
-              .downloadOfflinePlaces();
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Đã tải $count địa điểm để dùng offline.')),
-      );
-    } catch (error) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Không tải được dữ liệu offline: $error')),
-      );
     }
   }
 
@@ -919,7 +897,7 @@ class _NearbyScreenState extends State<NearbyScreen> {
           overflow: TextOverflow.ellipsis,
         ),
         actions: [
-          if (widget.favoriteService != null)
+          if (!widget.isGuest && widget.favoriteService != null)
             IconButton(
               tooltip: _favoritesOnly
                   ? 'Hiện tất cả địa điểm'
@@ -929,11 +907,12 @@ class _NearbyScreenState extends State<NearbyScreen> {
                 _favoritesOnly ? Icons.favorite : Icons.favorite_border,
               ),
             ),
-          IconButton(
-            tooltip: _mapMode ? 'Xem danh sách' : 'Xem bản đồ',
-            onPressed: () => setState(() => _mapMode = !_mapMode),
-            icon: Icon(_mapMode ? Icons.list : Icons.map_outlined),
-          ),
+          if (!widget.isGuest)
+            IconButton(
+              tooltip: _mapMode ? 'Xem danh sách' : 'Xem bản đồ',
+              onPressed: () => setState(() => _mapMode = !_mapMode),
+              icon: Icon(_mapMode ? Icons.list : Icons.map_outlined),
+            ),
           if (_mapMode)
             IconButton(
               tooltip: _searchControlsExpanded
@@ -946,11 +925,12 @@ class _NearbyScreenState extends State<NearbyScreen> {
                 _searchControlsExpanded ? Icons.expand_less : Icons.search,
               ),
             ),
-          IconButton(
-            tooltip: 'Dùng GPS',
-            onPressed: _locating ? null : _locate,
-            icon: const Icon(Icons.my_location),
-          ),
+          if (!widget.isGuest)
+            IconButton(
+              tooltip: 'Dùng GPS',
+              onPressed: _locating ? null : _locate,
+              icon: const Icon(Icons.my_location),
+            ),
           if (widget.isAdmin)
             PopupMenuButton<_NearbyAction>(
               tooltip: 'Công cụ quản trị',
@@ -978,27 +958,29 @@ class _NearbyScreenState extends State<NearbyScreen> {
                     title: const Text('Duyệt và đăng bản nháp'),
                   ),
                 ),
-                const PopupMenuItem(
-                  value: _NearbyAction.updateMapFromOverpass,
-                  child: ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    leading: Icon(Icons.sync),
-                    title: Text('Cập nhật bản đồ từ Overpass'),
-                  ),
-                ),
-                PopupMenuItem(
-                  value: _NearbyAction.selectMapDataSource,
-                  enabled: !_selectingMapData,
-                  child: ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    leading: const Icon(Icons.layers_outlined),
-                    title: Text(
-                      _selectingMapData
-                          ? 'Đang chọn dữ liệu bản đồ...'
-                          : 'Chọn dữ liệu bản đồ Cao Lãnh',
+                if (!AppEnvironment.isFirebaseHosted) ...[
+                  const PopupMenuItem(
+                    value: _NearbyAction.updateMapFromOverpass,
+                    child: ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: Icon(Icons.sync),
+                      title: Text('Cập nhật bản đồ từ Overpass'),
                     ),
                   ),
-                ),
+                  PopupMenuItem(
+                    value: _NearbyAction.selectMapDataSource,
+                    enabled: !_selectingMapData,
+                    child: ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: const Icon(Icons.layers_outlined),
+                      title: Text(
+                        _selectingMapData
+                            ? 'Đang chọn dữ liệu bản đồ...'
+                            : 'Chọn dữ liệu bản đồ Cao Lãnh',
+                      ),
+                    ),
+                  ),
+                ],
               ],
               child: const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 12),
@@ -1031,16 +1013,6 @@ class _NearbyScreenState extends State<NearbyScreen> {
                   PopupMenuItem<_NearbyAction>(
                     enabled: false,
                     child: Text(widget.userEmail),
-                  ),
-                if (widget.onSignOut != null &&
-                    AppEnvironment.offlineMapDownloadsEnabled)
-                  const PopupMenuItem(
-                    value: _NearbyAction.downloadOfflinePlaces,
-                    child: ListTile(
-                      contentPadding: EdgeInsets.zero,
-                      leading: Icon(Icons.download_for_offline_outlined),
-                      title: Text('Tải dữ liệu Cao Lãnh để dùng offline'),
-                    ),
                   ),
                 if (widget.onSignOut != null)
                   const PopupMenuItem(
@@ -1302,20 +1274,12 @@ class _NearbyScreenState extends State<NearbyScreen> {
               Expanded(
                 child: TextField(
                   controller: _searchController,
-                  readOnly: widget.isGuest,
-                  onTap: widget.isGuest
-                      ? () => unawaited(_promptSignIn('Tìm kiếm địa điểm'))
-                      : null,
-                  onChanged: widget.isGuest
-                      ? null
-                      : (value) => setState(() {
-                          _searchInput = value;
-                          _selectedPlaceId = null;
-                        }),
+                  onChanged: (value) => setState(() {
+                    _searchInput = value;
+                    _selectedPlaceId = null;
+                  }),
                   decoration: InputDecoration(
-                    hintText: widget.isGuest
-                        ? 'Đăng nhập để tìm kiếm địa điểm'
-                        : 'Tìm theo tên hoặc địa chỉ',
+                    hintText: 'Tìm theo tên hoặc địa chỉ',
                     prefixIcon: const Icon(Icons.search),
                     suffixIcon: Row(
                       mainAxisSize: MainAxisSize.min,
@@ -1324,30 +1288,22 @@ class _NearbyScreenState extends State<NearbyScreen> {
                           IconButton(
                             tooltip: 'Xóa tìm kiếm',
                             icon: const Icon(Icons.clear),
-                            onPressed: widget.isGuest
-                                ? () => unawaited(
-                                    _promptSignIn('Tìm kiếm địa điểm'),
-                                  )
-                                : () {
-                                    _searchController.clear();
-                                    setState(() {
-                                      _searchInput = '';
-                                      _query = '';
-                                      _selectedPlaceId = null;
-                                    });
-                                  },
+                            onPressed: () {
+                              _searchController.clear();
+                              setState(() {
+                                _searchInput = '';
+                                _query = '';
+                                _selectedPlaceId = null;
+                              });
+                            },
                           ),
                         IconButton(
                           tooltip: 'Tìm địa điểm',
                           icon: const Icon(Icons.arrow_forward),
-                          onPressed: widget.isGuest
-                              ? () => unawaited(
-                                  _promptSignIn('Tìm kiếm địa điểm'),
-                                )
-                              : () => setState(() {
-                                  _query = _searchInput;
-                                  _selectedPlaceId = null;
-                                }),
+                          onPressed: () => setState(() {
+                            _query = _searchInput;
+                            _selectedPlaceId = null;
+                          }),
                         ),
                       ],
                     ),
@@ -1398,10 +1354,6 @@ class _NearbyScreenState extends State<NearbyScreen> {
             selectedRadiusKm: _radiusKm,
             showRadius: _origin != null,
             onCategorySelected: (category) {
-              if (widget.isGuest) {
-                unawaited(_promptSignIn('Lọc địa điểm'));
-                return;
-              }
               setState(() {
                 if (category == 'all') {
                   _selectedCategories.clear();
@@ -1411,10 +1363,6 @@ class _NearbyScreenState extends State<NearbyScreen> {
               });
             },
             onRadiusSelected: (radiusKm) {
-              if (widget.isGuest) {
-                unawaited(_promptSignIn('Lọc địa điểm'));
-                return;
-              }
               setState(() => _radiusKm = radiusKm);
               _scheduleNearbySearch();
             },

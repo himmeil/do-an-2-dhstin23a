@@ -1,24 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../widgets/place_comments_section.dart';
 import '../../ban_do/widgets/location_map.dart';
 import '../../du_lieu/models/place_category.dart';
+import '../../du_lieu/repositories/place_comment_repository.dart';
 import '../../../tim_kiem/utils/geo.dart';
 import '../../../tim_kiem/widgets/place_tile.dart';
 
 class PlaceDetailScreen extends StatelessWidget {
   const PlaceDetailScreen({
     required this.hit,
+    this.commentService,
+    this.isSignedIn = false,
+    this.accountName = '',
     this.isOpenStreetMapPlace = false,
     this.canUseSatellite = true,
     this.onRequireSignIn,
+    this.onRequireCommentSignIn,
     super.key,
   });
 
   final PlaceHit hit;
+  final PlaceCommentService? commentService;
+  final bool isSignedIn;
+  final String accountName;
   final bool isOpenStreetMapPlace;
   final bool canUseSatellite;
   final VoidCallback? onRequireSignIn;
+  final VoidCallback? onRequireCommentSignIn;
 
   @override
   Widget build(BuildContext context) {
@@ -76,6 +86,16 @@ class PlaceDetailScreen extends StatelessWidget {
             canUseSatellite: canUseSatellite,
             onRequireSignIn: onRequireSignIn,
           ),
+          if (commentService != null) ...[
+            const SizedBox(height: 24),
+            PlaceCommentsSection(
+              placeId: place.id,
+              service: commentService!,
+              isSignedIn: isSignedIn,
+              accountName: accountName,
+              onRequireSignIn: onRequireCommentSignIn,
+            ),
+          ],
         ],
       ),
     );

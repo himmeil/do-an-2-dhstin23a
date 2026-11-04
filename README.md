@@ -36,18 +36,13 @@ App Flutter chỉ làm một việc: **tìm địa điểm xung quanh vị trí 
   `APP_MODE=firebase`, không gọi `localhost` và không tải snapshot bản đồ
   offline. Endpoint `/api/**` chỉ hoạt động khi có backend Function được
   triển khai; hiện Function chưa được triển khai.
-- Khi vào màn hình chính trên Web local, splash tải trước dữ liệu địa điểm
-  Cao Lãnh qua backend để lưu cache cục bộ. Firebase Hosting bỏ qua bước này
-  và ẩn thao tác tải offline. Tile raster chỉ tải theo vùng bản đồ đang nhìn;
-  Web phụ thuộc HTTP cache của trình duyệt/nhà cung cấp tile.
-- **Chế độ offline local:** sau khi đã tải dữ liệu trên Web local, khi
-  Overpass hoặc proxy không phản hồi, Flutter dùng cache cục bộ để lọc theo
-  bán kính và hiển thị địa điểm. Cache đã có vẫn được giữ; bản Firebase không
-  tạo hoặc tải mới cache này.
-  Dữ liệu địa lý dùng OpenStreetMap; nền bản đồ đường phố tải từ OpenStreetMap
-  HOT để tránh các ô xám khi máy chủ tile OSM chính bị giới hạn hoặc lỗi kết
-  nối. Tile raster vẫn cần mạng nếu chưa được cache; API offline chỉ lưu dữ
-  liệu địa điểm, không tải gói ảnh bản đồ.
+- Splash không tải trước dữ liệu bản đồ; địa điểm truy vấn khi cần. Tính năng
+  tải thủ công dữ liệu bản đồ và endpoint `/api/offline-places` đã tắt.
+  Cache JSON cũ (nếu thiết bị từng có) vẫn được đọc làm fallback khi proxy lỗi,
+  nhưng ứng dụng không tạo cache mới. Tile raster chỉ tải theo vùng bản đồ
+  đang nhìn và phụ thuộc HTTP cache của trình duyệt/nhà cung cấp tile.
+- Dữ liệu địa lý dùng OpenStreetMap; nền đường phố tải từ OpenStreetMap HOT.
+  Ảnh tile raster vẫn cần mạng nếu trình duyệt chưa cache.
 - **Mô hình chạy demo local:** Flutter Web chạy trên trình duyệt, còn server
   local làm lớp trung gian gọi Overpass và trả dữ liệu cửa hàng, quán cà phê,
   rạp phim, công viên và khu vui chơi về cho ứng dụng. Khi triển khai chính
@@ -56,7 +51,10 @@ App Flutter chỉ làm một việc: **tìm địa điểm xung quanh vị trí 
   bản đồ đường phố OpenStreetMap HOT và ảnh vệ tinh Esri. Trang chi tiết
   cũng có nút chuyển lớp bản đồ và nút **Chỉ đường** (mở Google Maps).
 - Trên bản đồ có thể xem ranh giới phường Cao Lãnh (dữ liệu OpenStreetMap).
-- Khách có thể vào xem danh sách, chi tiết và bản đồ đường phố không cần tài khoản. Đăng nhập bằng email/mật khẩu để tìm kiếm/lọc, tra vị trí thủ công, xem ảnh vệ tinh và lưu địa điểm yêu thích; quản trị viên có thể tạo bản nháp trên thiết bị, xem lại rồi xác nhận đăng lên Firestore.
+- Khách được xem bản đồ, lọc theo từ khóa/loại/bán kính, xem chi tiết và đọc
+  bình luận; cần đăng nhập để bình luận, đổi vị trí qua GPS/địa chỉ, xem ảnh
+  vệ tinh, chuyển sang danh sách hoặc lưu địa điểm yêu thích. Quản trị viên
+  được tạo bản nháp và duyệt trước khi đăng lên Firestore.
 - Màn tạo bản nháp có 3 cách: dán CSV/JSON (hoặc copy từ Excel/Google Sheets), thêm tay từng điểm, hoặc tạo dữ liệu mẫu quanh bạn để thử. Dữ liệu cũ trong bộ nhớ trên thiết bị được giữ nguyên và không tự tải lên.
 - Firebase Core, Authentication và Firestore nhận cấu hình client từ
   `dulieucanhan.env` khi build. Tạo file này bằng cách sao chép
@@ -67,10 +65,16 @@ App Flutter chỉ làm một việc: **tìm địa điểm xung quanh vị trí 
   `STREET_TILE_URL`, `SATELLITE_TILE_URL` và `DIRECTIONS_URL` cũng nằm trong
   file này; mã nguồn không đóng cứng địa chỉ máy chủ. GitHub Actions kiểm tra
   đủ các link trước khi build.
+- Bình luận trên Firebase được lưu tại `places/{placeId}/comments` và bảo vệ
+  bằng Firestore Rules. Khi chạy Web local, bình luận được lưu trong
+  `backend/data/places.sqlite` theo schema `backend/data/binhluan.sql`; gửi
+  bình luận và thao tác cập nhật/chọn snapshot OSM cần Firebase ID token hợp
+  lệ, và các API bản đồ kiểm tra quyền admin từ `admins/{uid}`.
 - Dùng `deploy_firebase.bat` để build production và deploy riêng Hosting.
-  Build này đặt `APP_MODE=firebase`, tự tắt tải map offline và lấy project ID
-  từ file cấu hình cá nhân. Endpoint tìm kiếm `/api/**` vẫn cần backend
-  Function; không deploy Functions để tránh yêu cầu gói Blaze.
+  Build này đặt `APP_MODE=firebase` và lấy project ID từ file cấu hình cá
+  nhân. Endpoint tìm kiếm `/api/**` vẫn cần backend Function; không deploy
+  Functions để tránh yêu cầu gói Blaze. Firebase Hosting dùng Firestore trực
+  tiếp cho bình luận.
 - Hosting và Firestore là hai phần riêng: deploy web không tự nạp SQLite
   local lên cloud.
 
@@ -195,6 +199,7 @@ Có thể gọi trực tiếp bằng PowerShell:
 Invoke-RestMethod `
   -Uri http://localhost:8787/api/admin/update-map `
   -Method Post `
+  -Headers @{Authorization = "Bearer <Firebase ID token>"} `
   -TimeoutSec 300
 ```
 
@@ -202,7 +207,6 @@ Kiểm tra dữ liệu:
 
 ```powershell
 Invoke-RestMethod http://localhost:8787/health
-Invoke-RestMethod http://localhost:8787/api/offline-places
 ```
 
 Nếu cần tăng thời gian chờ nguồn dữ liệu:

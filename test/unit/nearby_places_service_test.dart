@@ -95,6 +95,7 @@ void main() {
       client: MockClient((request) async {
         expect(request.method, 'GET');
         expect(request.url.path, '/api/admin/map-sources');
+        expect(request.headers['Authorization'], 'Bearer test-token');
         return http.Response.bytes(
           utf8.encode(
             jsonEncode({
@@ -122,6 +123,7 @@ void main() {
         );
       }),
       useProxy: true,
+      getIdToken: () async => 'test-token',
     );
 
     final sources = await service.listMapDataSources();
@@ -140,6 +142,7 @@ void main() {
       client: MockClient((request) async {
         expect(request.method, 'POST');
         expect(request.url.path, '/api/admin/select-map');
+        expect(request.headers['Authorization'], 'Bearer test-token');
         body = request.body;
         return http.Response(
           jsonEncode({
@@ -151,6 +154,7 @@ void main() {
         );
       }),
       useProxy: true,
+      getIdToken: () async => 'test-token',
     );
 
     final count = await service.selectMapDataSource('backup');
@@ -368,9 +372,8 @@ void main() {
   });
 
   test('chuyển sang dữ liệu offline khi dịch vụ không phản hồi', () async {
-    SharedPreferences.setMockInitialValues({});
-    final offlineElements = jsonEncode({
-      'elements': [
+    SharedPreferences.setMockInitialValues({
+      OverpassNearbyPlacesService.offlineCacheKey: jsonEncode([
         {
           'type': 'node',
           'lat': 10.4578,
@@ -382,11 +385,6 @@ void main() {
           },
         },
         {
-          'type': 'way',
-          'center': {'lat': 10.4579, 'lon': 105.6323},
-          'tags': {'name': 'Đường Lê Lợi', 'highway': 'residential'},
-        },
-        {
           'type': 'node',
           'lat': 10.458,
           'lon': 105.6324,
@@ -396,17 +394,13 @@ void main() {
             'public_transport': 'platform',
           },
         },
-      ],
+      ]),
     });
     final service = OverpassNearbyPlacesService(
-      client: MockClient((request) async {
-        if (request.method == 'GET')         return http.Response.bytes(utf8.encode(offlineElements), 200);
-        return http.Response('busy', 503);
-      }),
+      client: MockClient((_) async => http.Response('busy', 503)),
       useProxy: true,
     );
 
-    expect(await service.downloadOfflinePlaces(), 2);
     final places = await service.search(
       center: const LatLng(10.456, 105.632),
       radiusMeters: 1000,
@@ -451,7 +445,9 @@ void main() {
       ]),
     });
     final service = OverpassNearbyPlacesService(
-      client: MockClient((_) async => http.Response('<html>Hosting</html>', 200)),
+      client: MockClient(
+        (_) async => http.Response('<html>Hosting</html>', 200),
+      ),
       useProxy: true,
     );
 
@@ -463,51 +459,36 @@ void main() {
     expect(places.map((place) => place.name), ['Quán trong cache']);
   });
 
-  test('đưa dữ liệu SQL đã tải offline vào đúng bộ lọc danh mục', () async {
-    SharedPreferences.setMockInitialValues({});
+  test('dữ liệu cache cũ vẫn được phân loại đúng khi mất kết nối', () async {
+    SharedPreferences.setMockInitialValues({
+      OverpassNearbyPlacesService.offlineCacheKey: jsonEncode([
+        {
+          'type': 'node',
+          'lat': 10.456,
+          'lon': 105.632,
+          'tags': {
+            'name': 'Van Mieu Cao Lanh & Cong vien Van Mieu',
+            'app:category': 'Cong vien - Van hoa',
+          },
+        },
+        {
+          'type': 'node',
+          'lat': 10.457,
+          'lon': 105.633,
+          'tags': {'name': 'Cho Cao Lanh', 'app:category': 'Thuong mai'},
+        },
+        {
+          'type': 'node',
+          'lat': 10.458,
+          'lon': 105.634,
+          'tags': {'name': 'Dai hoc Dong Thap', 'app:category': 'Giao duc'},
+        },
+      ]),
+    });
     final service = OverpassNearbyPlacesService(
       useProxy: true,
-      client: MockClient((request) async {
-        if (request.method == 'GET') {
-          return http.Response(
-            jsonEncode({
-              'elements': [
-                {
-                  'type': 'node',
-                  'lat': 10.456,
-                  'lon': 105.632,
-                  'tags': {
-                    'name': 'Van Mieu Cao Lanh & Cong vien Van Mieu',
-                    'app:category': 'Cong vien - Van hoa',
-                  },
-                },
-                {
-                  'type': 'node',
-                  'lat': 10.457,
-                  'lon': 105.633,
-                  'tags': {
-                    'name': 'Cho Cao Lanh',
-                    'app:category': 'Thuong mai',
-                  },
-                },
-                {
-                  'type': 'node',
-                  'lat': 10.458,
-                  'lon': 105.634,
-                  'tags': {
-                    'name': 'Dai hoc Dong Thap',
-                    'app:category': 'Giao duc',
-                  },
-                },
-              ],
-            }),
-            200,
-          );
-        }
-        return http.Response('offline', 503);
-      }),
+      client: MockClient((_) async => http.Response('offline', 503)),
     );
-    await service.downloadOfflinePlaces();
 
     final places = await service.search(
       center: const LatLng(10.456, 105.632),

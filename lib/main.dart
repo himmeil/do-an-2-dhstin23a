@@ -1,16 +1,19 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 
 import 'core/config/app_environment.dart';
+import 'core/config/app_links.dart';
 import 'core/constants/app_constants.dart';
 import 'core/theme/app_theme.dart';
 import 'core/widgets/splash/startup_splash.dart';
 import 'features/tai_khoan/screens/sign_in_screen.dart';
 import 'features/tai_khoan/services/auth_service.dart';
 import 'features/dia_diem/services/firestore_place_service.dart';
+import 'features/dia_diem/services/firestore_place_comment_service.dart';
+import 'features/dia_diem/services/local_place_comment_service.dart';
 import 'features/dia_diem/services/local_place_service.dart';
+import 'features/dia_diem/du_lieu/repositories/place_comment_repository.dart';
 import 'features/gps/services/location_service.dart';
 import 'features/tim_kiem/screens/nearby_screen.dart';
 import 'features/tim_kiem/services/geocoding_service.dart';
@@ -50,14 +53,23 @@ class _AuthGate extends StatefulWidget {
 }
 
 class _AuthGateState extends State<_AuthGate> {
-  final _nearbyPlacesService = OverpassNearbyPlacesService();
+  final _nearbyPlacesService = OverpassNearbyPlacesService(
+    getIdToken: () async =>
+        await FirebaseAuth.instance.currentUser?.getIdToken(),
+  );
+  late final _localPlaceCommentService = LocalPlaceCommentService(
+    apiBaseUrl: AppLinks.nearbyApiBaseUrl,
+    getIdToken: () async =>
+        await FirebaseAuth.instance.currentUser?.getIdToken(),
+  );
   bool _guestMode = false;
   String? _signInPrompt;
 
-  Future<void> _prepareMap() async {
-    if (kIsWeb && AppEnvironment.offlineMapDownloadsEnabled) {
-      await _nearbyPlacesService.downloadOfflinePlaces();
+  PlaceCommentService _commentService({User? user}) {
+    if (AppEnvironment.isLocalWeb) {
+      return _localPlaceCommentService;
     }
+    return FirestorePlaceCommentService(userId: user?.uid);
   }
 
   void _continueAsGuest() {
@@ -89,12 +101,12 @@ class _AuthGateState extends State<_AuthGate> {
       if (user == null) {
         if (_guestMode) {
           return StartupSplash(
-            onPrepare: _prepareMap,
             child: NearbyScreen(
               service: FirestorePlaceService(),
               locationService: const GeolocatorLocationService(),
               geocoder: NominatimGeocodingService(),
               nearbyPlacesService: _nearbyPlacesService,
+              commentService: _commentService(),
               isGuest: true,
               onRequireSignIn: _requireSignIn,
             ),
@@ -121,7 +133,6 @@ class _AuthGateState extends State<_AuthGate> {
           }
           if (!roleSnapshot.hasData) return const _AuthLoading();
           return StartupSplash(
-            onPrepare: _prepareMap,
             child: NearbyScreen(
               service: FirestorePlaceService(),
               draftService: LocalPlaceService(
@@ -130,6 +141,7 @@ class _AuthGateState extends State<_AuthGate> {
               locationService: const GeolocatorLocationService(),
               geocoder: NominatimGeocodingService(),
               nearbyPlacesService: _nearbyPlacesService,
+              commentService: _commentService(user: user),
               favoriteService: FirestoreFavoriteService(userId: user.uid),
               userEmail: user.email ?? '',
               isAdmin: roleSnapshot.data!,

@@ -7,11 +7,6 @@ abstract final class AppEnvironment {
     'APP_MODE',
     defaultValue: 'auto',
   );
-  static const _offlineDownloadsConfigured = bool.fromEnvironment(
-    'OFFLINE_MAP_DOWNLOAD_ENABLED',
-    defaultValue: true,
-  );
-
   static AppDeploymentMode get mode => switch (_modeName) {
     'local' => AppDeploymentMode.local,
     'firebase' => AppDeploymentMode.firebase,
@@ -24,8 +19,10 @@ abstract final class AppEnvironment {
     return isFirebaseHost(Uri.base.host);
   }
 
-  static bool get offlineMapDownloadsEnabled =>
-      _offlineDownloadsConfigured && !isFirebaseHosted;
+  static bool get isLocalWeb =>
+      kIsWeb &&
+      (mode == AppDeploymentMode.local ||
+          (mode == AppDeploymentMode.automatic && isLocalHost(Uri.base.host)));
 
   static bool isLocalHost(String host) {
     final normalizedHost = host.toLowerCase();

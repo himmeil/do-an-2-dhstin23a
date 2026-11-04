@@ -87,6 +87,7 @@ class OverpassNearbyPlacesService implements NearbyPlacesService {
     http.Client? client,
     String? webBaseUrl,
     bool? useProxy,
+    this.getIdToken,
   }) : _client = client ?? http.Client(),
        _webBaseUrl = webBaseUrl ?? _defaultNearbyApiBaseUrl(),
        _useProxy = useProxy ?? kIsWeb;
@@ -94,46 +95,8 @@ class OverpassNearbyPlacesService implements NearbyPlacesService {
   final http.Client _client;
   final String _webBaseUrl;
   final bool _useProxy;
+  final Future<String?> Function()? getIdToken;
   static const offlineCacheKey = 'nearby_places_sql_download_v1';
-
-  Future<int> downloadOfflinePlaces() async {
-    if (!AppEnvironment.offlineMapDownloadsEnabled) {
-      throw StateError('Tải dữ liệu bản đồ offline đã tắt trên bản web Firebase.');
-    }
-    if (!_useProxy) {
-      throw StateError('Tải dữ liệu offline cần chạy qua server Web local.');
-    }
-
-    final response = await _client
-        .get(
-          Uri.parse(
-            '${_webBaseUrl.replaceAll(RegExp(r'/$'), '')}/api/offline-places',
-          ),
-        )
-        .timeout(const Duration(seconds: 10));
-    if (response.statusCode != 200) {
-      throw Exception(
-        'Không tải được dữ liệu offline (${response.statusCode}).',
-      );
-    }
-    final decoded = jsonDecode(utf8.decode(response.bodyBytes));
-    if (decoded is! Map || decoded['elements'] is! List) {
-      throw const FormatException('Dữ liệu offline không hợp lệ.');
-    }
-    final elements = (decoded['elements'] as List)
-        .where(
-          (element) =>
-              element is Map &&
-              element['tags'] is Map &&
-              _isSearchableOsmPlace(
-                Map<String, dynamic>.from(element['tags'] as Map),
-              ),
-        )
-        .toList();
-    final preferences = await SharedPreferences.getInstance();
-    await preferences.setString(offlineCacheKey, jsonEncode(elements));
-    return elements.length;
-  }
 
   Future<int> updateMapFromOverpass() async {
     if (!_useProxy) {
@@ -144,6 +107,7 @@ class OverpassNearbyPlacesService implements NearbyPlacesService {
           Uri.parse(
             '${_webBaseUrl.replaceAll(RegExp(r'/$'), '')}/api/admin/update-map',
           ),
+          headers: await _adminHeaders(),
         )
         .timeout(const Duration(minutes: 10));
     if (response.statusCode != 200) {
@@ -165,6 +129,7 @@ class OverpassNearbyPlacesService implements NearbyPlacesService {
           Uri.parse(
             '${_webBaseUrl.replaceAll(RegExp(r'/$'), '')}/api/admin/map-sources',
           ),
+          headers: await _adminHeaders(),
         )
         .timeout(const Duration(seconds: 10));
     if (response.statusCode != 200) {
@@ -191,7 +156,7 @@ class OverpassNearbyPlacesService implements NearbyPlacesService {
           Uri.parse(
             '${_webBaseUrl.replaceAll(RegExp(r'/$'), '')}/api/admin/select-map',
           ),
-          headers: const {'Content-Type': 'application/json'},
+          headers: await _adminHeaders(json: true),
           body: jsonEncode({'source': source}),
         )
         .timeout(const Duration(seconds: 30));
@@ -207,6 +172,17 @@ class OverpassNearbyPlacesService implements NearbyPlacesService {
       throw const FormatException('Phản hồi chọn dữ liệu bản đồ không hợp lệ.');
     }
     return (decoded['count'] as num).toInt();
+  }
+
+  Future<Map<String, String>> _adminHeaders({bool json = false}) async {
+    final token = await getIdToken?.call();
+    if (token == null || token.isEmpty) {
+      throw StateError('Cần đăng nhập trước khi thao tác quản trị.');
+    }
+    return {
+      'Authorization': 'Bearer $token',
+      if (json) 'Content-Type': 'application/json',
+    };
   }
 
   @override

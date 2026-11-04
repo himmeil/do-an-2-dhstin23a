@@ -128,6 +128,7 @@ void main() {
     String? selectedSource;
     final nearbyService = OverpassNearbyPlacesService(
       useProxy: true,
+      getIdToken: () async => 'test-token',
       client: MockClient((request) async {
         if (request.url.path == '/api/admin/map-sources') {
           return http.Response(
@@ -322,7 +323,7 @@ void main() {
     expect(find.text('Đăng xuất'), findsOneWidget);
   });
 
-  testWidgets('khách xem được danh sách nhưng đăng nhập mới được tìm/vệ tinh', (
+  testWidgets('khách xem bản đồ và lọc địa điểm nhưng cần đăng nhập vệ tinh', (
     tester,
   ) async {
     final requestedFeatures = <String>[];
@@ -344,27 +345,24 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byKey(const ValueKey('nearby-map-main')), findsOneWidget);
-    await tester.tap(find.byTooltip('Xem danh sách'));
+    expect(find.byTooltip('Xem danh sách'), findsNothing);
+    expect(find.byTooltip('Dùng GPS'), findsNothing);
+    await tester.tap(find.byTooltip('Hiện bộ tìm kiếm'));
     await tester.pumpAndSettle();
-    expect(find.text('Quán xem thử'), findsOneWidget);
     final search = tester.widget<TextField>(find.byType(TextField).first);
-    expect(search.readOnly, isTrue);
+    expect(search.readOnly, isFalse);
+    await tester.tap(find.byKey(const ValueKey('toggle-nearby-filters')));
+    await tester.pumpAndSettle();
+    expect(find.byType(ChoiceChip), findsWidgets);
     expect(find.byTooltip('Đăng nhập'), findsOneWidget);
 
-    await tester.tap(find.byType(TextField).first);
-    await tester.pumpAndSettle();
-    expect(find.text('Đăng nhập để tiếp tục'), findsOneWidget);
-    await tester.tap(find.text('Đăng nhập').last);
-    await tester.pumpAndSettle();
-    expect(requestedFeatures, ['Tìm kiếm địa điểm']);
-
-    await tester.tap(find.byTooltip('Xem bản đồ'));
+    await tester.tap(find.byTooltip('Ẩn bộ tìm kiếm'));
     await tester.pumpAndSettle();
     await tester.tap(find.byTooltip('Đăng nhập để xem ảnh vệ tinh'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Đăng nhập').last);
     await tester.pumpAndSettle();
-    expect(requestedFeatures, ['Tìm kiếm địa điểm', 'Xem ảnh vệ tinh']);
+    expect(requestedFeatures, ['Xem ảnh vệ tinh']);
   });
 
   testWidgets('có thể xem ranh giới phường Cao Lãnh khi chưa nạp dữ liệu', (

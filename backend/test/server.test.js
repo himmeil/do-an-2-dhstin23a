@@ -139,20 +139,35 @@ test('nearby coordinate lookup uses the spatial prefilter index', () => {
   );
 });
 
-test('cloud runtime serves the offline places endpoint', async () => {
+test('manual offline-place download endpoint is disabled', async () => {
   const response = await fetch(`${baseUrl()}/api/offline-places`);
-  assert.equal(response.status, 200);
-  const body = await response.json();
-  assert.ok(body.elements.length > 0);
-  const museum = body.elements.find(
-    (element) => element.tags.name === 'Bảo tàng Đồng Tháp',
-  );
-  assert.equal(museum.tags['app:category'], 'vui_choi');
+  assert.equal(response.status, 404);
 });
 
-test('cloud runtime does not expose local map mutation endpoints', async () => {
+test('comments can be read publicly and are isolated by place id', async () => {
+  const placeId = 'osm/way-1';
+  const response = await fetch(
+    `${baseUrl()}/api/places/${encodeURIComponent(placeId)}/comments`,
+  );
+  assert.equal(response.status, 200);
+  assert.deepEqual(await response.json(), {comments: []});
+});
+
+test('posting a comment requires a verified signed-in user', async () => {
+  const response = await fetch(`${baseUrl()}/api/places/place-1/comments`, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({content: 'Bình luận chưa xác thực'}),
+  });
+  assert.equal(response.status, 401);
+  assert.deepEqual(await response.json(), {
+    error: 'Cần đăng nhập để sử dụng chức năng này.',
+  });
+});
+
+test('all map administration endpoints require authentication', async () => {
   const response = await fetch(`${baseUrl()}/api/admin/update-map`, {
     method: 'POST',
   });
-  assert.equal(response.status, 501);
+  assert.equal(response.status, 401);
 });

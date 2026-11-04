@@ -1,5 +1,7 @@
 import http from 'node:http';
 import {DatabaseSync} from 'node:sqlite';
+import {getAuth} from 'firebase-admin/auth';
+import {initializeApp} from 'firebase-admin/app';
 import {readFileSync, renameSync, writeFileSync, existsSync, unlinkSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import path from 'node:path';
@@ -24,6 +26,11 @@ const databasePath = path.join(
   'places.sqlite',
 );
 const schemaPath = path.join(path.dirname(fileURLToPath(import.meta.url)), 'data', 'places.sql');
+const commentsSchemaPath = path.join(
+  path.dirname(fileURLToPath(import.meta.url)),
+  'data',
+  'binhluan.sql',
+);
 const dataDirectory = path.dirname(schemaPath);
 const currentMapPath = path.join(dataDirectory, 'dia_diem_cao_lanh.json');
 const currentSqlPath = path.join(dataDirectory, 'dia_diem_cao_lanh.sql');
@@ -35,6 +42,7 @@ const runtimeDatabasePath = process.env.SQLITE_DATABASE_PATH
   || (isCloudRuntime ? path.join(tmpdir(), 'places.sqlite') : databasePath);
 const database = new DatabaseSync(runtimeDatabasePath);
 database.exec(readFileSync(schemaPath, 'utf8'));
+database.exec(readFileSync(commentsSchemaPath, 'utf8'));
 const seededPlaceCount = database.prepare('SELECT COUNT(*) AS count FROM places').get().count;
 if (seededPlaceCount === 0 && existsSync(currentSqlPath)) {
   database.exec(readFileSync(currentSqlPath, 'utf8'));
@@ -131,6 +139,78 @@ function migrateLegacyPlaceCategories() {
 
 migrateLegacyPlaceCategories();
 
+let firebaseAuth;
+
+function getFirebaseAuth() {
+  if (!firebaseAuth) {
+    firebaseAuth = getAuth(initializeApp({
+      projectId: configuredUrl('FIREBASE_PROJECT_ID'),
+    }));
+  }
+  return firebaseAuth;
+}
+
+async function authenticate(request, response) {
+  const authorization = request.headers.authorization || '';
+  const tokenMatch = authorization.match(/^Bearer\s+(.+)$/i);
+  if (!tokenMatch) {
+    sendJson(response, 401, {error: 'Cần đăng nhập để sử dụng chức năng này.'});
+    return null;
+  }
+  let auth;
+  try {
+    auth = getFirebaseAuth();
+  } catch (error) {
+    console.error('Firebase authentication is not configured:', error);
+    sendJson(response, 503, {error: 'Dịch vụ xác thực chưa được cấu hình.'});
+    return null;
+  }
+  try {
+    return await auth.verifyIdToken(tokenMatch[1]);
+  } catch (error) {
+    console.warn('Firebase ID token verification failed.');
+    sendJson(response, 401, {error: 'Phiên đăng nhập không hợp lệ hoặc đã hết hạn.'});
+    return null;
+  }
+}
+
+async function requireAdmin(request, response) {
+  const user = await authenticate(request, response);
+  if (!user) return false;
+
+  const projectId = encodeURIComponent(configuredUrl('FIREBASE_PROJECT_ID'));
+  const userId = encodeURIComponent(user.uid);
+  let roleResponse;
+  try {
+    roleResponse = await fetch(
+      `https://firestore.googleapis.com/v1/projects/${projectId}`
+        + `/databases/(default)/documents/admins/${userId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${request.headers.authorization.match(/^Bearer\s+(.+)$/i)[1]}`,
+        },
+      },
+    );
+  } catch (error) {
+    console.error('Could not verify Firebase admin role:', error);
+    sendJson(response, 503, {error: 'Không thể xác minh quyền quản trị.'});
+    return false;
+  }
+
+  if (roleResponse.status === 404) {
+    sendJson(response, 403, {error: 'Tài khoản không có quyền quản trị.'});
+    return false;
+  }
+  if (!roleResponse.ok) {
+    console.error(
+      `Firebase admin role lookup failed with HTTP ${roleResponse.status}.`,
+    );
+    sendJson(response, 503, {error: 'Không thể xác minh quyền quản trị.'});
+    return false;
+  }
+  return true;
+}
+
 const overpassQueryTimeoutSeconds = Number(process.env.OVERPASS_QUERY_TIMEOUT_SECONDS || 25);
 const upstreamTimeoutMs = Number(
   process.env.OVERPASS_TIMEOUT_MS || (overpassQueryTimeoutSeconds + 5) * 1000,
@@ -152,17 +232,28 @@ const osmMapApiUrl = configuredUrl('OSM_MAP_API_URL');
 function sendJson(response, status, body) {
   response.writeHead(status, {
     'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Headers': 'Content-Type',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Authorization, Content-Type',
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
     'Content-Type': 'application/json; charset=utf-8',
   });
+  if (status === 204) {
+    response.end();
+    return;
+  }
   response.end(JSON.stringify(body));
 }
 
-async function requestJson(request) {
+async function requestJson(request, maxBytes = Number.MAX_SAFE_INTEGER) {
   if (request.body !== undefined) return request.body;
   const chunks = [];
-  for await (const chunk of request) chunks.push(chunk);
+  let totalBytes = 0;
+  for await (const chunk of request) {
+    totalBytes += chunk.length;
+    if (totalBytes > maxBytes) {
+      throw new RangeError('Request body is too large.');
+    }
+    chunks.push(chunk);
+  }
   return JSON.parse(Buffer.concat(chunks).toString('utf8'));
 }
 
@@ -808,17 +899,65 @@ const server = http.createServer(async (request, response) => {
     sendJson(response, 200, {ok: true, service: 'nearby-overpass-proxy'});
     return;
   }
-  if (request.method === 'GET' && request.url === '/api/offline-places') {
-    const activeSource = activeMapSource();
-    sendJson(response, 200, {
-      source: existsSync(mapSourcePath(activeSource))
-        ? path.basename(mapSourcePath(activeSource))
-        : 'local-cao-lanh-sql',
-      elements: localDatabaseElements(),
-    });
+  const commentsMatch = request.url.match(
+    /^\/api\/places\/([^/]+)\/comments(?:\?.*)?$/,
+  );
+  if (commentsMatch && ['GET', 'POST'].includes(request.method)) {
+    let placeId;
+    try {
+      placeId = decodeURIComponent(commentsMatch[1]);
+    } catch {
+      sendJson(response, 400, {error: 'Mã địa điểm không hợp lệ.'});
+      return;
+    }
+    if (!placeId || placeId.length > 256) {
+      sendJson(response, 400, {error: 'Mã địa điểm không hợp lệ.'});
+      return;
+    }
+
+    if (request.method === 'GET') {
+      const comments = database.prepare(`
+        SELECT id, account_name AS accountName, content, created_at AS createdAt
+        FROM comments
+        WHERE place_id = ?
+        ORDER BY created_at DESC, id DESC
+        LIMIT 100
+      `).all(placeId);
+      sendJson(response, 200, {comments});
+      return;
+    }
+
+    const user = await authenticate(request, response);
+    if (!user) return;
+    const accountName = String(user.email || user.name || '').trim();
+    if (!accountName || accountName.length > 254) {
+      sendJson(response, 400, {error: 'Tài khoản không có tên hiển thị hợp lệ.'});
+      return;
+    }
+    let input;
+    try {
+      input = await requestJson(request, 16 * 1024);
+    } catch (error) {
+      const tooLarge = error instanceof RangeError;
+      sendJson(response, tooLarge ? 413 : 400, {
+        error: tooLarge ? 'Bình luận quá lớn.' : 'JSON bình luận không hợp lệ.',
+      });
+      return;
+    }
+    const content = typeof input?.content === 'string' ? input.content.trim() : '';
+    if (!content || content.length > 1000) {
+      sendJson(response, 400, {error: 'Bình luận phải từ 1-1000 ký tự.'});
+      return;
+    }
+    const result = database.prepare(`
+      INSERT INTO comments (place_id, user_id, account_name, content)
+      VALUES (?, ?, ?, ?)
+    `).run(placeId, user.uid, accountName, content);
+    sendJson(response, 201, {id: Number(result.lastInsertRowid)});
     return;
   }
   if (request.method === 'GET' && request.url === '/api/admin/map-sources') {
+    if (!await requireAdmin(request, response)) return;
     if (isCloudRuntime) {
       sendJson(response, 501, {
         error: 'Quản lý snapshot bản đồ hiện chỉ được hỗ trợ trên backend local.',
@@ -836,6 +975,7 @@ const server = http.createServer(async (request, response) => {
     return;
   }
   if (request.method === 'POST' && request.url === '/api/admin/select-map') {
+    if (!await requireAdmin(request, response)) return;
     if (isCloudRuntime) {
       sendJson(response, 501, {
         error: 'Chọn snapshot bản đồ hiện chỉ được hỗ trợ trên backend local.',
@@ -858,6 +998,7 @@ const server = http.createServer(async (request, response) => {
     return;
   }
   if (request.method === 'POST' && request.url === '/api/admin/update-map') {
+    if (!await requireAdmin(request, response)) return;
     if (isCloudRuntime) {
       sendJson(response, 501, {
         error: 'Cập nhật dữ liệu bản đồ hiện chỉ được hỗ trợ trên backend local.',
