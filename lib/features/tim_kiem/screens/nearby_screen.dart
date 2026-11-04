@@ -5,6 +5,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../core/constants/app_constants.dart';
+import '../../../core/config/app_environment.dart';
 import '../../../core/config/display_preferences.dart';
 import '../../../core/utils/text_utils.dart';
 import '../../../core/widgets/async_state_view.dart';
@@ -264,6 +265,10 @@ class _NearbyScreenState extends State<NearbyScreen> {
   }
 
   String _nearbySearchErrorMessage(String error) {
+    if (AppEnvironment.isFirebaseHosted) {
+      return 'Dữ liệu địa điểm trực tuyến chưa khả dụng trên máy chủ này. '
+          'Bản đồ và địa điểm đã lưu vẫn hoạt động.';
+    }
     if (error.contains('localhost:8787')) {
       return 'Backend địa điểm chưa chạy. Hãy chạy run_web.bat hoặc '
           'bat_app.bat rồi tải lại trang.';
@@ -1027,7 +1032,8 @@ class _NearbyScreenState extends State<NearbyScreen> {
                     enabled: false,
                     child: Text(widget.userEmail),
                   ),
-                if (widget.onSignOut != null)
+                if (widget.onSignOut != null &&
+                    AppEnvironment.offlineMapDownloadsEnabled)
                   const PopupMenuItem(
                     value: _NearbyAction.downloadOfflinePlaces,
                     child: ListTile(

@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 
+import 'core/config/app_environment.dart';
 import 'core/constants/app_constants.dart';
 import 'core/theme/app_theme.dart';
 import 'core/widgets/splash/startup_splash.dart';
@@ -54,7 +55,9 @@ class _AuthGateState extends State<_AuthGate> {
   String? _signInPrompt;
 
   Future<void> _prepareMap() async {
-    if (kIsWeb) await _nearbyPlacesService.downloadOfflinePlaces();
+    if (kIsWeb && AppEnvironment.offlineMapDownloadsEnabled) {
+      await _nearbyPlacesService.downloadOfflinePlaces();
+    }
   }
 
   void _continueAsGuest() {

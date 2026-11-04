@@ -27,26 +27,5 @@
   },
   "firestore": {
     "rules": "firestore.rules"
-  },
-  "flutter": {
-    "platforms": {
-      "android": {
-        "default": {
-          "projectId": "do-an-2-b1f35",
-          "appId": "1:498440478152:android:d2d71ddabced5199ddf4fd",
-          "fileOutput": "android/app/google-services.json"
-        }
-      },
-      "dart": {
-        "lib/firebase_options.dart": {
-          "projectId": "do-an-2-b1f35",
-          "configurations": {
-            "android": "1:498440478152:android:d2d71ddabced5199ddf4fd",
-            "ios": "1:498440478152:ios:a47c1f1fe08a0791ddf4fd",
-            "web": "1:498440478152:web:bce491b238cc450addf4fd"
-          }
-        }
-      }
-    }
   }
 }

@@ -31,6 +31,9 @@ migrate_working_dir/
 .pub-cache/
 .pub/
 .firebase/
+dulieucanhan.env
+android/app/google-services.json
+.firebaserc
 /build/
 /coverage/
 

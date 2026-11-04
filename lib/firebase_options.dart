@@ -46,30 +46,65 @@ class DefaultFirebaseOptions {
     }
   }
 
-  static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyD-_wUCdtma19dUt3VqVkz6P8szuqADTGY',
-    appId: '1:498440478152:web:bce491b238cc450addf4fd',
-    messagingSenderId: '498440478152',
-    projectId: 'do-an-2-b1f35',
-    authDomain: 'do-an-2-b1f35.firebaseapp.com',
-    storageBucket: 'do-an-2-b1f35.firebasestorage.app',
-    measurementId: 'G-RND10PHPDN',
+  static FirebaseOptions get web => FirebaseOptions(
+    apiKey: _required('FIREBASE_WEB_API_KEY'),
+    appId: _required('FIREBASE_WEB_APP_ID'),
+    messagingSenderId: _required('FIREBASE_MESSAGING_SENDER_ID'),
+    projectId: _required('FIREBASE_PROJECT_ID'),
+    authDomain: _required('FIREBASE_AUTH_DOMAIN'),
+    storageBucket: _required('FIREBASE_STORAGE_BUCKET'),
+    measurementId: const String.fromEnvironment('FIREBASE_MEASUREMENT_ID'),
   );
 
-  static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyDJywiQhIEK4JU9eKTvVtNMI_oAGij3cds',
-    appId: '1:498440478152:android:d2d71ddabced5199ddf4fd',
-    messagingSenderId: '498440478152',
-    projectId: 'do-an-2-b1f35',
-    storageBucket: 'do-an-2-b1f35.firebasestorage.app',
+  static FirebaseOptions get android => FirebaseOptions(
+    apiKey: _required('FIREBASE_ANDROID_API_KEY'),
+    appId: _required('FIREBASE_ANDROID_APP_ID'),
+    messagingSenderId: _required('FIREBASE_MESSAGING_SENDER_ID'),
+    projectId: _required('FIREBASE_PROJECT_ID'),
+    storageBucket: _required('FIREBASE_STORAGE_BUCKET'),
   );
 
-  static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyArDtSqW2yI-uB_wDCneNTlkPxJHtKfrAY',
-    appId: '1:498440478152:ios:a47c1f1fe08a0791ddf4fd',
-    messagingSenderId: '498440478152',
-    projectId: 'do-an-2-b1f35',
-    storageBucket: 'do-an-2-b1f35.firebasestorage.app',
-    iosBundleId: 'vn.diadiem.quanhday',
+  static FirebaseOptions get ios => FirebaseOptions(
+    apiKey: _required('FIREBASE_IOS_API_KEY'),
+    appId: _required('FIREBASE_IOS_APP_ID'),
+    messagingSenderId: _required('FIREBASE_MESSAGING_SENDER_ID'),
+    projectId: _required('FIREBASE_PROJECT_ID'),
+    storageBucket: _required('FIREBASE_STORAGE_BUCKET'),
+    iosBundleId: _required('FIREBASE_IOS_BUNDLE_ID'),
   );
+
+  static String _required(String name) {
+    final value = switch (name) {
+      'FIREBASE_WEB_API_KEY' =>
+        const String.fromEnvironment('FIREBASE_WEB_API_KEY'),
+      'FIREBASE_WEB_APP_ID' =>
+        const String.fromEnvironment('FIREBASE_WEB_APP_ID'),
+      'FIREBASE_ANDROID_API_KEY' =>
+        const String.fromEnvironment('FIREBASE_ANDROID_API_KEY'),
+      'FIREBASE_ANDROID_APP_ID' =>
+        const String.fromEnvironment('FIREBASE_ANDROID_APP_ID'),
+      'FIREBASE_IOS_API_KEY' =>
+        const String.fromEnvironment('FIREBASE_IOS_API_KEY'),
+      'FIREBASE_IOS_APP_ID' =>
+        const String.fromEnvironment('FIREBASE_IOS_APP_ID'),
+      'FIREBASE_IOS_BUNDLE_ID' =>
+        const String.fromEnvironment('FIREBASE_IOS_BUNDLE_ID'),
+      'FIREBASE_MESSAGING_SENDER_ID' =>
+        const String.fromEnvironment('FIREBASE_MESSAGING_SENDER_ID'),
+      'FIREBASE_PROJECT_ID' =>
+        const String.fromEnvironment('FIREBASE_PROJECT_ID'),
+      'FIREBASE_AUTH_DOMAIN' =>
+        const String.fromEnvironment('FIREBASE_AUTH_DOMAIN'),
+      'FIREBASE_STORAGE_BUCKET' =>
+        const String.fromEnvironment('FIREBASE_STORAGE_BUCKET'),
+      _ => '',
+    };
+    if (value.isEmpty) {
+      throw StateError(
+        'Thiếu $name trong dulieucanhan.env. Hãy điền cấu hình Firebase '
+        'của dự án riêng trước khi chạy ứng dụng.',
+      );
+    }
+    return value;
+  }
 }

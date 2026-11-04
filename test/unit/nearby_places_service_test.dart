@@ -438,6 +438,30 @@ void main() {
     );
   });
 
+  test('fallback offline nếu endpoint trả HTML thay vì JSON', () async {
+    SharedPreferences.setMockInitialValues({
+      OverpassNearbyPlacesService.offlineCacheKey: jsonEncode([
+        {
+          'type': 'node',
+          'lat': 10.457,
+          'lon': 105.633,
+          'tags': {'name': 'Quán trong cache', 'amenity': 'cafe'},
+        },
+      ]),
+    });
+    final service = OverpassNearbyPlacesService(
+      client: MockClient((_) async => http.Response('<html>Hosting</html>', 200)),
+      useProxy: true,
+    );
+
+    final places = await service.search(
+      center: const LatLng(10.456, 105.632),
+      radiusMeters: 1000,
+    );
+
+    expect(places.map((place) => place.name), ['Quán trong cache']);
+  });
+
   test('đưa dữ liệu SQL đã tải offline vào đúng bộ lọc danh mục', () async {
     SharedPreferences.setMockInitialValues({});
     final service = OverpassNearbyPlacesService(

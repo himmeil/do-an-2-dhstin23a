@@ -58,14 +58,15 @@ dụng, các việc còn chờ và hướng làm tiếp theo. Cập nhật ngày
   này hoặc tên dài 151–200 ký tự có thể làm Firestore từ chối batch publish.
 - Bổ sung kiểm thử hồi quy cho loại `ben_xe` và giới hạn tên 200/201 ký tự;
   kiểm thử parser và bộ lọc danh mục đều đạt.
-- Firestore Rules đã deploy thành công lên `do-an-2-b1f35` ngày 04/11/2026.
-- Flutter Web release đã deploy lên `https://do-an-2-b1f35.web.app` ngày
-  04/11/2026; URL gốc trả HTTP 200.
-- Project chưa có Function `nearbyApi`. Hosting deploy cảnh báo rewrite `/api/**`
-  không có endpoint hợp lệ; đã xác minh `/api/offline-places` trả HTTP 404.
-  Do người dùng giữ gói miễn phí, chưa bật Blaze hoặc deploy Functions; tìm
-  kiếm OSM/tải offline qua API cloud chưa hoạt động. Không công bố deployment
-  này là đầy đủ chức năng API.
+- Firestore Rules đã deploy lên Firebase project cá nhân ngày 04/11/2026.
+- Flutter Web release đã deploy lên site mặc định của project; URL gốc trả
+  HTTP 200.
+- Project chưa có Function `nearbyApi`; `/api/offline-places` trả HTTP 404.
+  Không bật Blaze hoặc deploy Functions để giữ gói miễn phí, vì vậy tìm kiếm
+  OSM qua API cloud chưa hoạt động. Bản Firebase mới tắt hẳn bước tải snapshot
+  offline lúc khởi động và ẩn thao tác tải offline.
+- Cấu hình riêng không còn được theo dõi trong Git; file `dulieucanhan.env`
+  được bỏ qua và người fork cần cung cấp Firebase config của họ.
 - Đã tách `features/gps`, `features/nap_du_lieu` và `features/tim_kiem` khỏi
   `features/dia_diem`; miền địa điểm giữ model, repository contracts, adapters,
   bản đồ và chi tiết.

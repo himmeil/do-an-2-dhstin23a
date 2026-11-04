@@ -9,6 +9,11 @@ echo ========================================
 echo       DIA DIEM - FLUTTER WEB
 echo ========================================
 echo Website: http://localhost:5000
+if not exist "dulieucanhan.env" (
+  echo Khong tim thay dulieucanhan.env.
+  echo Hay sao chep dulieucanhan.env.example thanh dulieucanhan.env va dien cau hinh Firebase cua ban.
+  goto :menu
+)
 call :ensure_backend
 if errorlevel 1 goto :menu
 for /f "tokens=5" %%P in ('netstat -ano ^| findstr /R /C:":5000 .*LISTENING"') do (
@@ -19,7 +24,7 @@ for /f "tokens=5" %%P in ('netstat -ano ^| findstr /R /C:":5000 .*LISTENING"') d
   )
 )
 echo Dang build Flutter Web...
-call flutter build web --no-pub
+call flutter build web --no-pub --dart-define-from-file=dulieucanhan.env
 if errorlevel 1 (
   echo.
   echo Build that bai. Sua loi roi chon R de build lai.

@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:latlong2/latlong.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../core/config/app_environment.dart';
 import '../../../core/utils/text_utils.dart';
 import '../../dia_diem/du_lieu/models/place.dart';
 import '../../dia_diem/du_lieu/models/place_category_registry.dart';
@@ -13,19 +14,17 @@ import '../utils/geo.dart';
 
 String _defaultNearbyApiBaseUrl() {
   const configuredUrl = String.fromEnvironment('NEARBY_API_BASE_URL');
-  if (configuredUrl.isNotEmpty) return configuredUrl;
-
-  if (kIsWeb) {
-    final uri = Uri.base;
-    final host = uri.host.toLowerCase();
-    if (uri.scheme != 'file' &&
-        host != 'localhost' &&
-        host != '127.0.0.1' &&
-        host != '::1') {
-      return uri.origin;
+  if (AppEnvironment.isFirebaseHosted) {
+    if (configuredUrl.isNotEmpty) {
+      final configuredUri = Uri.tryParse(configuredUrl);
+      if (configuredUri != null &&
+          !AppEnvironment.isLocalHost(configuredUri.host)) {
+        return configuredUrl;
+      }
     }
+    return Uri.base.origin;
   }
-  return 'http://localhost:8787';
+  return configuredUrl.isNotEmpty ? configuredUrl : 'http://localhost:8787';
 }
 
 abstract interface class NearbyPlacesService {
@@ -94,6 +93,9 @@ class OverpassNearbyPlacesService implements NearbyPlacesService {
   static const offlineCacheKey = 'nearby_places_sql_download_v1';
 
   Future<int> downloadOfflinePlaces() async {
+    if (!AppEnvironment.offlineMapDownloadsEnabled) {
+      throw StateError('Tải dữ liệu bản đồ offline đã tắt trên bản web Firebase.');
+    }
     if (!_useProxy) {
       throw StateError('Tải dữ liệu offline cần chạy qua server Web local.');
     }
@@ -269,7 +271,12 @@ class OverpassNearbyPlacesService implements NearbyPlacesService {
       return await _offlineSearch(center, radiusMeters);
     }
 
-    final decoded = jsonDecode(utf8.decode(response.bodyBytes));
+    final dynamic decoded;
+    try {
+      decoded = jsonDecode(utf8.decode(response.bodyBytes));
+    } on FormatException {
+      return await _offlineSearch(center, radiusMeters);
+    }
     if (decoded is! Map || decoded['elements'] is! List) {
       return await _offlineSearch(center, radiusMeters);
     }
@@ -327,9 +334,11 @@ class OverpassNearbyPlacesService implements NearbyPlacesService {
         );
       }
       throw StateError(
-        'Backend địa điểm không khả dụng và chưa có dữ liệu offline. '
-        'Hãy chạy run_web.bat hoặc bat_app.bat để khởi động backend tại '
-        'localhost:8787.',
+        AppEnvironment.isFirebaseHosted
+            ? 'Dịch vụ địa điểm trực tuyến chưa được cấu hình trên máy chủ này.'
+            : 'Backend địa điểm không khả dụng và chưa có dữ liệu offline. '
+                  'Hãy chạy run_web.bat hoặc bat_app.bat để khởi động backend '
+                  'tại localhost:8787.',
       );
     }
     final decoded = jsonDecode(cached);

@@ -30,18 +30,20 @@ App Flutter chỉ làm một việc: **tìm địa điểm xung quanh vị trí 
   phóng tới vị trí đó và đánh dấu bằng ghim đỏ.
 - GPS không tự bật khi mở app. Người dùng có thể giữ trên bản đồ để chọn một điểm làm tâm tìm kiếm, không cần cấp quyền vị trí; cũng có thể bấm thanh vị trí để nhập địa chỉ (Nominatim/OpenStreetMap) hoặc chọn địa điểm đã nạp. Nút GPS chỉ lấy vị trí khi người dùng chủ động chọn.
 - App truy vấn SQLite local theo bán kính 1/5/10 km. Admin cập nhật dữ liệu từ Overpass; nếu Overpass timeout, backend tự dùng OpenStreetMap API, lưu dữ liệu Cao Lãnh vào SQLite. Lựa chọn “Tất cả” gồm địa điểm đã lưu và dữ liệu bản đồ local.
-- **Web local:** Flutter Web gọi proxy trong thư mục `backend/` tại `localhost:8787`; `run_web.bat` và `bat_app.bat` tự khởi động proxy. **Firebase Hosting:** web app dùng cùng origin, Firebase Hosting rewrite `/api/**` tới Firebase Function `nearbyApi`; không gọi localhost trên production.
-- Khi vào màn hình chính trên Web, splash gọi `GET /api/offline-places` để
-  tải trước dữ liệu địa điểm của khu vực Cao Lãnh và lưu cache cục bộ. Tile
-  raster chỉ tải theo vùng bản đồ đang nhìn, tránh gọi trước các tile không
-  cần thiết; trên thiết bị native, cache tile của `flutter_map` bị giới hạn
-  tối đa 128 MiB. Web phụ thuộc HTTP cache của trình duyệt/nhà cung cấp tile.
-  Bước nạp dữ liệu có timeout 4 giây; nếu backend chưa phản hồi, app tiếp tục
-  dùng Firestore và cache cũ.
-- **Chế độ offline:** danh sách địa điểm Cao Lãnh được đóng gói trong
-  bộ nhớ cục bộ sau khi người dùng bấm tải trong menu tài khoản. Khi Overpass
-  hoặc proxy không phản hồi, Flutter đọc dữ liệu đã tải, lọc theo bán kính và
-  vẫn hiển thị danh sách/ghim địa điểm.
+- **Web local:** Flutter Web gọi proxy trong thư mục `backend/` tại
+  `localhost:8787`; `run_web.bat` và `bat_app.bat` tự khởi động proxy.
+  **Firebase Hosting:** app nhận biết môi trường production khi build với
+  `APP_MODE=firebase`, không gọi `localhost` và không tải snapshot bản đồ
+  offline. Endpoint `/api/**` chỉ hoạt động khi có backend Function được
+  triển khai; hiện Function chưa được triển khai.
+- Khi vào màn hình chính trên Web local, splash tải trước dữ liệu địa điểm
+  Cao Lãnh qua backend để lưu cache cục bộ. Firebase Hosting bỏ qua bước này
+  và ẩn thao tác tải offline. Tile raster chỉ tải theo vùng bản đồ đang nhìn;
+  Web phụ thuộc HTTP cache của trình duyệt/nhà cung cấp tile.
+- **Chế độ offline local:** sau khi đã tải dữ liệu trên Web local, khi
+  Overpass hoặc proxy không phản hồi, Flutter dùng cache cục bộ để lọc theo
+  bán kính và hiển thị địa điểm. Cache đã có vẫn được giữ; bản Firebase không
+  tạo hoặc tải mới cache này.
   Dữ liệu địa lý dùng OpenStreetMap; nền bản đồ đường phố tải từ OpenStreetMap
   HOT để tránh các ô xám khi máy chủ tile OSM chính bị giới hạn hoặc lỗi kết
   nối. Tile raster vẫn cần mạng nếu chưa được cache; API offline chỉ lưu dữ
@@ -56,11 +58,16 @@ App Flutter chỉ làm một việc: **tìm địa điểm xung quanh vị trí 
 - Trên bản đồ có thể xem ranh giới phường Cao Lãnh (dữ liệu OpenStreetMap).
 - Khách có thể vào xem danh sách, chi tiết và bản đồ đường phố không cần tài khoản. Đăng nhập bằng email/mật khẩu để tìm kiếm/lọc, tra vị trí thủ công, xem ảnh vệ tinh và lưu địa điểm yêu thích; quản trị viên có thể tạo bản nháp trên thiết bị, xem lại rồi xác nhận đăng lên Firestore.
 - Màn tạo bản nháp có 3 cách: dán CSV/JSON (hoặc copy từ Excel/Google Sheets), thêm tay từng điểm, hoặc tạo dữ liệu mẫu quanh bạn để thử. Dữ liệu cũ trong bộ nhớ trên thiết bị được giữ nguyên và không tự tải lên.
-- Firebase Core đã được cấu hình cho Android, iOS và Web bằng FlutterFire; cấu hình nền tảng nằm trong `lib/firebase_options.dart`. Chạy lại `flutterfire configure --project=do-an-2-b1f35 --platforms=android,ios,web` khi thêm nền tảng hoặc cấu hình Firebase.
-- Bản Web được cấu hình deploy lên Firebase Hosting tại `https://do-an-2-b1f35.web.app`. GitHub Actions deploy Firebase Functions trước Hosting khi có push lên `main`; Pull Request nội bộ có thể tạo bản preview. Thiết lập nằm trong `firebase.json` và `.github/workflows/`.
-- Dữ liệu bản đồ Cao Lãnh đã được nạp lên Firestore project `do-an-2-b1f35`,
-  collection `places` (1.018 địa điểm). Hosting và Firestore là hai phần
-  riêng: deploy web không tự nạp SQLite local lên cloud.
+- Firebase Core, Authentication và Firestore nhận cấu hình client từ
+  `dulieucanhan.env` khi build. Tạo file này bằng cách sao chép
+  `dulieucanhan.env.example`, rồi điền cấu hình Firebase của dự án bạn.
+  File cá nhân bị `.gitignore` loại khỏi Git; không commit hoặc gửi file này.
+- Dùng `deploy_firebase.bat` để build production và deploy riêng Hosting.
+  Build này đặt `APP_MODE=firebase`, tự tắt tải map offline và lấy project ID
+  từ file cấu hình cá nhân. Endpoint tìm kiếm `/api/**` vẫn cần backend
+  Function; không deploy Functions để tránh yêu cầu gói Blaze.
+- Hosting và Firestore là hai phần riêng: deploy web không tự nạp SQLite
+  local lên cloud.
 
 ## Tài nguyên đồ họa
 
@@ -106,6 +113,11 @@ bat_app.bat   - bật backend và Flutter Web
 tat_app.bat   - tắt tiến trình đang dùng cổng 8787 và 5000
 ```
 
+Trước lần chạy đầu, sao chép `dulieucanhan.env.example` thành
+`dulieucanhan.env` và điền cấu hình Firebase của dự án riêng. Đây là JSON được
+Flutter đọc bằng `--dart-define-from-file`, không phải file dotenv dạng
+`KEY=value`. Không đưa file cá nhân lên Git.
+
 Nên chạy `tat_app.bat` khi kết thúc demo để giải phóng hai cổng này.
 Trong cửa sổ Backend và Flutter Web, bấm `R` để reload tương ứng; bấm `Q` để
 đóng từng cửa sổ. `tat_app.bat` sẽ đóng cả hai cửa sổ và các tiến trình con.
@@ -116,12 +128,12 @@ Sau đó chạy Flutter Web:
 
 ```powershell
 cd C:\Users\Admin\Desktop\Do_AN_2\app-tim-dia-diem-xung-quanh
-flutter build web --no-pub
+flutter build web --no-pub --dart-define-from-file=dulieucanhan.env
 python -m http.server 5000 --directory build\web --bind 127.0.0.1
 # Mở http://localhost:5000 bằng trình duyệt
 # Chế độ debug nếu cần hot reload:
-flutter run -d web-server --web-port 5000
-flutter run               # máy thật hoặc emulator Android
+flutter run -d web-server --web-port 5000 --dart-define-from-file=dulieucanhan.env
+flutter run --dart-define-from-file=dulieucanhan.env
 ```
 
 Nếu báo lỗi cổng `5000` đã được sử dụng, chạy `tat_app.bat` trước rồi chạy
@@ -131,19 +143,23 @@ server đúng cấu hình.
 Khi dùng server local cho dữ liệu bản đồ, khởi động server trước rồi chạy
 Flutter Web. Proxy mặc định ở `http://localhost:8787`.
 
-### Deploy web và Firestore
+### Deploy web
 
-Sau khi cập nhật giao diện hoặc Rules, chạy:
+Chạy file dưới đây để build production (tắt tải map offline) và deploy
+Firebase Hosting:
 
-```powershell
-firebase.cmd deploy --only hosting,firestore:rules --project do-an-2-b1f35
+```text
+deploy_firebase.bat
 ```
+
+Không deploy Firestore Rules hoặc Functions tự động qua lệnh này.
 
 Kiểm tra nhanh dữ liệu cloud:
 
 ```powershell
+$projectId = (Get-Content dulieucanhan.env -Raw | ConvertFrom-Json).FIREBASE_PROJECT_ID
 Invoke-RestMethod `
-  -Uri "https://firestore.googleapis.com/v1/projects/do-an-2-b1f35/databases/(default)/documents/places?pageSize=1"
+  -Uri "https://firestore.googleapis.com/v1/projects/$projectId/databases/(default)/documents/places?pageSize=1"
 ```
 
 Không xóa collection `places` khi chỉ deploy Hosting. Nếu cần nạp snapshot
@@ -218,12 +234,24 @@ lỗi CORS trên trình duyệt.
 - Bản nháp do quản trị viên tạo được lưu cục bộ với khóa riêng `admin_place_drafts_v1`. Dữ liệu cũ `places_v1` không bị xóa, chuyển đổi hoặc tải lên tự động.
 - Tạo tài khoản/đăng nhập dùng Firebase Authentication email/mật khẩu. Quyền quản trị không dựa trên email hard-code trong app: cần tạo tài khoản trong Authentication, sau đó thêm document `/admins/{uid}` từ Firebase Console. Firestore Rules chặn client tự cấp quyền admin.
 - Quy tắc bảo vệ dữ liệu nằm trong `firestore.rules`, được tham chiếu ở cấp gốc `firebase.json`. Trước khi dùng cần bật Firestore API, tạo database ở `asia-southeast1` và bật nhà cung cấp Email/Password trong Firebase Authentication của project.
-- Firebase Core, Authentication và Firestore được cấu hình cho Android, iOS và Web bằng FlutterFire; cấu hình nền tảng nằm trong `lib/firebase_options.dart`.
+- Firebase Core, Authentication và Firestore đọc cấu hình build từ
+  `dulieucanhan.env`; file này được bỏ qua bởi Git. Người fork cần tạo file
+  riêng từ `dulieucanhan.env.example` và điền cấu hình Firebase của họ.
 - App gọi mạng tới OpenStreetMap HOT (ô bản đồ, tìm địa chỉ qua Nominatim và
   tra cứu địa điểm qua proxy local), Esri (ô ảnh vệ tinh khi bạn chọn lớp
   vệ tinh) và Firebase (xác thực, địa điểm, danh sách yêu thích).
-- `firebase_options.dart` và `google-services.json` là cấu hình client dùng để kết nối Firebase, không phải khóa bí mật. Không đưa service-account JSON, private key hoặc thông tin Firebase Admin vào ứng dụng hay repository.
-- Workflow GitHub dùng secret `FIREBASE_SERVICE_ACCOUNT_DO_AN_2_B1F35`; secret được lưu trong GitHub Actions Secrets, không lưu trong mã nguồn. Để thiết lập lại liên kết repository: chạy `firebase init hosting:github` và làm theo hướng dẫn đăng nhập GitHub.
+- Firebase client config/API key được đóng gói vào ứng dụng khi build để kết
+  nối Firebase; đây không phải bí mật và không thể ẩn khỏi người dùng web.
+  Quyền truy cập phải được bảo vệ bằng Firebase Rules và giới hạn API key.
+  Tuyệt đối không đưa service-account JSON, private key hoặc thông tin
+  Firebase Admin vào file cấu hình phía client hay repository.
+- GitHub Actions cần secrets `DULIEUCANHAN_ENV` (JSON cấu hình ứng dụng) và
+  `FIREBASE_SERVICE_ACCOUNT` (service account của dự án riêng). Lưu chúng trong
+  GitHub Actions Secrets, không trong mã nguồn. Để thiết lập lại liên kết
+  repository: chạy `firebase init hosting:github` và làm theo hướng dẫn.
+- GitHub Actions cần secret `DULIEUCANHAN_ENV` chứa toàn bộ JSON cấu hình trong
+  `dulieucanhan.env`; các workflow dùng nó để build Hosting và không deploy
+  Functions.
 - Chạy web mỗi lần ở một cổng khác (`localhost:xxxx`) sẽ có kho dữ liệu riêng. Muốn giữ dữ liệu giữa các lần chạy, đặt cổng cố định: `flutter run -d edge --web-port 5000` hoặc `flutter run -d web-server --web-port 5000`.
 - Xóa dữ liệu: xóa dữ liệu của app, hoặc xóa dữ liệu trang trong trình duyệt.
 - Bộ lọc khoảng cách chạy trên máy, phù hợp vài nghìn địa điểm.
@@ -243,3 +271,4 @@ lịch sử thay đổi.
 - 2026-11-03 08:28 (UTC+7): Chuẩn hóa nhật ký Markdown còn tối đa 10 lần chỉnh sửa; quy định tài liệu tiến độ/báo cáo lưu trạng thái hiện hành.
 - 2026-11-03 09:43 (UTC+7): Sửa bộ lọc tìm quanh đây để có thể kết hợp nhiều danh mục cùng lúc.
 - 2026-11-03 12:59 (UTC+7): Chuyển API production từ localhost sang Firebase Functions và rewrite `/api/**` qua Hosting.
+- 2026-11-04 16:04 (UTC+7): Tách cấu hình Firebase/API vào env cá nhân; tắt tải bản đồ offline trên Firebase Hosting.

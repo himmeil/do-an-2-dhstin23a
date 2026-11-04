@@ -28,11 +28,12 @@ GPS hoặc cấp quyền vị trí.
 
 ## Kết nối Firebase
 
-- Tạo project Firebase `do-an-2-b1f35` và đăng ký ứng dụng cho Android, iOS, Web.
-- Thêm `firebase_core`, tạo `lib/firebase_options.dart` bằng FlutterFire CLI và
-  khởi tạo Firebase trước khi chạy giao diện trong `lib/main.dart`.
-- Android dùng cấu hình `android/app/google-services.json`; iOS, Android và Web
-  dùng các tùy chọn nền tảng trong `firebase_options.dart`.
+- Tạo Firebase project riêng và đăng ký ứng dụng cho các nền tảng cần dùng.
+- Thêm `firebase_core`, đọc cấu hình Firebase build-time từ
+  `dulieucanhan.env` và khởi tạo Firebase trước khi chạy giao diện trong
+  `lib/main.dart`.
+- File môi trường cá nhân không theo dõi trong Git; người fork phải tự điền
+  cấu hình Firebase theo `dulieucanhan.env.example`.
 - Đã tích hợp Firebase Authentication (email/mật khẩu) và Cloud Firestore cho
   tài khoản và danh sách địa điểm; Storage chưa được tích hợp.
 - Quy tắc tại `firestore.rules` cho phép đọc địa điểm công khai, chỉ admin ghi
@@ -46,12 +47,9 @@ GPS hoặc cấp quyền vị trí.
   Email/Password trong Firebase Authentication trước khi chạy luồng backend
   trên project thật. Admin cần được cấp document `/admins/{uid}` từ Firebase
   Console.
-- Cấu hình Firebase Hosting phục vụ bản Flutter Web tại
-  `https://do-an-2-b1f35.web.app`. GitHub Actions build ứng dụng và deploy bản
-  chính khi có push lên `main`, đồng thời tạo preview cho Pull Request nội bộ.
-- GitHub Actions đọc service-account từ secret
-  `FIREBASE_SERVICE_ACCOUNT_DO_AN_2_B1F35`; không lưu khóa service-account trong
-  repository.
+- Firebase Hosting phục vụ bản Flutter Web theo cấu hình trong env cá nhân.
+  GitHub Actions đọc env JSON và service account từ secrets; không lưu khóa
+  service-account trong repository.
 
 ## Nội dung đã thay đổi
 

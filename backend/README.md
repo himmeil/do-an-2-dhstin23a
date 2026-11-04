@@ -83,20 +83,13 @@ flutter run -d edge --dart-define=NEARBY_API_BASE_URL=http://localhost:8787
 
 Android không dùng proxy local; Android tiếp tục gọi nguồn bản đồ trực tiếp.
 
-## Firebase Hosting API
+## Firebase Hosting
 
-Trên Firebase Hosting, web app tự dùng origin hiện tại thay vì
-`http://localhost:8787`. `firebase.json` rewrite `/api/**` tới Firebase Function
-`nearbyApi` ở `us-central1`; API khởi tạo SQLite tạm từ
-`data/dia_diem_cao_lanh.sql` trong `/tmp` của mỗi instance. Endpoint health:
-
-```text
-https://do-an-2-b1f35.web.app/health
-```
-
-Các API tra cứu và tải offline hoạt động trên Hosting. Endpoint cập nhật/chọn
-snapshot bản đồ chỉ khả dụng khi chạy backend local vì filesystem của Functions
-là tạm thời. Chưa dùng các endpoint quản trị local để thay đổi dữ liệu production.
+Ứng dụng build cho Firebase không gọi `localhost` và không tải snapshot bản đồ
+offline. Firebase Hosting rewrite `/api/**` chỉ có tác dụng khi Function
+`nearbyApi` được triển khai. Hiện project demo chưa triển khai Function để giữ
+gói Firebase miễn phí, vì vậy tra cứu OSM qua proxy chưa hoạt động trên Hosting.
+Các API quản trị và SQLite vẫn chỉ có trên backend local.
 
 Khi merge lên `main`, GitHub Actions deploy Functions rồi mới deploy Hosting.
 Cần bật billing Blaze cho Firebase project và cấp quyền deploy Functions cho

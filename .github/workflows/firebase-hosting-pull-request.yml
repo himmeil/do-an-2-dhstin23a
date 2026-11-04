@@ -18,9 +18,25 @@ jobs:
           flutter-version: '3.47.6'
           channel: stable
           cache: true
-      - run: flutter pub get && flutter test && flutter build web
+      - name: Configure app
+        id: app_config
+        env:
+          APP_CONFIG: ${{ secrets.DULIEUCANHAN_ENV }}
+        run: |
+          if [ -z "$APP_CONFIG" ]; then
+            echo "Missing DULIEUCANHAN_ENV repository secret"
+            exit 1
+          fi
+          printf '%s' "$APP_CONFIG" > dulieucanhan.env
+          project_id=$(jq -r '.FIREBASE_PROJECT_ID // empty' dulieucanhan.env)
+          if [ -z "$project_id" ]; then
+            echo "DULIEUCANHAN_ENV must define FIREBASE_PROJECT_ID"
+            exit 1
+          fi
+          echo "project_id=$project_id" >> "$GITHUB_OUTPUT"
+      - run: flutter pub get && flutter test && flutter build web --dart-define-from-file=dulieucanhan.env --dart-define=APP_MODE=firebase
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
-          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_DO_AN_2_B1F35 }}
-          projectId: do-an-2-b1f35
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          projectId: ${{ steps.app_config.outputs.project_id }}
