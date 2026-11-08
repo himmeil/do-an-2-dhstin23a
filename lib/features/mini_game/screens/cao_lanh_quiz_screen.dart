@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../services/quiz_audio_service.dart';
 import '../services/quiz_progress_service.dart';
 import '../widgets/lotus_mascot.dart';
+import '../widgets/npc_atlas_animation.dart';
 import 'cao_lanh_shop_screen.dart';
 
 class _QuizQuestion {
@@ -328,7 +329,13 @@ class _CaoLanhQuizScreenState extends State<CaoLanhQuizScreen> {
       controller: _scrollController,
       padding: const EdgeInsets.fromLTRB(14, 10, 14, 24),
       children: [
-        const _TeacherGuide(),
+        _TeacherGuide(
+          questionIndex: _questionIndex,
+          answerIndex: selected,
+          answerCorrect: selected == null
+              ? null
+              : selected == question.correctIndex,
+        ),
         const SizedBox(height: 12),
         Row(
           children: [
@@ -576,6 +583,8 @@ class _CaoLanhQuizScreenState extends State<CaoLanhQuizScreen> {
           style: Theme.of(context).textTheme.displaySmall
               ?.copyWith(color: colors.primary, fontWeight: FontWeight.bold),
         ),
+        const SizedBox(height: 12),
+        const _VictoryTreasureScene(),
         const SizedBox(height: 8),
         if (_progress != null)
           Row(
@@ -717,7 +726,15 @@ class _AnswerCard extends StatelessWidget {
 }
 
 class _TeacherGuide extends StatefulWidget {
-  const _TeacherGuide();
+  const _TeacherGuide({
+    required this.questionIndex,
+    required this.answerIndex,
+    required this.answerCorrect,
+  });
+
+  final int questionIndex;
+  final int? answerIndex;
+  final bool? answerCorrect;
 
   @override
   State<_TeacherGuide> createState() => _TeacherGuideState();
@@ -753,18 +770,29 @@ class _TeacherGuideState extends State<_TeacherGuide>
           SizedBox(
             width: 64,
             height: 102,
-            child: AnimatedBuilder(
-              animation: _controller,
-              builder: (context, child) {
-                final frame = (_controller.value * 2).floor() % 2;
-                return Image.asset(
-                  'assets/mini_game/characters/teacher/frame_0$frame.png',
-                  key: ValueKey('teacher-frame-$frame'),
-                  fit: BoxFit.contain,
-                  semanticLabel: 'Nhân vật thầy giáo hoạt hình',
-                );
-              },
-            ),
+            child: widget.answerIndex == null
+                ? AnimatedBuilder(
+                    animation: _controller,
+                    builder: (context, child) {
+                      final frame = (_controller.value * 2).floor() % 2;
+                      return Image.asset(
+                        'assets/mini_game/characters/teacher/frame_0$frame.png',
+                        key: ValueKey('teacher-idle-frame-$frame'),
+                        fit: BoxFit.contain,
+                        semanticLabel: 'Nhân vật thầy giáo hoạt hình',
+                      );
+                    },
+                  )
+                : NpcAtlasAnimation(
+                    key: ValueKey(
+                      'teacher-answer-action-${widget.questionIndex}-'
+                      '${widget.answerIndex}',
+                    ),
+                    assetPath: 'assets/npc_1.png',
+                    frames: teacherAnswerFrames,
+                    duration: const Duration(milliseconds: 900),
+                    semanticLabel: 'Thầy giáo đang phản hồi câu trả lời',
+                  ),
           ),
           const SizedBox(width: 10),
           Expanded(
@@ -782,7 +810,11 @@ class _TeacherGuideState extends State<_TeacherGuide>
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Cùng thầy khám phá Cao Lãnh nhé! Chọn đúng thẻ để ghi điểm.',
+                  widget.answerIndex == null
+                      ? 'Cùng thầy khám phá Cao Lãnh nhé! Chọn đúng thẻ để ghi điểm.'
+                      : widget.answerCorrect == true
+                      ? 'Giỏi lắm! Câu trả lời chính xác!'
+                      : 'Chưa đúng, cùng đọc gợi ý rồi thử câu tiếp theo nhé.',
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: const Color(0xFF24445A),
                     fontWeight: FontWeight.w600,
@@ -790,6 +822,117 @@ class _TeacherGuideState extends State<_TeacherGuide>
                 ),
               ],
             ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _VictoryTreasureScene extends StatefulWidget {
+  const _VictoryTreasureScene();
+
+  @override
+  State<_VictoryTreasureScene> createState() => _VictoryTreasureSceneState();
+}
+
+class _VictoryTreasureSceneState extends State<_VictoryTreasureScene> {
+  bool _isOpen = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFF8E8),
+        border: Border.all(color: const Color(0xFFEBD69A)),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Column(
+        children: [
+          Text(
+            'Thầy dẫn bạn đến rương kho báu!',
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              color: const Color(0xFF78551A),
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              TweenAnimationBuilder<Offset>(
+                tween: Tween(begin: const Offset(-0.45, 0), end: Offset.zero),
+                duration: const Duration(milliseconds: 800),
+                builder: (context, offset, child) =>
+                    FractionalTranslation(translation: offset, child: child),
+                child: SizedBox(
+                  key: const ValueKey('teacher-victory-action'),
+                  width: 76,
+                  height: 100,
+                  child: NpcAtlasAnimation(
+                    assetPath: 'assets/npc_1.png',
+                    frames: teacherVictoryFrames,
+                    duration: const Duration(milliseconds: 1100),
+                    semanticLabel: 'Thầy giáo dẫn đường đến rương kho báu',
+                  ),
+                ),
+              ),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 6),
+                child: Icon(
+                  Icons.arrow_forward_rounded,
+                  color: Color(0xFFB88A28),
+                  size: 28,
+                ),
+              ),
+              Material(
+                color: Colors.transparent,
+                borderRadius: BorderRadius.circular(16),
+                child: InkWell(
+                  key: const ValueKey('treasure-chest-button'),
+                  onTap: _isOpen ? null : () => setState(() => _isOpen = true),
+                  borderRadius: BorderRadius.circular(16),
+                  child: SizedBox(
+                    width: 120,
+                    height: 112,
+                    child: Column(
+                      children: [
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.all(4),
+                            child: NpcAtlasAnimation(
+                              key: ValueKey(
+                                _isOpen
+                                    ? 'treasure-chest-open'
+                                    : 'treasure-chest-closed',
+                              ),
+                              assetPath: 'assets/npc_3.png',
+                              frames: _isOpen
+                                  ? chestOpeningFrames
+                                  : const [chestClosedFrame],
+                              duration: const Duration(milliseconds: 700),
+                              semanticLabel: _isOpen
+                                  ? 'Rương kho báu đang mở'
+                                  : 'Rương kho báu đang đóng',
+                            ),
+                          ),
+                        ),
+                        Text(
+                          _isOpen ? 'Đã mở!' : 'Nhấn để mở',
+                          style: Theme.of(context).textTheme.labelMedium
+                              ?.copyWith(
+                                color: const Color(0xFF78551A),
+                                fontWeight: FontWeight.bold,
+                              ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),

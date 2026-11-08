@@ -7,6 +7,7 @@ import 'core/config/app_links.dart';
 import 'core/constants/app_constants.dart';
 import 'core/theme/app_theme.dart';
 import 'core/widgets/splash/startup_splash.dart';
+import 'features/admin/screens/admin_management_screen.dart';
 import 'features/tai_khoan/screens/sign_in_screen.dart';
 import 'features/tai_khoan/services/auth_service.dart';
 import 'features/dia_diem/services/firestore_place_service.dart';
@@ -33,23 +34,45 @@ void main() {
 }
 
 class NearbyApp extends StatelessWidget {
-  const NearbyApp({required this.initializeFirebase, super.key});
+  const NearbyApp({
+    required this.initializeFirebase,
+    this.isLocalMode,
+    super.key,
+  });
 
   final Future<FirebaseApp> Function() initializeFirebase;
+  final bool? isLocalMode;
 
   @override
   Widget build(BuildContext context) {
+    final useLocalMode = isLocalMode ?? AppEnvironment.isLocalMode;
     return MaterialApp(
       title: AppStrings.appName,
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
       darkTheme: AppTheme.dark,
-      home: _FirebaseBootstrap(
-        initializeFirebase: initializeFirebase,
-        childBuilder: (_) => _AuthGate(authService: AuthService()),
-      ),
+      home: useLocalMode
+          ? const _LocalModeHome()
+          : _FirebaseBootstrap(
+              initializeFirebase: initializeFirebase,
+              childBuilder: (_) => _AuthGate(authService: AuthService()),
+            ),
     );
   }
+}
+
+class _LocalModeHome extends StatelessWidget {
+  const _LocalModeHome();
+
+  @override
+  Widget build(BuildContext context) => StartupSplash(
+    child: NearbyScreen(
+      service: LocalPlaceService(),
+      locationService: const GeolocatorLocationService(),
+      geocoder: NominatimGeocodingService(),
+      nearbyPlacesService: OverpassNearbyPlacesService(),
+    ),
+  );
 }
 
 class _FirebaseBootstrap extends StatefulWidget {
@@ -241,23 +264,41 @@ class _AuthGateState extends State<_AuthGate> {
             );
           }
           if (!roleSnapshot.hasData) return const _AuthLoading();
+          final isAdmin = roleSnapshot.data!;
+          final draftService = LocalPlaceService(
+            storageKey: LocalPlaceService.adminDraftStorageKey,
+          );
+          final adminErrorLogService = isAdmin
+              ? FirestoreAdminErrorLogService()
+              : null;
           return StartupSplash(
             child: NearbyScreen(
               service: FirestorePlaceService(),
-              draftService: LocalPlaceService(
-                storageKey: LocalPlaceService.adminDraftStorageKey,
-              ),
               locationService: const GeolocatorLocationService(),
               geocoder: NominatimGeocodingService(),
               nearbyPlacesService: _nearbyPlacesService,
-              adminErrorLogService: roleSnapshot.data!
-                  ? FirestoreAdminErrorLogService()
-                  : null,
+              adminErrorLogService: adminErrorLogService,
               commentService: _commentService(user: user),
               favoriteService: FirestoreFavoriteService(userId: user.uid),
               userEmail: user.email ?? '',
-              isAdmin: roleSnapshot.data!,
+              isAdmin: isAdmin,
               onSignOut: widget.authService.signOut,
+              onOpenAdminManagement: isAdmin
+                  ? () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute<void>(
+                          builder: (_) => AdminManagementScreen(
+                            isAdmin: isAdmin,
+                            placeService: FirestorePlaceService(),
+                            draftService: draftService,
+                            locationService: const GeolocatorLocationService(),
+                            nearbyPlacesService: _nearbyPlacesService,
+                            adminErrorLogService: adminErrorLogService!,
+                          ),
+                        ),
+                      );
+                    }
+                  : null,
             ),
           );
         },

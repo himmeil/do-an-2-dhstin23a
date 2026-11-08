@@ -19,6 +19,8 @@ abstract final class AppEnvironment {
     return isFirebaseHost(Uri.base.host);
   }
 
+  static bool get isLocalMode => mode == AppDeploymentMode.local || isLocalWeb;
+
   static bool get isLocalWeb =>
       kIsWeb &&
       (mode == AppDeploymentMode.local ||

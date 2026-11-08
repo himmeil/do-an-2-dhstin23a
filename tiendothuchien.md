@@ -1,7 +1,7 @@
 # Tiến độ thực hiện
 
 Tài liệu này ghi nhận trạng thái hiện hành của các chức năng trong mã nguồn ứng
-dụng, các việc còn chờ và hướng làm tiếp theo. Cập nhật ngày 04/11/2026 15:51
+dụng, các việc còn chờ và hướng làm tiếp theo. Cập nhật ngày 08/11/2026 08:40
 (UTC+7).
 
 ## Quyết định hiện hành
@@ -15,10 +15,17 @@ dụng, các việc còn chờ và hướng làm tiếp theo. Cập nhật ngày
   luận; GPS/tra địa chỉ, danh sách, ảnh vệ tinh, yêu thích và gửi bình luận cần
   đăng nhập.
 - Các API local cập nhật/chọn snapshot OSM xác minh Firebase ID token và quyền
-  qua document `admins/{uid}`. Firestore Rules đã bổ sung quyền bình luận nhưng
-  cần deploy riêng để áp dụng cho Firebase đang chạy.
+  qua document `admins/{uid}`. Firestore Rules đã deploy lên project cá nhân
+  ngày 04/11/2026.
 - Firebase Function `nearbyApi` chưa deploy; tìm kiếm OSM qua API cloud chưa
   hoạt động. Không xem các route `/api/**` là khả dụng trên Hosting.
+- Module `features/admin/` có trang quản lý riêng; tài khoản admin được xác
+  thực qua `admins/{uid}` mới có lối vào. Admin chuyển qua lại giữa trang xem
+  địa điểm và trang quản lý; người dùng thường không thấy hoặc truy cập được
+  giao diện quản trị.
+- Chế độ local được chọn bằng `AppEnvironment.isLocalMode` (host local hoặc
+  `APP_MODE=local`): không khởi tạo Firebase/Auth, dùng SharedPreferences và
+  proxy local. Chế độ online/Firebase mới khởi tạo Firebase và dùng AuthGate.
 
 ## Trạng thái hiện hành
 
@@ -92,6 +99,10 @@ dụng, các việc còn chờ và hướng làm tiếp theo. Cập nhật ngày
 - Chia Flutter tests thành `test/unit/` và `test/widget/`; giữ backend deploy
   source duy nhất tại `backend/` theo `firebase.json`, không tạo Functions package
   trùng lặp.
+- Tách tạo/duyệt bản nháp, quản lý snapshot local và xem mã lỗi thành trang
+  quản lý riêng trong `features/admin/`; màn tìm kiếm chỉ còn lối vào cho admin.
+- Tách khởi động local khỏi Firebase bằng hàm kiểm tra chế độ; local không tạo
+  Firebase Auth/Firestore service.
 - Xác minh sau refactor: `flutter analyze` không có vấn đề, toàn bộ 69 Flutter
   tests và 7 backend tests đều đạt; `flutter build web --release` thành công.
 - Cần phương án backend phù hợp giới hạn gói miễn phí hoặc người dùng chấp thuận
@@ -208,7 +219,9 @@ giải mã tile và kiểm tra tốc độ mạng/cache tile.
 - [x] Ghi nhận kiến trúc demo: Firebase dùng để minh họa khả năng vận hành web
   thực tế; dữ liệu bản đồ được phục vụ qua server local để tránh CORS khi gọi
   nguồn OpenStreetMap trực tiếp từ trình duyệt.
-- [ ] Bật Firestore API, tạo database `asia-southeast1`, bật Email/Password trong Firebase Authentication và tạo document admin trên Firebase Console; đây là bước cấu hình project cần hoàn tất trước khi dùng backend thật.
+- [x] Cấu hình Firestore/Auth cho project cá nhân và deploy Firestore Rules ngày
+  04/11/2026; document `/admins/{uid}` vẫn cần được cấp riêng trên Firebase
+  Console cho từng tài khoản quản trị.
 - [ ] Tích hợp Firebase Storage để lưu ảnh địa điểm; hiện chức năng này chưa có.
 - [x] Tạo proxy/server local trong `backend/` cho dữ liệu OpenStreetMap, ưu tiên
   Overpass và tự fallback sang OpenStreetMap API khi Overpass timeout.
@@ -232,6 +245,8 @@ giải mã tile và kiểm tra tốc độ mạng/cache tile.
   kỳ; các alias `bus_stop`, `bus_station`, `hotel` vẫn dùng bộ lọc mã chuẩn.
 - [x] Đồng bộ Firestore Rules với dữ liệu nhập: cho phép `ben_xe` và tên địa
   điểm dài tối đa 200 ký tự; bổ sung kiểm thử ranh giới 200/201 ký tự.
+- [x] Tạo module trang quản lý riêng cho admin, có thể quay lại chế độ người
+  xem; tài khoản không có document `/admins/{uid}` không có lối vào trang này.
 
 ## Kiểm thử hiện có
 
@@ -282,15 +297,16 @@ Các kiểm tra gần nhất (03/11/2026) đã đạt:
 
 ## Hướng làm tiếp theo
 
-1. Deploy Firestore Rules đã sửa bằng `firebase deploy --only firestore:rules`
-   rồi xác nhận admin publish được địa điểm `ben_xe` và tên 151–200 ký tự.
+1. Xác nhận tài khoản quản trị có document `/admins/{uid}` rồi kiểm tra publish
+   địa điểm `ben_xe` và tên 151–200 ký tự trên project.
 2. Nếu trang vẫn báo backend chưa chạy, khởi động bằng `run_web.bat`/`bat_app.bat`
    hoặc chạy `npm start` trong `backend/`, xác nhận `/health` trả `ok: true`.
 3. Nếu dữ liệu khác với SQL, cập nhật map từ Admin, kiểm tra phân loại và đồng
    bộ snapshot SQL/JSON.
-4. Deploy `nearbyApi` lên Firebase Functions rồi xác minh các API từ Hosting.
-   Duy trì quyền cập nhật snapshot qua backend local cho tới khi có kho lưu trữ
-   cloud bền vững và kiểm soát quyền admin ở backend.
+4. Chọn hạ tầng cho API OSM động trên cloud (ví dụ Cloud Run hoặc nâng cấp gói
+   Firebase rồi triển khai Functions). Hiện Hosting dùng snapshot tĩnh; duy trì
+   tác vụ cập nhật snapshot trên backend local cho tới khi có kho lưu trữ cloud
+   bền vững và kiểm soát quyền admin ở backend.
 
 ## Cách cập nhật tiến độ
 

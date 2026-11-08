@@ -9,6 +9,7 @@ lib/
   core/
     constants/ theme/ utils/ widgets/
   features/
+    admin/
     dia_diem/
       ban_do/ chi_tiet/ du_lieu/models/ du_lieu/repositories/ services/
     gps/
@@ -21,9 +22,17 @@ lib/
   main.dart
 ```
 
-Hạ tầng không được khởi tạo trong widget. `main.dart` inject các adapter;
-screen dùng contract repository và model thuần. Firebase Functions vẫn được
-deploy từ `backend/` để giữ một nguồn API duy nhất theo `firebase.json`.
+Hạ tầng không được khởi tạo trong widget. `main.dart` kiểm tra
+`AppEnvironment.isLocalMode`: local dùng local storage/backend và không khởi
+tạo Firebase; online khởi tạo Firebase rồi đi qua AuthGate. `main.dart` inject
+adapter; screen dùng contract repository và model thuần. `features/admin/`
+chứa trang quản lý chỉ mở cho tài khoản có quyền admin; xem
+[tài liệu module quản trị](features/admin/README.md). Backend API duy nhất nằm
+trong `backend/` theo `firebase.json`.
+
+## Nhật ký chỉnh sửa
+
+- 2026-11-08 08:40 (UTC+7): Ghi nhận AuthGate/Firebase chỉ dùng ở chế độ online; local dùng adapter local.
 
 ## Nhật ký chỉnh sửa
 

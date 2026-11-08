@@ -2,8 +2,10 @@ import 'dart:async';
 
 import 'package:diadiem_quanh_day/features/dia_diem/du_lieu/models/place.dart';
 import 'package:diadiem_quanh_day/features/dia_diem/du_lieu/repositories/place_repository.dart';
+import 'package:diadiem_quanh_day/features/admin/screens/admin_management_screen.dart';
 import 'package:diadiem_quanh_day/features/gps/services/location_service.dart';
 import 'package:diadiem_quanh_day/features/tim_kiem/screens/nearby_screen.dart';
+import 'package:diadiem_quanh_day/features/tim_kiem/services/admin_error_log_service.dart';
 import 'package:diadiem_quanh_day/features/tim_kiem/services/geocoding_service.dart';
 import 'package:diadiem_quanh_day/features/tim_kiem/services/nearby_places_service.dart';
 import 'package:diadiem_quanh_day/features/dia_diem/ban_do/cao_lanh_ward_boundary.dart';
@@ -28,6 +30,14 @@ class _FakePlaceService implements PlaceService {
 
   @override
   Future<int> importAll(List<Place> places) async => places.length;
+}
+
+class _FakeAdminErrorLogService implements AdminErrorLogService {
+  @override
+  Future<void> record(AdminErrorCode code) async {}
+
+  @override
+  Stream<List<AdminErrorEntry>> watchRecent() => Stream.value(const []);
 }
 
 class _PendingPlaceService implements PlaceService {
@@ -100,6 +110,68 @@ Place _place(String name, double lat, {double longitude = 105}) => Place.create(
 );
 
 void main() {
+  testWidgets('người không phải admin bị chặn khỏi trang quản lý', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: AdminManagementScreen(
+          isAdmin: false,
+          placeService: _FakePlaceService(const []),
+          draftService: _FakePlaceService(const []),
+          adminErrorLogService: _FakeAdminErrorLogService(),
+          locationService: _FakeLocationService(
+            const LocationResult.failed(LocationFailure.serviceOff),
+          ),
+        ),
+      ),
+    );
+
+    expect(
+      find.text('Bạn không có quyền truy cập trang quản lý.'),
+      findsOneWidget,
+    );
+    expect(find.text('Tạo bản nháp'), findsNothing);
+  });
+
+  testWidgets('admin có thể quay từ trang quản lý về chế độ người xem', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Builder(
+          builder: (context) => Scaffold(
+            body: Center(
+              child: FilledButton(
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (_) => AdminManagementScreen(
+                      isAdmin: true,
+                      placeService: _FakePlaceService(const []),
+                      draftService: _FakePlaceService(const []),
+                      adminErrorLogService: _FakeAdminErrorLogService(),
+                      locationService: _FakeLocationService(
+                        const LocationResult.failed(LocationFailure.serviceOff),
+                      ),
+                    ),
+                  ),
+                ),
+                child: const Text('Mở quản lý'),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Mở quản lý'));
+    await tester.pumpAndSettle();
+    expect(find.text('Quản lý hệ thống'), findsOneWidget);
+    await tester.tap(find.text('Người xem'));
+    await tester.pumpAndSettle();
+    expect(find.text('Mở quản lý'), findsOneWidget);
+  });
+
   testWidgets('renders the map while places are still loading', (tester) async {
     SharedPreferences.setMockInitialValues({});
     final places = StreamController<List<Place>>();
@@ -200,6 +272,7 @@ void main() {
     String? selectedSource;
     final nearbyService = OverpassNearbyPlacesService(
       useProxy: true,
+      webBaseUrl: 'http://localhost:8787',
       getIdToken: () async => 'test-token',
       client: MockClient((request) async {
         if (request.url.path == '/api/admin/map-sources') {
@@ -230,11 +303,12 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp(
-        home: NearbyScreen(
-          service: _FakePlaceService(const []),
-          nearbyPlacesService: nearbyService,
+        home: AdminManagementScreen(
           isAdmin: true,
-          geocoder: _FakeGeocoder(),
+          placeService: _FakePlaceService(const []),
+          draftService: _FakePlaceService(const []),
+          nearbyPlacesService: nearbyService,
+          adminErrorLogService: _FakeAdminErrorLogService(),
           locationService: _FakeLocationService(
             const LocationResult.ok(LatLng(10.46, 105.63)),
           ),
@@ -242,12 +316,10 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    await tester.tap(find.byTooltip('Công cụ quản trị'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Chọn dữ liệu bản đồ Cao Lãnh'));
-    await tester.pumpAndSettle();
+    await tester.tap(find.text('Chọn snapshot đang sử dụng'));
+    await tester.pump(const Duration(milliseconds: 300));
     await tester.tap(find.text('Địa điểm Cao Lãnh cũ'));
-    await tester.pumpAndSettle();
+    await tester.pump(const Duration(milliseconds: 300));
     await tester.tap(find.text('Áp dụng'));
     await tester.pumpAndSettle();
 
@@ -301,7 +373,6 @@ void main() {
       MaterialApp(
         home: NearbyScreen(
           service: _FakePlaceService(const []),
-          draftService: _FakePlaceService(const []),
           isAdmin: true,
           geocoder: _FakeGeocoder(),
           locationService: _FakeLocationService(
@@ -336,13 +407,11 @@ void main() {
     expect(find.text('Quán ăn'), findsOneWidget);
     expect(find.text('Bán kính:'), findsOneWidget);
     expect(find.text('Tất cả'), findsNWidgets(2));
-
-    await tester.tap(find.byTooltip('Công cụ quản trị'));
-    await tester.pumpAndSettle();
-    expect(find.text('Tạo bản nháp'), findsOneWidget);
   });
 
-  testWidgets('tài khoản thường không có nút tạo bản nháp', (tester) async {
+  testWidgets('tài khoản thường không thấy mục vào trang quản lý', (
+    tester,
+  ) async {
     await tester.pumpWidget(
       MaterialApp(
         home: NearbyScreen(
@@ -355,6 +424,7 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
+    expect(find.byTooltip('Trang quản lý'), findsNothing);
     await tester.tap(find.byTooltip('Xem danh sách'));
     await tester.pumpAndSettle();
     expect(find.text('Tìm điểm đến quanh bạn'), findsOneWidget);
@@ -370,10 +440,10 @@ void main() {
       MaterialApp(
         home: NearbyScreen(
           service: _FakePlaceService(const []),
-          draftService: _FakePlaceService(const []),
           favoriteService: null,
           userEmail: 'admin@example.com',
           isAdmin: true,
+          onOpenAdminManagement: () {},
           onSignOut: () async {},
           geocoder: _FakeGeocoder(),
           locationService: _FakeLocationService(
@@ -387,7 +457,7 @@ void main() {
     final gpsX = tester.getCenter(find.byTooltip('Dùng GPS')).dx;
     final accountX = tester.getCenter(find.byTooltip('Tài khoản')).dx;
     expect(accountX, greaterThan(gpsX));
-    expect(find.byTooltip('Công cụ quản trị'), findsOneWidget);
+    expect(find.byTooltip('Trang quản lý'), findsOneWidget);
 
     await tester.tap(find.byTooltip('Tài khoản'));
     await tester.pumpAndSettle();

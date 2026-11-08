@@ -1,25 +1,27 @@
 # Báo cáo cập nhật tính năng chọn vị trí
 
-## Trạng thái hiện hành — 03/11/2026 09:53 (UTC+7)
+## Trạng thái hiện hành — 08/11/2026 (UTC+7)
 
-- Luồng tìm quanh đây hỗ trợ chọn tâm thủ công trên bản đồ hoặc dùng GPS theo
-  thao tác người dùng; bộ lọc danh mục và bán kính đã được tách thành module
-  chuyên trách.
-- Mã dữ liệu cũ `bus_stop`, `bus_station`, `hotel` được chuẩn hóa để lọc và
-  hiển thị đúng nhóm bến xe/điểm dừng hoặc nhà trọ.
-- Nguyên nhân hiện tượng nhóm địa điểm thay thế lẫn nhau là UI chỉ cho chọn một
-  danh mục bằng `ChoiceChip`; đã đổi sang chọn nhiều danh mục độc lập. Kết quả
-  hiện là hợp các nhóm được chọn, **Tất cả** bỏ mọi lựa chọn.
-- Đã xác minh thêm nguyên nhân dữ liệu trùng tên khác danh mục bị gộp trước khi
-  lọc, làm bản ghi đúng danh mục bị bỏ. Khi có bộ lọc, ứng dụng lọc danh mục
-  trước khi gộp và giữ riêng các danh mục chuẩn khác nhau; alias cùng danh mục
-  vẫn được gộp.
-- SQL thực tế có 19 quán cà phê, 11 quán ăn, 14 nơi lưu trú và 3 mục xe buýt
-  trong bán kính mặc định; kiểm thử UI xác nhận có thể hiển thị kết hợp.
-- Kiểm thử màn hình, alias, dịch vụ, gộp trùng chéo danh mục và `flutter analyze`
-  đều đạt.
-- Việc còn lại: tải lại/rebuild Flutter Web và xác nhận luồng trên dữ liệu thật;
-  triển khai proxy thay thế backend local khi đưa web lên production.
+- Ứng dụng hỗ trợ tìm địa điểm quanh tâm do người dùng chọn hoặc vị trí GPS
+  được yêu cầu chủ động; có lọc nhiều danh mục, bán kính, tìm kiếm, danh sách
+  và bản đồ.
+- Web local dùng proxy Node/SQLite tại `backend/`. Firebase Hosting dùng
+  snapshot OSM tĩnh `assets/data/osm_places.json`, lọc trên thiết bị và không
+  gọi API `/api/**` hay Firebase Functions.
+- Firebase project hiện dùng gói Spark; Function `nearbyApi` chưa triển khai.
+  API tìm kiếm OSM và tác vụ quản trị snapshot chỉ khả dụng qua backend local.
+  Muốn chuyển sang API cloud cần chọn hạ tầng phù hợp (ví dụ Cloud Run hoặc
+  nâng cấp gói rồi triển khai Functions).
+- Firestore Rules đã deploy ngày 04/11/2026; Flutter Web release cũng đã
+  deploy lên Firebase Hosting. Cấu hình riêng nằm trong
+  `ca_nhan/dulieucanhan.env` và không được theo dõi trong Git.
+- Bộ kiểm thử gần nhất được ghi nhận: 69 Flutter tests, 7 backend tests,
+  `flutter analyze` và Web release build đều đạt. Cần chạy lại để xác nhận
+  trạng thái hiện tại nếu mã nguồn tiếp tục thay đổi.
+- Việc còn lại: đo hiệu năng lọc/zoom trên thiết bị đã gặp hiện tượng khựng;
+  nếu cần API bản đồ trên cloud, quyết định hạ tầng và xác minh endpoint sau
+  triển khai. Transit OSM vẫn cần đối chiếu thủ công trước khi gộp hoặc xóa
+  các điểm chưa xác nhận.
 
 ## Mục tiêu
 
@@ -43,10 +45,9 @@ GPS hoặc cấp quyền vị trí.
 - Admin nhập dữ liệu vào bản nháp lưu cục bộ bằng storage key riêng, kiểm tra
   rồi xác nhận đăng lên Firestore. Dữ liệu địa điểm local cũ được giữ nguyên,
   không tự động di chuyển lên cloud.
-- Cần bật Firestore API, tạo database ở `asia-southeast1` và bật nhà cung cấp
-  Email/Password trong Firebase Authentication trước khi chạy luồng backend
-  trên project thật. Admin cần được cấp document `/admins/{uid}` từ Firebase
-  Console.
+- Firestore Rules đã deploy lên project ngày 04/11/2026. Việc cấp quyền admin
+  vẫn thực hiện bằng document `/admins/{uid}` trên Firebase Console; cấu hình
+  môi trường Firebase của mỗi bản fork vẫn cần được cung cấp riêng.
 - Firebase Hosting phục vụ bản Flutter Web theo cấu hình trong env cá nhân.
   GitHub Actions đọc env JSON và service account từ secrets; không lưu khóa
   service-account trong repository.
@@ -68,8 +69,9 @@ GPS hoặc cấp quyền vị trí.
   trong 10 km; dữ liệu địa điểm đã lưu vẫn được lọc theo lựa chọn này. Tìm kiếm
   được gắn attribution OpenStreetMap. Trên web local, ứng dụng gọi proxy trong
   thư mục `backend/` để tránh việc trình duyệt gọi Overpass trực tiếp và bị
-  CORS. Khi triển khai Hosting, proxy này cần được chuyển sang Firebase
-  Functions hoặc Cloud Run.
+  CORS. Hiện Hosting production không dùng proxy: ứng dụng đọc snapshot tĩnh
+  `assets/data/osm_places.json`. Nếu cần truy vấn API động trên cloud, cần
+  triển khai backend riêng (ví dụ Cloud Run hoặc Functions sau khi đổi gói).
 - Thêm nút thu gọn/mở bộ tìm kiếm khi đang ở chế độ bản đồ; mặc định thu gọn để
   dành thêm diện tích hiển thị bản đồ. Trạng thái lỗi tra cứu và trạng thái
   không có kết quả hiển thị gọn phía trên bản đồ, không che khu vực bản đồ và
@@ -198,15 +200,15 @@ GPS hoặc cấp quyền vị trí.
 - Cập nhật kiểm thử để xác nhận GPS chỉ được gọi sau thao tác chủ động của người
   dùng, đồng thời luồng sắp xếp và lọc theo vị trí GPS vẫn hoạt động.
 - Thêm kiểm thử giao diện xác nhận chỉ admin mới có thể tạo bản nháp.
-- `flutter test`: 42 kiểm thử thành công; có kiểm thử tra cứu địa điểm OpenStreetMap,
+- Lịch sử kiểm thử của báo cáo ghi nhận `flutter test`: 42 kiểm thử thành công; có kiểm thử tra cứu địa điểm OpenStreetMap,
   chọn tâm bằng nhấn giữ bản đồ không cần GPS, lọc địa điểm/bán kính 1, 5, 10 km,
   tích lũy xu, lưu tiến trình local, mua/trang bị nhiều slot, hoạt ảnh nhân vật
   từ module mini game, đổi palette đăng nhập và mở shop từ mini game.
-- `flutter analyze`: không còn cảnh báo hoặc lỗi.
-- `flutter build web`: build thành công, gồm icon trang bị, khung hoạt ảnh
+- Tại thời điểm ghi nhận lịch sử, `flutter analyze` không có cảnh báo hoặc lỗi
+  và `flutter build web` thành công, gồm icon trang bị, khung hoạt ảnh
   character và hiệu ứng
-  âm thanh. Kiểm thử kết nối Firestore thật và
-  triển khai Firestore Rules đang chờ bật Firestore API trong project.
+  âm thanh. Đây là kết quả lịch sử; trạng thái kiểm thử mới nhất xem phần
+  trạng thái hiện hành ở đầu tài liệu.
 
 ## Định hướng phát triển: Điểm vui chơi
 
@@ -223,9 +225,9 @@ chưa được xem là chức năng đã triển khai trong ứng dụng hiện 
   đồ và làm proxy gọi Overpass. Flutter Web gọi server local thay vì gọi
   Overpass trực tiếp, nhờ đó tránh giới hạn CORS và chủ động phục vụ dữ liệu
   cửa hàng, quán cà phê, rạp phim, công viên và khu vui chơi.
-- **Khả năng triển khai sau demo:** server local có thể chuyển sang Firebase
-  Functions hoặc Cloud Run khi cần vận hành thực tế; giao diện Flutter Web và
-  mô hình dữ liệu Firebase vẫn được giữ lại.
+- **Khả năng triển khai sau demo:** server local có thể chuyển sang Cloud Run;
+  Firebase Functions cần project hỗ trợ và được triển khai riêng. Giao diện
+  Flutter Web và mô hình dữ liệu Firebase vẫn có thể được giữ lại.
 - **Trình tự demo:** khởi động server local, chạy Flutter Web, kiểm tra bản
   đồ và các điểm vui chơi quanh vị trí chọn; sau đó trình bày Firebase project
   để chứng minh khả năng xác thực, lưu dữ liệu và triển khai web.

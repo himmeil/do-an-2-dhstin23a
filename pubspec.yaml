@@ -75,6 +75,8 @@ flutter:
     # Assets used by the Cao Lanh mini game.
     - assets/mini_game/cards/
     - assets/mini_game/cards/answers/
+    - assets/npc_1.png
+    - assets/npc_3.png
     - assets/mini_game/characters/shop_icons/
     - assets/mini_game/characters/teacher/
     - assets/mini_game/characters/lotus/idle/lotus/

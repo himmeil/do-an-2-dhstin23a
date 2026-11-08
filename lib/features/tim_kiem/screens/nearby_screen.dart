@@ -5,7 +5,6 @@ import 'package:latlong2/latlong.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../core/constants/app_constants.dart';
-import '../../../core/config/app_environment.dart';
 import '../../../core/config/display_preferences.dart';
 import '../../../core/utils/text_utils.dart';
 import '../../../core/widgets/async_state_view.dart';
@@ -18,7 +17,6 @@ import '../../dia_diem/du_lieu/repositories/place_comment_repository.dart';
 import '../../dia_diem/du_lieu/repositories/place_repository.dart';
 import '../../gps/services/location_service.dart';
 import '../../mini_game/screens/cao_lanh_quiz_screen.dart';
-import '../../nap_du_lieu/screens/import_screen.dart';
 import '../bo_loc/services/place_category_filter.dart';
 import '../bo_loc/widgets/nearby_filter_chips.dart';
 import '../services/admin_error_log_service.dart';
@@ -29,16 +27,7 @@ import '../widgets/display_settings_sheet.dart';
 import '../widgets/location_picker_sheet.dart';
 import '../widgets/place_tile.dart';
 
-enum _NearbyAction {
-  createDraft,
-  publishDrafts,
-  updateMapFromOverpass,
-  selectMapDataSource,
-  viewErrorCodes,
-  signIn,
-  signOut,
-  displaySettings,
-}
+enum _NearbyAction { signIn, signOut, displaySettings }
 
 /// Màn chính: tìm địa điểm quanh vị trí hiện tại, lọc theo loại / bán kính /
 /// từ khóa, xem dạng danh sách hoặc bản đồ.
@@ -50,18 +39,17 @@ class NearbyScreen extends StatefulWidget {
     this.nearbyPlacesService,
     this.adminErrorLogService,
     this.commentService,
-    this.draftService,
     this.favoriteService,
     this.userEmail = '',
     this.isAdmin = false,
     this.isGuest = false,
     this.onRequireSignIn,
     this.onSignOut,
+    this.onOpenAdminManagement,
     super.key,
   });
 
   final PlaceService service;
-  final PlaceService? draftService;
   final FavoriteService? favoriteService;
   final LocationService locationService;
   final GeocodingService geocoder;
@@ -73,6 +61,7 @@ class NearbyScreen extends StatefulWidget {
   final bool isGuest;
   final ValueChanged<String>? onRequireSignIn;
   final Future<void> Function()? onSignOut;
+  final VoidCallback? onOpenAdminManagement;
 
   @override
   State<NearbyScreen> createState() => _NearbyScreenState();
@@ -113,8 +102,6 @@ class _NearbyScreenState extends State<NearbyScreen> {
   bool _searchControlsExpanded = false;
   bool _filtersExpanded = false;
   bool _favoritesOnly = false;
-  bool _publishing = false;
-  bool _selectingMapData = false;
   bool _showDonation = false;
   MapGraphicsQuality _graphicsQuality = MapGraphicsQuality.medium;
   bool _animationsEnabled = true;
@@ -331,107 +318,6 @@ class _NearbyScreenState extends State<NearbyScreen> {
       );
       setState(() => _adminErrorLogWriteFailed = true);
     }
-  }
-
-  Future<void> _showAdminErrorCodes() async {
-    final stream = widget.adminErrorLogService?.watchRecent();
-    final snapshotMetadata =
-        AppEnvironment.isFirebaseHosted &&
-            widget.nearbyPlacesService is OverpassNearbyPlacesService
-        ? (widget.nearbyPlacesService! as OverpassNearbyPlacesService)
-              .staticSnapshotMetadata()
-        : null;
-    await showDialog<void>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Mã lỗi quản trị'),
-        content: SizedBox(
-          width: 520,
-          height: 420,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              if (snapshotMetadata != null)
-                FutureBuilder<MapSnapshotMetadata>(
-                  future: snapshotMetadata,
-                  builder: (context, snapshot) {
-                    if (snapshot.hasError) {
-                      return const Text(
-                        'Không đọc được phiên bản snapshot OSM.',
-                      );
-                    }
-                    final metadata = snapshot.data;
-                    if (metadata == null) {
-                      return const LinearProgressIndicator();
-                    }
-                    final updatedAt = metadata.updatedAt;
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: Text(
-                        'Snapshot OSM: ${metadata.count} địa điểm'
-                        '${updatedAt == null ? ' • chưa rõ ngày cập nhật' : ' • ${_formatMapDate(updatedAt)}'}',
-                      ),
-                    );
-                  },
-                ),
-              Expanded(
-                child: stream == null
-                    ? const Text('Chưa cấu hình dịch vụ ghi nhận mã lỗi.')
-                    : StreamBuilder<List<AdminErrorEntry>>(
-                        stream: stream,
-                        builder: (context, snapshot) {
-                          if (snapshot.hasError) {
-                            return const Center(
-                              child: Text(
-                                'Không đọc được mã lỗi. Kiểm tra kết nối và Firestore Rules.',
-                                textAlign: TextAlign.center,
-                              ),
-                            );
-                          }
-                          if (snapshot.connectionState ==
-                              ConnectionState.waiting) {
-                            return const Center(
-                              child: CircularProgressIndicator(),
-                            );
-                          }
-                          final entries = snapshot.data ?? const [];
-                          if (entries.isEmpty) {
-                            return const Center(
-                              child: Text('Chưa ghi nhận mã lỗi.'),
-                            );
-                          }
-                          return ListView.builder(
-                            itemCount: entries.length,
-                            itemBuilder: (context, index) {
-                              final entry = entries[index];
-                              final lastSeen = entry.lastSeenAt;
-                              return Card(
-                                child: ListTile(
-                                  leading: const Icon(Icons.error_outline),
-                                  title: Text(entry.code.value),
-                                  subtitle: Text(
-                                    '${entry.code.description}'
-                                    '${lastSeen == null ? '' : '\nGần nhất: ${_formatMapDate(lastSeen)}'}',
-                                  ),
-                                  isThreeLine: true,
-                                ),
-                              );
-                            },
-                          );
-                        },
-                      ),
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Đóng'),
-          ),
-        ],
-      ),
-    );
   }
 
   void _chooseMapOrigin(LatLng point) {
@@ -684,111 +570,6 @@ class _NearbyScreenState extends State<NearbyScreen> {
     }
   }
 
-  Future<void> _openImport() async {
-    final drafts = widget.draftService;
-    if (!widget.isAdmin || drafts == null) return;
-    final imported = await Navigator.of(context).push<int>(
-      MaterialPageRoute(
-        builder: (_) => ImportScreen(
-          service: drafts,
-          locationService: widget.locationService,
-          isDraft: true,
-        ),
-      ),
-    );
-    if (imported != null && imported > 0 && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Đã lưu $imported địa điểm vào bản nháp.')),
-      );
-    }
-  }
-
-  Future<void> _publishDrafts() async {
-    final drafts = widget.draftService;
-    if (!widget.isAdmin || drafts == null || _publishing) return;
-    late final List<Place> pending;
-    try {
-      pending = await drafts.watchAll().first;
-    } catch (error) {
-      _recordAdminError(AdminErrorCode.draftReadFailed);
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Không đọc được bản nháp: $error')),
-      );
-      return;
-    }
-    if (!mounted) return;
-    if (pending.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Chưa có bản nháp để đăng.')),
-      );
-      return;
-    }
-    final approved = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Đăng địa điểm lên cloud?'),
-        content: SizedBox(
-          width: 480,
-          height: 420,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Kiểm tra ${pending.length} bản nháp trước khi đăng. '
-                'Địa điểm cùng mã trên Firestore sẽ được cập nhật; '
-                'bản nháp trên thiết bị vẫn được giữ lại.',
-              ),
-              const SizedBox(height: 8),
-              Expanded(
-                child: ListView.separated(
-                  itemCount: pending.length,
-                  separatorBuilder: (_, _) => const Divider(height: 1),
-                  itemBuilder: (context, index) {
-                    final place = pending[index];
-                    return ListTile(
-                      contentPadding: EdgeInsets.zero,
-                      title: Text(place.name),
-                      subtitle: Text('${place.category} • ${place.address}'),
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Xem lại sau'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Đăng lên'),
-          ),
-        ],
-      ),
-    );
-    if (approved != true || !mounted) return;
-    setState(() => _publishing = true);
-    try {
-      final count = await widget.service.importAll(pending);
-      _reportedAdminErrorCodes.remove(AdminErrorCode.draftPublishFailed);
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Đã đăng $count địa điểm lên Firestore.')),
-      );
-    } catch (error) {
-      _recordAdminError(AdminErrorCode.draftPublishFailed);
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Chưa đăng được bản nháp: $error')),
-      );
-    } finally {
-      if (mounted) setState(() => _publishing = false);
-    }
-  }
-
   Future<void> _toggleFavorite(Place place) async {
     final favorites = widget.favoriteService;
     if (favorites == null) return;
@@ -806,11 +587,6 @@ class _NearbyScreenState extends State<NearbyScreen> {
 
   void _handleAction(_NearbyAction action) {
     final operation = switch (action) {
-      _NearbyAction.createDraft => _openImport(),
-      _NearbyAction.publishDrafts => _publishDrafts(),
-      _NearbyAction.updateMapFromOverpass => _updateMapFromOverpass(),
-      _NearbyAction.selectMapDataSource => _selectMapDataSource(),
-      _NearbyAction.viewErrorCodes => _showAdminErrorCodes(),
       _NearbyAction.signIn => _openSignIn(),
       _NearbyAction.signOut => _signOut(),
       _NearbyAction.displaySettings => _openDisplaySettings(),
@@ -911,141 +687,6 @@ class _NearbyScreenState extends State<NearbyScreen> {
     }
   }
 
-  Future<void> _updateMapFromOverpass() async {
-    if (!widget.isAdmin ||
-        widget.nearbyPlacesService is! OverpassNearbyPlacesService) {
-      _openSignIn();
-      return;
-    }
-    try {
-      final count =
-          await (widget.nearbyPlacesService! as OverpassNearbyPlacesService)
-              .updateMapFromOverpass();
-      _reportedAdminErrorCodes.remove(AdminErrorCode.mapRefreshFailed);
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Đã cập nhật $count địa điểm từ Overpass.')),
-      );
-      _scheduleNearbySearch();
-    } catch (error) {
-      _recordAdminError(AdminErrorCode.mapRefreshFailed);
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Cập nhật bản đồ thất bại: $error')),
-      );
-    }
-  }
-
-  Future<void> _selectMapDataSource() async {
-    if (!widget.isAdmin ||
-        widget.nearbyPlacesService is! OverpassNearbyPlacesService ||
-        _selectingMapData) {
-      _openSignIn();
-      return;
-    }
-
-    final service = widget.nearbyPlacesService! as OverpassNearbyPlacesService;
-    try {
-      final sources = await service.listMapDataSources();
-      _reportedAdminErrorCodes.remove(AdminErrorCode.mapSourceReadFailed);
-      if (!mounted) return;
-      if (sources.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Backend chưa có snapshot bản đồ nào.')),
-        );
-        return;
-      }
-
-      final selected = await showDialog<MapDataSource>(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Chọn dữ liệu bản đồ Cao Lãnh'),
-          content: SizedBox(
-            width: 480,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                for (final source in sources)
-                  ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    leading: Icon(
-                      source.active ? Icons.radio_button_checked : Icons.map,
-                    ),
-                    title: Text(source.label),
-                    subtitle: Text(
-                      '${source.file} • ${source.count} địa điểm'
-                      '${source.updatedAt == null ? '' : '\nCập nhật: ${_formatMapDate(source.updatedAt!)}'}'
-                      '${source.active ? '\nĐang sử dụng' : ''}',
-                    ),
-                    isThreeLine: source.updatedAt != null || source.active,
-                    onTap: () => Navigator.of(context).pop(source),
-                  ),
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Đóng'),
-            ),
-          ],
-        ),
-      );
-      if (selected == null || selected.active || !mounted) return;
-
-      final confirmed = await showDialog<bool>(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: Text('Dùng ${selected.label.toLowerCase()}?'),
-          content: Text(
-            'Backend sẽ thay dữ liệu bản đồ đang dùng bằng '
-            '${selected.file} (${selected.count} địa điểm). '
-            'Các file snapshot mới và cũ sẽ được giữ nguyên.',
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('Hủy'),
-            ),
-            FilledButton(
-              onPressed: () => Navigator.of(context).pop(true),
-              child: const Text('Áp dụng'),
-            ),
-          ],
-        ),
-      );
-      if (confirmed != true || !mounted) return;
-
-      setState(() => _selectingMapData = true);
-      final count = await service.selectMapDataSource(selected.source);
-      _reportedAdminErrorCodes.remove(AdminErrorCode.mapSourceApplyFailed);
-      if (!mounted) return;
-      _scheduleNearbySearch();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Đã dùng ${selected.file}: $count địa điểm.')),
-      );
-    } catch (error) {
-      _recordAdminError(
-        _selectingMapData
-            ? AdminErrorCode.mapSourceApplyFailed
-            : AdminErrorCode.mapSourceReadFailed,
-      );
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Không chọn được dữ liệu bản đồ: $error')),
-      );
-    } finally {
-      if (mounted) setState(() => _selectingMapData = false);
-    }
-  }
-
-  String _formatMapDate(DateTime date) {
-    final local = date.toLocal();
-    String twoDigits(int value) => value.toString().padLeft(2, '0');
-    return '${twoDigits(local.day)}/${twoDigits(local.month)}/${local.year} '
-        '${twoDigits(local.hour)}:${twoDigits(local.minute)}';
-  }
-
   void _openCaoLanhQuiz() {
     Navigator.of(
       context,
@@ -1100,69 +741,11 @@ class _NearbyScreenState extends State<NearbyScreen> {
               onPressed: _locating ? null : _locate,
               icon: const Icon(Icons.my_location),
             ),
-          if (widget.isAdmin)
-            PopupMenuButton<_NearbyAction>(
-              tooltip: 'Công cụ quản trị',
-              onSelected: _handleAction,
-              itemBuilder: (context) => [
-                const PopupMenuItem(
-                  value: _NearbyAction.viewErrorCodes,
-                  child: ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    leading: Icon(Icons.error_outline),
-                    title: Text('Mã lỗi hệ thống'),
-                  ),
-                ),
-                const PopupMenuItem(
-                  value: _NearbyAction.createDraft,
-                  child: ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    leading: Icon(Icons.edit_location_alt_outlined),
-                    title: Text('Tạo bản nháp'),
-                  ),
-                ),
-                PopupMenuItem(
-                  value: _NearbyAction.publishDrafts,
-                  enabled: !_publishing,
-                  child: ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    leading: _publishing
-                        ? const SizedBox.square(
-                            dimension: 24,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : const Icon(Icons.cloud_upload_outlined),
-                    title: const Text('Duyệt và đăng bản nháp'),
-                  ),
-                ),
-                if (!AppEnvironment.isFirebaseHosted) ...[
-                  const PopupMenuItem(
-                    value: _NearbyAction.updateMapFromOverpass,
-                    child: ListTile(
-                      contentPadding: EdgeInsets.zero,
-                      leading: Icon(Icons.sync),
-                      title: Text('Cập nhật bản đồ từ Overpass'),
-                    ),
-                  ),
-                  PopupMenuItem(
-                    value: _NearbyAction.selectMapDataSource,
-                    enabled: !_selectingMapData,
-                    child: ListTile(
-                      contentPadding: EdgeInsets.zero,
-                      leading: const Icon(Icons.layers_outlined),
-                      title: Text(
-                        _selectingMapData
-                            ? 'Đang chọn dữ liệu bản đồ...'
-                            : 'Chọn dữ liệu bản đồ Cao Lãnh',
-                      ),
-                    ),
-                  ),
-                ],
-              ],
-              child: const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 12),
-                child: Icon(Icons.admin_panel_settings_outlined),
-              ),
+          if (widget.isAdmin && widget.onOpenAdminManagement != null)
+            IconButton(
+              tooltip: 'Trang quản lý',
+              onPressed: widget.onOpenAdminManagement,
+              icon: const Icon(Icons.admin_panel_settings_outlined),
             ),
           if (widget.onSignOut != null || widget.isGuest)
             PopupMenuButton<_NearbyAction>(

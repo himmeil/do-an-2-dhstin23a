@@ -32,6 +32,8 @@ nằm ở cấp `features/` riêng; xem [tổng quan feature](../README.md) và
 - Cập nhật bảng này khi thêm chức năng hoặc đổi vị trí file.
 - Lớp vệ tinh chỉ thay tile nền; marker, ghim đỏ và nút Zoom dùng chung cho
   mọi lớp bản đồ.
+- Tile đường phố dùng `STREET_TILE_URL` và attribution tương ứng; cấu hình mặc
+  định Web là `https://tile.openstreetmap.org/{z}/{x}/{y}.png`.
 - Ranh giới camera chỉ giới hạn tâm kéo trong Cao Lãnh, không khóa Zoom;
   nút Zoom chỉ bật sau khi controller của bản đồ sẵn sàng.
 - Vị trí xuất phát được đánh dấu trên bản đồ bằng cùng một ghim, dù dùng GPS
@@ -53,3 +55,4 @@ nằm ở cấp `features/` riêng; xem [tổng quan feature](../README.md) và
 - 2026-11-03 08:19 (UTC+7): Tách widget và logic lọc loại địa điểm/bán kính sang `tim_kiem/bo_loc/`; bổ sung alias cho mã OSM cũ.
 - 2026-11-03 08:28 (UTC+7): Áp dụng quy ước nhật ký 10 mục và cập nhật trạng thái alias mã danh mục.
 - 2026-11-03 14:40 (UTC+7): Giới hạn miền địa điểm vào model/repository/adapter, bản đồ và chi tiết; feature tìm kiếm, GPS, nạp dữ liệu được tách riêng.
+- 2026-11-08 08:47 (UTC+7): Chuyển tile đường phố mặc định sang OpenStreetMap chính thức sau khi host HOT trả HTTP 403 trên Web.

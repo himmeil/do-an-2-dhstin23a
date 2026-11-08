@@ -8,6 +8,7 @@ miền dữ liệu, tìm kiếm, định vị và nạp dữ liệu; xem
 
 | Thư mục | Trạng thái | Ghi chú |
 |---|---|---|
+| `admin/` | **Đang dùng** | Trang quản lý riêng; quyền vào dựa trên `admins/{uid}`, admin có thể quay lại chế độ người xem |
 | `dia_diem/` | **Đang dùng** | Model, danh mục, repository contract, Firestore/local adapters, bản đồ và chi tiết |
 | `gps/` | **Đang dùng** | Abstraction và adapter Geolocator |
 | `nap_du_lieu/` | **Đang dùng** | Nhập CSV/JSON và dữ liệu mẫu |
@@ -40,6 +41,9 @@ Quy ước:
 - File `.gitkeep` trong hai module minh chứng giữ thư mục rỗng trên Git; không đồng nghĩa chức năng đã được triển khai.
 - Firebase Functions hiện giữ một nguồn deploy duy nhất tại `backend/` theo
   `firebase.json`; không tạo bản sao mã API dưới `functions/`.
+- Công cụ quản trị đặt trong `features/admin/`; không đưa tác vụ quản trị vào
+  menu màn tìm kiếm. Auth gate chỉ mở trang này khi document `admins/{uid}`
+  tồn tại; Firestore Rules/backend vẫn phải kiểm soát quyền thao tác dữ liệu.
 - Test Flutter được phân nhóm `test/unit/` và `test/widget/`. Chưa có integration
   test; chỉ tạo `test/integration/` khi có kiểm thử tích hợp thực sự.
 
@@ -49,3 +53,4 @@ Quy ước:
 - 2026-11-03 08:12 (UTC+7): Tách metadata từng danh mục địa điểm thành các model riêng, bổ sung registry và quy ước vị trí mã dùng chung.
 - 2026-11-03 08:28 (UTC+7): Cập nhật quy ước nhật ký 10 mục và trỏ tài liệu tiến độ về trạng thái hiện hành.
 - 2026-11-03 14:40 (UTC+7): Tách feature GPS, tìm kiếm, nạp dữ liệu; đưa test vào unit/widget và tách repository contract khỏi adapter lưu trữ.
+- 2026-11-08 08:18 (UTC+7): Tách trang quản lý admin khỏi màn tìm kiếm; giữ luồng riêng giữa chế độ người xem và trang quản lý.

@@ -122,6 +122,8 @@ class OverpassNearbyPlacesService implements NearbyPlacesService {
   DateTime? _staticSnapshotUpdatedAt;
   static const offlineCacheKey = 'nearby_places_sql_download_v1';
 
+  bool get canManageMapData => _useProxy && !_useStaticSnapshot;
+
   Future<MapSnapshotMetadata> staticSnapshotMetadata() async {
     final elements = await (_staticSnapshotElements ??= _readStaticSnapshot());
     return MapSnapshotMetadata(

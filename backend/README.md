@@ -22,7 +22,7 @@ trước khi Overpass hoàn tất.
 
 Bộ điều khiển Zoom và lớp ảnh vệ tinh thuộc Flutter Web, không chạy qua proxy
 backend. Proxy chỉ cung cấp dữ liệu địa điểm; tile bản đồ được trình duyệt tải
-trực tiếp từ OpenStreetMap HOT hoặc Esri.
+trực tiếp từ OpenStreetMap hoặc Esri.
 
 ## Chạy local
 
@@ -89,11 +89,12 @@ Android không dùng proxy local; Android tiếp tục gọi nguồn bản đồ
 
 ## Firebase Hosting
 
-Ứng dụng build cho Firebase không gọi `localhost` và không tải snapshot bản đồ
-offline. Firebase Hosting rewrite `/api/**` chỉ có tác dụng khi Function
-`nearbyApi` được triển khai. Project dùng Firebase Spark nên không deploy
-Functions; tra cứu OSM trên Hosting đọc snapshot `assets/data/osm_places.json`
-đã đóng gói khi build. Các API quản trị và SQLite vẫn chỉ có trên backend local.
+Ứng dụng build cho Firebase không gọi `localhost` hay API `/api/**`; tra cứu
+OSM trên Hosting đọc snapshot tĩnh `assets/data/osm_places.json` đã đóng gói
+khi build. Project hiện dùng Firebase Spark, chưa triển khai Function
+`nearbyApi`; các rewrite `/api/**` (nếu có trong cấu hình Hosting) không làm
+API khả dụng khi thiếu Function. Các API quản trị và SQLite chỉ chạy trên
+backend local.
 
 GitHub Actions deploy Hosting khi push lên `main`; workflow hiện không deploy
 Functions. Khi admin cập nhật/chọn snapshot ở backend local, backend đồng bộ
@@ -104,7 +105,8 @@ không tự gọi Overpass trong CI.
 
 - 2026-11-03 15:05 (UTC+7): Từ chối JSON lỗi ở `/api/nearby` bằng HTTP 400 và giữ đúng bán kính khi dùng dữ liệu dự phòng.
 - 2026-11-03 15:29 (UTC+7): Chuẩn hóa mã danh mục OSM cũ khi mở SQLite và bổ sung thẻ địa điểm thể thao vào truy vấn bản đồ.
-- 2026-11-03 12:59 (UTC+7): Triển khai API production bằng Firebase Functions, seed SQLite từ SQL kèm theo và giữ endpoint quản trị chỉ chạy local.
+- 2026-11-08 08:15 (UTC+7): Cập nhật trạng thái Hosting: dùng snapshot OSM tĩnh; Firebase Functions chưa deploy, API và tác vụ quản trị vẫn chạy local.
+- 2026-11-08 08:47 (UTC+7): Ghi nhận dùng tile OpenStreetMap chính thức cho nền đường phố Web.
 
 Ứng dụng không còn tải bản sao dữ liệu địa điểm để dùng offline; endpoint
 `/api/offline-places` đã bị gỡ. Cache JSON cũ trên thiết bị vẫn có thể được
@@ -143,8 +145,8 @@ công, `dia_diem_cao_lanh.json` trở thành bản mới
 và bản cũ được đổi tên thành `backup_dia_diem_cao_lanh.json`. Nếu Overpass lỗi,
 hai file không bị thay đổi.
 
-Trong menu Công cụ quản trị của ứng dụng, mục **Chọn dữ liệu bản đồ Cao Lãnh**
-gọi `GET /api/admin/map-sources` để hiển thị các snapshot hiện có, gồm bản mới
+Trong **Trang quản lý** của ứng dụng, mục **Chọn snapshot đang sử dụng** gọi
+`GET /api/admin/map-sources` để hiển thị các snapshot hiện có, gồm bản mới
 `dia_diem_cao_lanh.json` và bản cũ `backup_dia_diem_cao_lanh.json` (nếu tồn tại),
 kèm số địa điểm, ngày cập nhật và trạng thái đang dùng. Sau khi xác nhận,
 `POST /api/admin/select-map` áp dụng snapshot đã chọn vào SQLite. Lựa chọn đang

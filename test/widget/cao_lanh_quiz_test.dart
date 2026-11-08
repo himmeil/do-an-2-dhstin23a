@@ -86,17 +86,7 @@ void main() {
 
     expect(find.text('Thử thách Cao Lãnh'), findsOneWidget);
     expect(find.text('THẦY GIÁO'), findsOneWidget);
-    expect(
-      find.byWidgetPredicate(
-        (widget) =>
-            widget is Image &&
-            widget.image is AssetImage &&
-            (widget.image as AssetImage).assetName.startsWith(
-              'assets/mini_game/characters/teacher/frame_',
-            ),
-      ),
-      findsOneWidget,
-    );
+    expect(find.byKey(const ValueKey('teacher-idle-frame-0')), findsOneWidget);
     expect(
       find.byWidgetPredicate(
         (widget) =>
@@ -116,13 +106,28 @@ void main() {
       'Cao Lãnh',
       'Xoài',
     ];
+    const correctIndexes = [1, 0, 2, 0, 1];
 
-    for (final answer in correctAnswers) {
+    for (
+      var questionIndex = 0;
+      questionIndex < correctAnswers.length;
+      questionIndex++
+    ) {
+      final answer = correctAnswers[questionIndex];
       final answerFinder = find.text(answer);
       await tester.ensureVisible(answerFinder);
       await tester.tap(answerFinder);
       await _pumpQuizAnimations(tester);
       expect(find.textContaining('Chính xác!'), findsOneWidget);
+      expect(
+        find.byKey(
+          ValueKey(
+            'teacher-answer-action-$questionIndex-'
+            '${correctIndexes[questionIndex]}',
+          ),
+        ),
+        findsOneWidget,
+      );
 
       final nextFinder = find.text(
         answer == correctAnswers.last ? 'Xem kết quả' : 'Câu tiếp theo',
@@ -135,8 +140,15 @@ void main() {
     expect(find.text('Hoàn thành thử thách!'), findsOneWidget);
     expect(find.text('5/5 điểm'), findsOneWidget);
     expect(find.text('Chơi lại'), findsOneWidget);
+    expect(find.text('Thầy dẫn bạn đến rương kho báu!'), findsOneWidget);
     expect(repository.progress.coins, 170);
     expect(audio.sounds.where((sound) => sound == QuizSound.correct).length, 5);
+
+    await tester.tap(find.byKey(const ValueKey('treasure-chest-button')));
+    await tester.pump();
+    expect(find.text('Đã mở!'), findsOneWidget);
+    expect(find.byKey(const ValueKey('treasure-chest-open')), findsOneWidget);
+    await tester.pump(const Duration(milliseconds: 800));
 
     await tester.tap(find.text('Chơi lại'));
     await _pumpQuizAnimations(tester);
@@ -242,6 +254,11 @@ void main() {
     await tester.tap(find.text('An Giang'));
     await _pumpQuizAnimations(tester);
     expect(audio.sounds, isEmpty);
+    expect(find.textContaining('Chưa đúng'), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('teacher-answer-action-0-0')),
+      findsOneWidget,
+    );
 
     await tester.tap(find.byTooltip('Cửa hàng nhân vật'));
     await tester.pump();

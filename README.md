@@ -36,6 +36,10 @@ App Flutter chỉ làm một việc: **tìm địa điểm xung quanh vị trí 
 - App truy vấn SQLite local theo bán kính 1/5/10 km. Admin cập nhật dữ liệu từ Overpass; nếu Overpass timeout, backend tự dùng OpenStreetMap API, lưu dữ liệu Cao Lãnh vào SQLite. Lựa chọn “Tất cả” gồm địa điểm đã lưu và dữ liệu bản đồ local.
 - **Web local:** Flutter Web gọi proxy trong thư mục `backend/` tại
   `localhost:8787`; `run_web.bat` và `bat_app.bat` tự khởi động proxy.
+  Khi host là localhost/địa chỉ mạng riêng hoặc build đặt `APP_MODE=local`,
+  ứng dụng chạy chế độ local: không khởi tạo Firebase, dùng SharedPreferences
+  và API backend local. Chế độ online/Firebase chỉ khởi tạo Firebase khi được
+  build với `APP_MODE=firebase` hoặc chạy trên host production.
   **Firebase Hosting:** build `APP_MODE=firebase` tìm địa điểm từ snapshot OSM
   được đóng gói tại `assets/data/osm_places.json`, lọc chính xác theo bán kính
   ngay trên thiết bị và không gọi `/api/**`/Firebase Functions. Vì snapshot là
@@ -49,20 +53,25 @@ App Flutter chỉ làm một việc: **tìm địa điểm xung quanh vị trí 
   nhưng ứng dụng không tạo cache mới. Firebase dùng snapshot đã đóng gói, không
   phụ thuộc cache trình duyệt cho dữ liệu địa điểm. Tile raster chỉ tải theo vùng bản đồ
   đang nhìn và phụ thuộc HTTP cache của trình duyệt/nhà cung cấp tile.
-- Dữ liệu địa lý dùng OpenStreetMap; nền đường phố tải từ OpenStreetMap HOT.
+- Dữ liệu địa lý và nền đường phố dùng OpenStreetMap.
   Ảnh tile raster vẫn cần mạng nếu trình duyệt chưa cache.
 - **Mô hình chạy demo local:** Flutter Web chạy trên trình duyệt, còn server
   local làm lớp trung gian gọi Overpass và trả dữ liệu cửa hàng, quán cà phê,
   rạp phim, công viên và khu vui chơi về cho ứng dụng. Khi triển khai chính
-  thức, server local có thể thay bằng Firebase Functions hoặc Cloud Run.
+  thức, server local có thể thay bằng Cloud Run; Firebase Functions chỉ là
+  lựa chọn nếu project chuyển sang gói Blaze và được triển khai riêng.
 - Xem dạng danh sách hoặc bản đồ; dùng nút góc trên bên phải để chuyển giữa
-  bản đồ đường phố OpenStreetMap HOT và ảnh vệ tinh Esri. Trang chi tiết
+  bản đồ đường phố OpenStreetMap và ảnh vệ tinh Esri. Trang chi tiết
   cũng có nút chuyển lớp bản đồ và nút **Chỉ đường** (mở Google Maps).
 - Trên bản đồ có thể xem ranh giới phường Cao Lãnh (dữ liệu OpenStreetMap).
 - Khách được xem bản đồ, lọc theo từ khóa/loại/bán kính, xem chi tiết và đọc
   bình luận; cần đăng nhập để bình luận, đổi vị trí qua GPS/địa chỉ, xem ảnh
   vệ tinh, chuyển sang danh sách hoặc lưu địa điểm yêu thích. Quản trị viên
   được tạo bản nháp và duyệt trước khi đăng lên Firestore.
+- Tài khoản admin có document `/admins/{uid}` được mở thêm trang quản lý riêng
+  từ nút **Trang quản lý**; tại đây có thể tạo/duyệt bản nháp, quản lý snapshot
+  local và xem mã lỗi. Admin có thể quay lại chế độ người xem; tài khoản thường
+  không thấy lối vào và không truy cập trang quản lý.
 - Màn tạo bản nháp có 3 cách: dán CSV/JSON (hoặc copy từ Excel/Google Sheets), thêm tay từng điểm, hoặc tạo dữ liệu mẫu quanh bạn để thử. Dữ liệu cũ trong bộ nhớ trên thiết bị được giữ nguyên và không tự tải lên.
 - Firebase Core, Authentication và Firestore nhận cấu hình client từ
   `ca_nhan/dulieucanhan.env` khi build. Tạo thư mục `ca_nhan` (đã bị Git bỏ
@@ -82,7 +91,7 @@ App Flutter chỉ làm một việc: **tìm địa điểm xung quanh vị trí 
 - Lỗi trong luồng tìm kiếm/quản trị được ghi thành mã chuẩn hóa vào
   `admin_error_codes`; chỉ admin được đọc/ghi theo Firestore Rules. Mỗi mã chỉ
   giữ lần xuất hiện gần nhất, không lưu stack trace, token hay nội dung người
-  dùng. Menu **Công cụ quản trị → Mã lỗi hệ thống** hiển thị danh sách này.
+  dùng. Trang **Quản lý hệ thống → Mã lỗi hệ thống** hiển thị danh sách này.
 - Dùng `deploy_firebase.bat` để build production và deploy Hosting. GitHub
   Actions cũng deploy Hosting khi push lên `main`; cả hai quy trình hiện không
   deploy Functions. Firebase Spark không hỗ trợ Firebase Functions, nhưng
@@ -208,8 +217,8 @@ loại trùng và lưu vào:
 - `backend/data/dia_diem_cao_lanh.sql`: các lệnh SQL để khôi phục/chuyển database.
 - Các file `backup_*`: bản sao của lần cập nhật trước.
 
-Admin cũng có thể mở **Công cụ quản trị → Chọn dữ liệu bản đồ Cao Lãnh** để
-xem số lượng/ngày cập nhật và chuyển giữa file bản mới với file backup. Lựa
+Admin cũng có thể mở **Trang quản lý → Chọn snapshot đang sử dụng** để xem
+số lượng/ngày cập nhật và chuyển giữa file bản mới với file backup. Lựa
 chọn đang dùng được giữ lại sau khi khởi động lại backend; thao tác này không
 ghi đè các file snapshot.
 
@@ -276,7 +285,7 @@ lỗi CORS trên trình duyệt.
   trị truyền vào Flutter có thể bị trích xuất từ ứng dụng. Bí mật chỉ dùng
   phía server phải đặt trong biến môi trường backend hoặc GitHub Actions
   Secrets, tuyệt đối không truyền vào `--dart-define-from-file`.
-- App gọi mạng tới OpenStreetMap HOT (ô bản đồ, tìm địa chỉ qua Nominatim và
+- App gọi mạng tới OpenStreetMap (ô bản đồ, tìm địa chỉ qua Nominatim và
   tra cứu địa điểm qua proxy local), Esri (ô ảnh vệ tinh khi bạn chọn lớp
   vệ tinh) và Firebase (xác thực, địa điểm, danh sách yêu thích).
 - GitHub Actions cần secrets `DULIEUCANHAN_ENV` (JSON cấu hình ứng dụng) và
@@ -304,5 +313,8 @@ lịch sử thay đổi.
 - 2026-11-03 08:12 (UTC+7): Thiết lập nhật ký thay đổi theo thư mục và định dạng thời gian UTC+7.
 - 2026-11-03 08:28 (UTC+7): Chuẩn hóa nhật ký Markdown còn tối đa 10 lần chỉnh sửa; quy định tài liệu tiến độ/báo cáo lưu trạng thái hiện hành.
 - 2026-11-03 09:43 (UTC+7): Sửa bộ lọc tìm quanh đây để có thể kết hợp nhiều danh mục cùng lúc.
-- 2026-11-03 12:59 (UTC+7): Chuyển API production từ localhost sang Firebase Functions và rewrite `/api/**` qua Hosting.
 - 2026-11-04 16:04 (UTC+7): Tách cấu hình Firebase/API vào env cá nhân; tắt tải bản đồ offline trên Firebase Hosting.
+- 2026-11-08 08:15 (UTC+7): Đồng bộ mô tả backend production: Hosting dùng snapshot OSM tĩnh; Functions chưa deploy và không được workflow phát hành.
+- 2026-11-08 08:18 (UTC+7): Bổ sung trang quản lý admin riêng, tách các thao tác quản trị khỏi màn xem địa điểm.
+- 2026-11-08 08:40 (UTC+7): Ghi rõ local bỏ qua Firebase và online mới khởi tạo Firebase/Auth.
+- 2026-11-08 08:47 (UTC+7): Khắc phục tile đường phố bị 403 trên Web bằng endpoint OpenStreetMap chính thức và sửa attribution.
